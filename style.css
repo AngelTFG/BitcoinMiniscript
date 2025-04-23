@@ -58,9 +58,32 @@ button:active {
   background-color: #a9a9a9; /* Gris más oscuro al hacer clic */
 }
 
+button:disabled {
+  pointer-events: none; /* Asegura que no se pueda hacer clic */
+  opacity: 0.5; /* Cambia la apariencia para indicar que está deshabilitado */
+}
+
 /* Estilo para la consola de salida */
 #output {
   width: 80%;
+  max-width: 800px;
+  height: 200px;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #fff; 
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.project-output {
+  width: 100%;
   max-width: 800px;
   height: 200px;
   margin-top: 20px;
@@ -76,3 +99,74 @@ button:active {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+
+/* Mensajes de información */
+#output .info {
+  color: #007BFF; /* Azul para mensajes informativos */
+  font-weight: bold;
+}
+
+/* Mensajes de error */
+#output .error {
+  color: #FF0000; /* Rojo para mensajes de error */
+  font-weight: bold;
+}
+
+#output .success {
+  color: #28a745; /* Verde para mensajes de éxito */
+  font-weight: bold;
+}
+
+
+/* Contenedor principal */
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Columna izquierda: Menú */
+.menu {
+  flex: 1;
+  background-color: #f9f9f9; 
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.menu h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.menu select,
+.menu button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Columna derecha: Contenido */
+.content {
+  flex: 3;
+  background-color: #f9f9f9; 
+
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <title>Miniscript playground</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  </head>
+  <body>
+    <h1>Miniscript playground</h1>
+
+    <div class="selector">
+      <select id="projectSelect">
+        <option value="/htmls/autocustodia.html">Autocustodia escalonada</option>
+        <option value="/htmls/boveda.html">Bóveda de seguridad</option>
+        <option value="/htmls/herencia.html">Herencia digital</option>
+      </select>
+      <button onclick="cargarProyecto()">Abrir Proyecto</button>
+    </div>
+
+    <!-- Contenedor donde se cargará el contenido dinámico -->
+    <div id="content"></div>
+
+    <script>
+    function cargarProyecto() {
+      const proyecto = document.getElementById('projectSelect').value;
+
+      // Cargar el contenido de la página seleccionada
+      fetch(proyecto)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al cargar el contenido');
+          }
+          return response.text();
+        })
+        .then(html => {
+          document.getElementById('content').innerHTML = html;
+
+          // Extraer el nombre del archivo sin la carpeta ni la extensión
+          const scriptName = proyecto.split('/').pop().split('.')[0];
+
+          // Cargar un script específico para la página
+          const script = document.createElement('script');
+          script.src = `./dist/${scriptName}.bundle.js`;
+          document.body.appendChild(script);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('content').innerHTML = '<p>Error al cargar el proyecto.</p>';
+        });
+    }
+    </script>
+  </body>
+</html>

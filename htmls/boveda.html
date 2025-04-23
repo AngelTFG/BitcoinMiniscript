@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <title>Bóveda de seguridad</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+   <h1>Boveda de seguridad </h1>
+
+    <!-- 🟦 Fila 1: Mostrar direcciones + Limpiar consola -->
+    <div class="button-row">
+      <button id="initTestnetBtn">▶️ Inicializar en Testnet</button>
+      <button id="initMainnetBtn">▶️ Inicializar en Mainnet</button>
+    </div>
+
+    <!-- 🟩 Fila 2: UTXOs -->
+    <div class="button-row">
+
+      <button id="fetchUtxosBtn"disabled>🔍 Fondos no gastados</button>
+      <button id="fetchTransactionBtn"disabled>📤 Última transacción </button>
+    </div>
+
+    <!-- 🟧 Fila 3: Envío -->
+    <div class="button-row">
+      <button id="sendUnvaultBtn"disabled>⏰ Apertura retardada</button>
+      <button id="sendEmergBtn"disabled>🚨 Botón del pánico</button>
+    </div>
+
+    <!-- 🟨 Fila 4: Ver transacciones -->
+
+    <div class="button-row">
+      <button id="showMiniscripBtn"disabled>📜 Mostrar Miniscript </button>
+      <button id="clearOutputBtn"disabled>🧹 Limpiar Consola</button>
+
+    </div>
+
+      <!-- Salida -->
+      <div id="output"></div>
+      <script src="./dist/boveda.bundle.js"></script>
+
+  </body>
+</html>
+

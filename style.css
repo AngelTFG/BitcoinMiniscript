@@ -1,0 +1,78 @@
+/* filepath: /Users/angelo/Documents/UNIR/GII/2_CUATRIMESTRE/TFG/bitcoin/minicript/broserify/Proyecto unificado/style.css */
+
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.selector {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+select, button {
+  font-size: 16px;
+  padding: 10px 20px;
+  min-width: 240px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+select:focus, button:hover {
+  border-color: #007BFF;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+button {
+  background-color: #d3d3d3; /* Gris claro */
+  color: #333; /* Texto oscuro */
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+button:hover {
+  background-color: #c0c0c0; /* Gris un poco más oscuro al pasar el cursor */
+}
+
+button:active {
+  background-color: #a9a9a9; /* Gris más oscuro al hacer clic */
+}
+
+/* Estilo para la consola de salida */
+#output {
+  width: 80%;
+  max-width: 800px;
+  height: 200px;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

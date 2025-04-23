@@ -44,7 +44,7 @@ const BLOCKS_EMERGENCY =5;
 const POLICY = (after_rec: number, after_eme: number) => `or(thresh(2,pk(@key_daily1),pk(@key_daily2),pk(@key_daily3)),or(and(after(${after_rec}),thresh(1,pk(@key_recovery_1),pk(@key_recovery_2))),thresh(2,pk(@key_emergency),after(${after_eme}))))`;
 
 // Consola pagina web
-const outputDiv = document.getElementById('output') as HTMLElement;
+const outputAutocustodia= document.getElementById('output-autocustodia') as HTMLElement;
 
 // Declaramos los tipos de mensaje de salida
 type OutputType = 'info' | 'success' | 'error';
@@ -99,12 +99,12 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
 
   /*
   // Mostrar los resultados en la interfaz de usuario
-  logToOutput(`🔑 Extended pubKey daily 1: <strong>${xpubDaily1}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey daily 2: <strong>${xpubDaily2}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey daily 3: <strong>${xpubDaily3}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey Recovery 1: <strong>${xpubRecover1}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey Recovery 2: <strong>${xpubRecover2}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey Emergency: <strong>${xpubEmergency}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔑 Extended pubKey daily 1: <strong>${xpubDaily1}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔑 Extended pubKey daily 2: <strong>${xpubDaily2}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔑 Extended pubKey daily 3: <strong>${xpubDaily3}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔑 Extended pubKey Recovery 1: <strong>${xpubRecover1}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔑 Extended pubKey Recovery 2: <strong>${xpubRecover2}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔑 Extended pubKey Emergency: <strong>${xpubEmergency}</strong>`, 'info');
   */
 }
 
@@ -117,12 +117,12 @@ const getNetworkName = (network: any): string =>
     : 'Desconocida';
 
 // Función para mostrar mensajes en la interfaz de usuario
-const logToOutput = (message: string, type: OutputType = 'info'): void => {
+const logToOutput = (outputContainer: HTMLElement, message: string, type: OutputType = 'info'): void => {
   const paragraph = document.createElement('p');
   paragraph.innerHTML = message;
   paragraph.classList.add('output-line', `output-${type}`);
-  outputDiv.appendChild(paragraph);
-  outputDiv.scrollTop = outputDiv.scrollHeight;
+  outputContainer.appendChild(paragraph);
+  outputContainer.scrollTop = outputContainer.scrollHeight;
 };
 
 // Habilitar los botones de la pagina web despues de la inicializacion
@@ -140,7 +140,7 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput('🚀 <span style="color:blue;">Inicializar el Miniscript</span> 🚀');
+logToOutput(outputAutocustodia, '🚀 <span style="color:blue;">Inicializar el Miniscript</span> 🚀');
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
@@ -166,10 +166,10 @@ const initMiniscriptOutput = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(network);
 
-    logToOutput(`🌐 Cambiando a red ${networkName} 🌐`, 'info');
-    logToOutput(`⛓️ Altura de bloque: ${originalBlockHeight} ⛓️`, 'info');
-    logToOutput('<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `🌐 Cambiando a red ${networkName} 🌐`, 'info');
+    logToOutput(outputAutocustodia, `⛓️ Altura de bloque: ${originalBlockHeight} ⛓️`, 'info');
+    logToOutput(outputAutocustodia, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
     const recovery = afterEncode({ blocks: originalBlockHeight + BLOCKS_RECOVERY });
@@ -299,7 +299,7 @@ const mostraMIniscript = async (
   const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
 
   // Mostrar mensaje indicando la red utilizada
-  logToOutput(`🌐 Red actual: <strong>${networkName}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🌐 Red actual: <strong>${networkName}</strong>`, 'info');
 
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
   const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
@@ -309,20 +309,20 @@ const mostraMIniscript = async (
   const recoveryColor = restingBlocksRec > 0 ? 'red' : 'green';
 
 
-  logToOutput(`📦 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-  logToOutput(`🔐 Altura de desbloqueo recuperación: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
-  logToOutput(`🔐 Altura de desbloqueo emergencia: <strong>${originalBlockHeight + BLOCKS_EMERGENCY}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `📦 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔐 Altura de desbloqueo recuperación: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `🔐 Altura de desbloqueo emergencia: <strong>${originalBlockHeight + BLOCKS_EMERGENCY}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
 
-  logToOutput(`🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  logToOutput(`📜 Miniscript compilado: <strong>${MiniscriptDescriptorObjet.expand().expandedMiniscript}</strong>`);
+  logToOutput(outputAutocustodia, `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
+  logToOutput(outputAutocustodia, `📜 Miniscript compilado: <strong>${MiniscriptDescriptorObjet.expand().expandedMiniscript}</strong>`);
 
   const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
-  logToOutput(
+  logToOutput(outputAutocustodia, 
     `🔢 <span style="color:black;">Mostrando la primera dirección derivada del <strong>Miniscript</strong>:</span> <span style="color:green;">Address ${WSH_KEY_PATH}: <strong>${miniscriptAddress}</strong></span>`,
     'info'
   );
 
-  logToOutput(`<span style="color:grey;">========================================</span>`);
+  logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
 };
 
 /************************ 🔍 MOSTRAR UTXOs  ************************/
@@ -332,20 +332,20 @@ const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Out
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
 
-    logToOutput(`📦 Consultando UTXOs en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `📦 Consultando UTXOs en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     if (utxos.length === 0) {
-      logToOutput(`🚫 <span style="color:red;">No se encontraron UTXOs en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `🚫 <span style="color:red;">No se encontraron UTXOs en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
       return;
     }
 
 
-    logToOutput(`✅ UTXOs encontrados en la dirección: <strong>${miniscriptAddress}</strong>`, 'success');
+    logToOutput(outputAutocustodia, `✅ UTXOs encontrados en la dirección: <strong>${miniscriptAddress}</strong>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -359,19 +359,19 @@ const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Out
         ? '<span style="color:green;">✅ confirmado</span>'
         : '<span style="color:red;">❓ no confirmado</span>';
       const blockHeight = utxo.status.block_height || 'Desconocido';
-      logToOutput(
+      logToOutput(outputAutocustodia, 
         `🔹 UTXO #${index + 1}: <span style="color:red;">${utxo.value}</span> sats (TXID: <code>${utxo.txid}</code>) ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
         'info'
       );
     });
 
     // Mostrar el total de los UTXOs
-    logToOutput(`💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
 
   } catch (error: any) {
-    logToOutput(`❌ Error al consultar los UTXOs: ${error.message}`, 'error');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -379,15 +379,15 @@ const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Out
 const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
-    logToOutput(`📦 Consultando última transacción en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `📦 Consultando última transacción en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
 
     // Obtener historial de transacciones
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
     console.log('Transacciones:', txHistory);
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
-      logToOutput(`<span style="color:red;">🚫 No se encontraron transacciones en la dirección <strong>${miniscriptAddress}</strong></span>`);
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `<span style="color:red;">🚫 No se encontraron transacciones en la dirección <strong>${miniscriptAddress}</strong></span>`);
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
       return;
     }
     
@@ -419,7 +419,7 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
     const confirmationStatus = txDetails.status.confirmed
       ? '<span style="color:green;">✅ confirmada</span>'
       : '<span style="color:red;">❓ no confirmada</span>';
-    logToOutput(
+    logToOutput(outputAutocustodia, 
       `<strong>${tipo}</strong> transacción: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a> ${confirmationStatus}`,
       'success'
     );
@@ -431,7 +431,7 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
         const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
         const prevoutValue = vin.prevout?.value || 'Desconocido';
         const match = vin.prevout?.scriptpubkey_address ? '✔️' : '➖';
-        logToOutput(`VIN ${index}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
+        logToOutput(outputAutocustodia, `VIN ${index}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
       });
     }
     
@@ -440,14 +440,14 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
       // Mostrar detalles de las salidas (vout) si es receptor
       txDetails.vout.forEach((vout: any, index: number) => {
         const match = vout.scriptpubkey_address === miniscriptAddress ? '✔️' : '➖';
-        logToOutput(`VOUT ${index}: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ${match}` , 'info');
+        logToOutput(outputAutocustodia, `VOUT ${index}: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ${match}` , 'info');
       });
     }
 
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
-    logToOutput(`❌ Error al consultar la transacción: ${error.message}`, 'error');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -468,7 +468,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
       signersPubKeys: [dailyKey1, dailyKey2]
     });
 
-    logToOutput(`🔘 Se ha pulsado el botón de uso diario 🗓️ `, 'info');
+    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de uso diario 🗓️ `, 'info');
 
     // Obtener la dirección de recepción 
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
@@ -480,7 +480,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
       throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(`🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -495,9 +495,9 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(`💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(`💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(`🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -511,7 +511,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(`✍️ Firmando la transacción con dos de las tres claves de uso diario 🗓️`, 'info');
+    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con dos de las tres claves de uso diario 🗓️`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -529,18 +529,18 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(`⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
     }
       else {
       const txId = txFinal.getId();
-      logToOutput(`🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(`❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -560,7 +560,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [key_recovery_1]
     });
 
-    logToOutput(`🔘 Se ha pulsado el botón de recuperación 🔐`, 'info');
+    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de recuperación 🔐`, 'info');
     // Obtener la dirección de recepción
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net';
@@ -571,7 +571,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(`🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -589,9 +589,9 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(`💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(`💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(`🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -605,7 +605,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(`✍️ Firmando la transacción con una de las clave de recuperación 🔐`, 'info');
+    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con una de las clave de recuperación 🔐`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -623,17 +623,17 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(`⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
     } else {
       const txId = txFinal.getId();
-      logToOutput(`🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(`❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -652,7 +652,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [emergencyKey]
     });
 
-    logToOutput(`🔘 Se ha pulsado el botón de apertura de emergencia 🚨`, 'info');
+    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de apertura de emergencia 🚨`, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
@@ -664,7 +664,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }
 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(`🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
 
   // Seleccionar el UTXO más antiguo
   const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -678,9 +678,9 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(`💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(`💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(`🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -694,7 +694,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(`✍️ Firmando la transacción con  la clave de emergencia 🚨`, 'info');
+    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con  la clave de emergencia 🚨`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -712,17 +712,17 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(`⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
     } else {
       const txId = txFinal.getId();
-      logToOutput(`🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(`<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(`❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -741,8 +741,8 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('recoveryButton')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
     document.getElementById('emergencyButton')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
-    logToOutput(`❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
-    logToOutput(`<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
+    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -756,5 +756,5 @@ document.getElementById('initMainnetBtn')?.addEventListener('click', () => initi
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {
-  outputDiv.innerHTML = '';
+  outputAutocustodia.innerHTML = '';
 });

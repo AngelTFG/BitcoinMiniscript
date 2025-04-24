@@ -1,175 +1,47 @@
-/* filepath: /Users/angelo/Documents/UNIR/GII/2_CUATRIMESTRE/TFG/bitcoin/minicript/broserify/Proyecto unificado/style.css */
-
 body {
   font-family: 'Roboto', Arial, sans-serif;
   background-color: #f4f4f9;
   color: #333;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
 }
 
 h1 {
   font-size: 2rem;
   margin-bottom: 20px;
   color: #444;
-}
-
-.selector {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-select, button {
-  font-size: 16px;
-  padding: 10px 20px;
-  min-width: 240px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: #444;
+  text-align: left;
 }
 
-select:focus, button:hover {
-  border-color: #007BFF;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
 
 button {
-  cursor: pointer; /* Mantenemos el cursor */
-  margin: 0; /* Reseteamos margen por defecto */
-  padding: 0; /* Reseteamos padding por defecto */
-  border: none; /* Reseteamos borde por defecto */
-  background: none; /* Reseteamos fondo por defecto */
-  font: inherit; /* Hereda fuente */
-  color: inherit; /* Hereda color */
-}
-
-/* Clase común para todos los botones de la aplicación */
-.app-button {
-  display: inline-block; /* Mantenemos inline-block para respetar width/height */
-  /* width: 100%; */ /* <-- COMENTA O ELIMINA ESTA LÍNEA */
-  width: 250px; /* <-- AÑADE UN ANCHO FIJO (ajusta el valor como necesites) */
-  height: 40px; /* <-- AÑADE UNA ALTURA FIJA (opcional, ajusta el valor) */
-  padding: 10px; /* Puedes ajustar el padding si defines una altura fija */
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: normal; /* Asegura consistencia */
-  line-height: 1.5; /* Asegura consistencia */
-  color: #333;
-  background-color: #d3d3d3;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  vertical-align: middle;
   cursor: pointer;
-  user-select: none; /* Evita selección de texto */
-  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
 }
 
-/* Estilos para hover (combinados de reglas anteriores) */
-.app-button:hover {
-  background-color: #c0c0c0;
-  border-color: #007BFF; /* Efecto focus/hover */
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Efecto focus/hover */
-}
-
-/* Estilo para active */
-.app-button:active {
-  background-color: #a9a9a9;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); /* Opcional: efecto presionado */
-}
-
-/* Estilo para disabled */
-.app-button:disabled {
-  background-color: #d3d3d3; /* Mantiene color base */
-  border-color: #ccc; /* Mantiene color base */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Mantiene sombra base */
-  color: #888; /* Color de texto atenuado */
-  pointer-events: none;
-  opacity: 0.65; /* Opacidad reducida */
-  cursor: not-allowed;
-}
-
-
-/* Estilo para la consola de salida */
-#output {
-  width: 90%;
-  max-width: 800px;
-  width: 300px;
-  height: 400px;
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #fff; 
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  color: #333;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.project-output {
-  width: 90%;
-  max-width: 1000px;
-  width: 800px;
-  height: 400px;
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  color: #333;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-
-/* Mensajes de información */
-#output .info {
-  color: #007BFF; /* Azul para mensajes informativos */
-  font-weight: bold;
-}
-
-/* Mensajes de error */
-#output .error {
-  color: #FF0000; /* Rojo para mensajes de error */
-  font-weight: bold;
-}
-
-#output .success {
-  color: #28a745; /* Verde para mensajes de éxito */
-  font-weight: bold;
-}
-
-
-/* Contenedor principal */
+/* === LAYOUT === */
 .container {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  min-height: 100vh;
   gap: 20px;
   padding: 20px;
   box-sizing: border-box;
+
 }
 
-/* Columna izquierda: Menú */
 .menu {
   flex: 1;
   background-color: #f9f9f9;
@@ -178,25 +50,96 @@ button {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.menu h2 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-}
-
-
-/* Columna derecha: Contenido */
 .content {
   flex: 3;
-  background-color: #f9f9f9; 
-
+  background-color: #f9f9f9;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 }
 
-.content h2 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
+/* === COMPONENTS === */
+.app-button {
+  display: inline-block;
+  width: 271px;
+  height: 40px;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1.5;
+  color: #333;
+  background-color: #d3d3d3;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  box-sizing: border-box;
 }
 
+.app-button:hover {
+  background-color: #c0c0c0;
+  border-color: #007BFF;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.app-button:active {
+  background-color: #a9a9a9;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.app-button.active {
+  background-color: #b0b0b0;
+  border-color: #0056b3;
+  color: #222;
+}
+
+.app-button:disabled {
+  background-color: #d3d3d3;
+  border-color: #ccc;
+  color: #888;
+  pointer-events: none;
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px; /* Espacio horizontal entre botones */
+  margin-bottom: 10px; /* Espacio vertical entre filas */
+}
+
+.output-console {
+  height: 400px;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.output-console .info {
+  color: #007BFF;
+  font-weight: bold;
+}
+
+.output-console .error {
+  color: #FF0000;
+  font-weight: bold;
+}
+
+.output-console .success {
+  color: #28a745;
+  font-weight: bold;
+}

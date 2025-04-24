@@ -7,95 +7,96 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
   </head>
   <body>
+    
     <h1>Miniscript playground</h1>
 
     <div class="container">
+
       <!-- Columna izquierda: Menú de proyectos -->
       <div class="menu">
-        <!-- Fila 1: Título -->
-        <div class="menu-row">
-          <h2>Póliza de gasto</h2>
+
+        <h2>🔏 Pólizas de gasto</h2>
+
+        <!-- 🟦 Fila 1: Botón Autocustodia -->
+        <div class="button-row">
+          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/autocustodia.html')">🔑 Autocustodia programada</button>
         </div>
-    
-    <!-- Fila 2: Botones de Proyecto -->
-    <div class="menu-row project-buttons"> <!-- Contenedor para los botones -->
-      <button class="app-button" onclick="loadProjectByURL('/htmls/autocustodia.html')">Autocustodia</button>
-      <button class="app-button" onclick="loadProjectByURL('/htmls/boveda.html')">Bóveda</button>
-      <button class="app-button" onclick="loadProjectByURL('/htmls/herencia.html')">Herencia</button>
-    </div>
 
-    <!-- Fila 3: Output (Árbol de decisión) -->
-    <div class="menu-row">
-      <div id="output"></div>
-    </div>
-    <!-- La fila 4 original (con el botón "Abrir Proyecto") se elimina -->
+        <!-- 🟩 Fila 2: Botón Bóveda -->
+        <div class="button-row">
+          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/boveda.html')">🏦 Bóveda de seguridad</button>
+        </div>
 
-  </div>
-    
-      <!-- Columna derecha: Contenido del proyecto -->
-      <div class="content">
-        <h2></h2>
-        <div id="content"></div>
+        <!-- 🟧 Fila 3: Botón Herencia -->
+        <div class="button-row">
+          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/herencia.html')">👨‍👩‍👧‍👦 Herencia digital</button>
+        </div>
+        <div id="output" class="output-console"></div>
       </div>
+    
+        <!-- Columna derecha: Contenido del proyecto -->
+        <div class="content">
+          <h2></h2>
+          <div id="content"></div>
+        </div>
+
     </div>
 
-    <script>
+      <script>
 
-      function loadProjectByURL(proyectoUrl) {
+          function setActiveButton(button) {
+            document.querySelectorAll('.menu .app-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+          }
 
-        // Cargar el contenido de la página seleccionada usando la URL proporcionada
-        fetch(proyectoUrl)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Error al cargar el contenido: ' + response.statusText);
-            }
-            return response.text();
-          })
-          .then(html => {
-            document.getElementById('content').innerHTML = html;
-    
-            // Extraer el nombre del archivo sin la carpeta ni la extensión
-            const scriptName = proyectoUrl.split('/').pop().split('.')[0];
-    
-            // Eliminar scripts anteriores del mismo tipo si existen para evitar duplicados
-            const oldScript = document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`);
-            if (oldScript) {
-              oldScript.remove();
-            }
-    
-            // Cargar un script específico para la página
-            const script = document.createElement('script');
-            script.src = `./dist/${scriptName}.bundle.js`;
-            document.body.appendChild(script); // Añadir al final del body
-    
-            // Aquí también puedes llamar a la función para renderizar el árbol de decisión
-            // renderDecisionTree(document.getElementById('output'), getPolicyForProject(scriptName));
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;
-          });
-      }
-    
-      // (Opcional: Función para obtener la política basada en el nombre del script)
-      // function getPolicyForProject(scriptName) {
-      //   const policies = {
-      //     autocustodia: { name: 'Autocustodia', children: [...] },
-      //     boveda: { name: 'Bóveda', children: [...] },
-      //     herencia: { name: 'Herencia', children: [...] }
-      //   };
-      //   return policies[scriptName] || { name: 'Política no encontrada', children: [] };
-      // }
-    
-      // (Opcional: Incluye aquí tu función renderDecisionTree si la usas)
-      // function renderDecisionTree(outputContainer, policy) { ... }
-    
-      // Autocargar el primer proyecto al iniciar
-      document.addEventListener('DOMContentLoaded', () => {
-        // Llama a la nueva función con la URL del primer proyecto
-        loadProjectByURL('/htmls/autocustodia.html');
-      });
-    
-    </script>
+
+          function loadProjectByURL(proyectoUrl) {
+
+            // Cargar el contenido de la página seleccionada usando la URL proporcionada
+            fetch(proyectoUrl)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Error al cargar el contenido: ' + response.statusText);
+                }
+                return response.text();
+              })
+              .then(html => {
+                document.getElementById('content').innerHTML = html;
+        
+                // Extraer el nombre del archivo sin la carpeta ni la extensión autocustodia.html >> autocustodia
+                const scriptName = proyectoUrl.split('/').pop().split('.')[0];
+        
+                // Eliminar scripts anteriores del mismo tipo si existen para evitar duplicados
+                const oldScript = document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`);
+                if (oldScript) {
+                  oldScript.remove();
+                }
+        
+                // Cargar un script específico para la página
+                const script = document.createElement('script');
+                script.src = `./dist/${scriptName}.bundle.js`;
+                document.body.appendChild(script); // Añadir al final del body
+        
+                // Aquí también puedes llamar a la función para renderizar el árbol de decisión
+                // renderDecisionTree(document.getElementById('output'), getPolicyForProject(scriptName));
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;
+              });
+          }
+        
+      
+        // Autocargar el primer proyecto al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+          // Selecciona el primer botón del menú (Autocustodia)
+          const firstButton = document.querySelector('.menu .app-button');
+          if (firstButton) {
+            setActiveButton(firstButton);
+          }
+          loadProjectByURL('/htmls/autocustodia.html');
+        });
+      
+      </script>
   </body>
 </html>

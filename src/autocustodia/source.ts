@@ -24,12 +24,12 @@ const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
-const WSH_ORIGIN_PATH_DAILY1 = `/301'/1'/0'`;
-const WSH_ORIGIN_PATH_DAILY2 = `/302'/1'/0'`;
-const WSH_ORIGIN_PATH_DAILY3 = `/303'/1'/0'`;
-const WSH_ORIGIN_PATH_RECOVERY1 = `/311'/1'/0'`;
-const WSH_ORIGIN_PATH_RECOVERY2 = `/312'/1'/0'`;
-const WSH_ORIGIN_PATH_EMERGENCY = `/321'/1'/0'`;
+const WSH_ORIGIN_PATH_DAILY1 = `/101'/1'/0'`;
+const WSH_ORIGIN_PATH_DAILY2 = `/102'/1'/0'`;
+const WSH_ORIGIN_PATH_DAILY3 = `/103'/1'/0'`;
+const WSH_ORIGIN_PATH_RECOVERY1 = `/105'/1'/0'`;
+const WSH_ORIGIN_PATH_RECOVERY2 = `/106'/1'/0'`;
+const WSH_ORIGIN_PATH_EMERGENCY = `/107'/1'/0'`;
 
 // 0/0 es la primera dirección derivada de la cuenta 0, se usa para todas las claves
 const WSH_KEY_PATH = `/0/0`;
@@ -734,7 +734,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
   try {
     const { MiniscriptDescriptorObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptOutput(network, explorer);
 
-    document.getElementById('showMIniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptDescriptorObjet, originalBlockHeight, policy, explorer));
+    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptDescriptorObjet, originalBlockHeight, policy, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptDescriptorObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptDescriptorObjet, explorer));
     document.getElementById('dailyButton')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor));

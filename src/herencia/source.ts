@@ -23,10 +23,10 @@ const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
-const WSH_ORIGIN_PATH_HOT = `/101'/1'/0'`;
-const WSH_ORIGIN_PATH_DESCEN_1 = `/201'/1'/0'`;
-const WSH_ORIGIN_PATH_DESCEN_2 = `/202'/1'/0'`;
-const WSH_ORIGIN_PATH_RECOVERY = `/301'/1'/0'`;
+const WSH_ORIGIN_PATH_HOT = `/301'/1'/0'`;
+const WSH_ORIGIN_PATH_DESCEN_1 = `/302'/1'/0'`;
+const WSH_ORIGIN_PATH_DESCEN_2 = `/303'/1'/0'`;
+const WSH_ORIGIN_PATH_RECOVERY = `/304'/1'/0'`;
 
 // 0/0 es la primera dirección derivada de la cuenta 0, se usa para todas las claves
 const WSH_KEY_PATH = `/0/0`;

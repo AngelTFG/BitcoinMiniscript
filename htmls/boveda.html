@@ -6,19 +6,21 @@
     <link rel="stylesheet" href="../style.css">
   </head>
   <body>
-   <h2>Bóveda de seguridad </h2>
+
+   <h2>🏦 Bóveda de seguridad</h2>
 
     <!-- 🟦 Fila 1: Mostrar direcciones + Limpiar consola -->
     <div class="button-row">
       <button class="app-button"id="initTestnetBtn">▶️ Inicializar en Testnet</button>
       <button class="app-button"id="initMainnetBtn">▶️ Inicializar en Mainnet</button>
+      <button class="app-button"id="showMiniscripBtn"disabled>📜 Mostrar Miniscript </button>
     </div>
 
     <!-- 🟩 Fila 2: UTXOs -->
     <div class="button-row">
-
       <button class="app-button"id="fetchUtxosBtn"disabled>🔍 Fondos no gastados</button>
       <button class="app-button"id="fetchTransactionBtn"disabled>📤 Última transacción </button>
+      <button class="app-button"id="clearOutputBtn"disabled>🧹 Limpiar Consola</button>
     </div>
 
     <!-- 🟧 Fila 3: Envío -->
@@ -27,16 +29,11 @@
       <button class="app-button"id="sendEmergBtn"disabled>🚨 Botón del pánico</button>
     </div>
 
-    <!-- 🟨 Fila 4: Ver transacciones -->
-    <div class="button-row">
-      <button class="app-button"id="showMiniscripBtn"disabled>📜 Mostrar Miniscript </button>
-      <button class="app-button"id="clearOutputBtn"disabled>🧹 Limpiar Consola</button>
 
     </div>
-
       <!-- Salida -->
       <script src="./dist/boveda.bundle.js"></script>
-      <div id="output-boveda" class="project-output"></div>
+      <div id="output-boveda" class="output-console"></div>
 
   </body>
 </html>

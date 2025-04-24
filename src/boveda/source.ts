@@ -30,8 +30,8 @@ const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
-const WSH_ORIGIN_PATH_VAULT = `/600'/1'/0'`;
-const WSH_ORIGIN_PATH_EMER = `/300'/1'/0'`;
+const WSH_ORIGIN_PATH_VAULT = `/201'/1'/0'`;
+const WSH_ORIGIN_PATH_EMER = `/202'/1'/0'`;
 // 0/0 es la primera dirección derivada de la cuenta 0
 const WSH_KEY_PATH = `/0/0`;
 

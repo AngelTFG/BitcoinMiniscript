@@ -78,8 +78,6 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   const fingerprint = Buffer.from(new Uint8Array(ripemd160Hash).slice(0, 4)).toString('hex');
 
 
-
-  
   // Ver el extended pubkey de unvaultKey
   const childHot = masterNode.derivePath(`m${WSH_ORIGIN_PATH_HOT}`);
   // Neutered para obtener la clave pública extendida
@@ -177,7 +175,7 @@ const initMiniscriptOutput = async (
     const networkName = getNetworkName(network);
 
     logToOutput(outputHerencia,  `🌐 Cambiando a red ${networkName} 🌐`, 'info');
-    logToOutput(outputHerencia,  `⛓️ Altura de bloque: ${originalBlockHeight} ⛓️`, 'info');
+    logToOutput(outputHerencia,  `⛓️ Altura actual de la cadena: ${originalBlockHeight} bloques ⛓️`, 'info');
     logToOutput(outputHerencia,  '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
     logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
 
@@ -282,27 +280,39 @@ const mostraMIniscript = async (
    explorer: string
 ): Promise<void> => {
   // Determinar la red en función del explorador
-  const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
+  const networkName = explorer.includes('testnet') ? 'Testnet' : 'Mainnet';
 
   // Mostrar mensaje indicando la red utilizada
   logToOutput(outputHerencia,  `🌐 Red actual: <strong>${networkName}</strong>`, 'info');
 
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+  const restingBlocksPro = originalBlockHeight - actualBlockHeight;
   const restingBlocksHer = originalBlockHeight + BLOCKS_HERENCIA - actualBlockHeight;
   const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
-  const herenciaColor = restingBlocksHer > 0 ? 'red' : 'green';
+
+  const displayProgen = restingBlocksPro <= 0 ? 0 : restingBlocksPro;
+  const progenColor = restingBlocksPro > 0 ? 'red' : 'green';
+
+  const displayHerencia = restingBlocksHer <= 0 ? 0 : restingBlocksHer;
+  const herenColor = restingBlocksHer > 0 ? 'red' : 'green';
+  
+  const displayRecovery = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
   const recoveryColor = restingBlocksRec > 0 ? 'red' : 'green';
 
 
-  logToOutput(outputHerencia,  `📦 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔐 Altura de desbloqueo herencia: <strong>${originalBlockHeight + BLOCKS_HERENCIA}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔐 Altura de desbloqueo recovery: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  logToOutput(outputHerencia,  `📜 Miniscript compilado: <strong>${MiniscriptDescriptorObjet.expand().expandedMiniscript}</strong>`);
+  logToOutput(outputHerencia,  `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+  logToOutput(outputHerencia,  `🧓🏻 Bloques para poder gastar en la rama del progenitor: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
+  logToOutput(outputHerencia,  `🧑🏻👨🏻 Bloques para poder gastar en la rama de herencia: <strong style="color:${herenColor};">${displayHerencia}</strong>`, 'info');
+  logToOutput(outputHerencia,  `⚠️ Bloques para poder gastar en la rama de disputa: <strong style="color:${recoveryColor};">${displayRecovery}</strong>`, 'info');
+  //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo herencia: <strong>${originalBlockHeight + BLOCKS_HERENCIA}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
+  //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo recovery: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
+  //logToOutput(outputHerencia,  `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
+  //logToOutput(outputHerencia,  `📜 Miniscript compilado: <strong>${MiniscriptDescriptorObjet.expand().expandedMiniscript}</strong>`);
 
   const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
-  logToOutput(outputHerencia,  
-    `🔢 <span style="color:black;">Mostrando la primera dirección derivada del <strong>Miniscript</strong>:</span> <span style="color:green;">Address ${WSH_KEY_PATH}: <strong>${miniscriptAddress}</strong></span>`,
+  logToOutput(
+    outputHerencia,
+    `📬 Dirección del Miniscript: <strong><a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></strong>`, 
     'info'
   );
 
@@ -316,14 +326,14 @@ const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Out
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
 
-    logToOutput(outputHerencia,  `📦 Consultando UTXOs en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputHerencia,  `📦 Consultando fondos ...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     if (utxos.length === 0) {
-      logToOutput(outputHerencia,  `🚫 <span style="color:red;">No se encontraron UTXOs en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
+      logToOutput(outputHerencia,  `🚫 <span style="color:red;">No se encontraron fondos en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
       logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
       return;
     }
@@ -343,7 +353,7 @@ sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: b
     : '<span style="color:red;">❓ no confirmado</span>';
   const blockHeight = utxo.status.block_height || 'Desconocido';
   logToOutput(outputHerencia,  
-    `🔹 UTXO #${index + 1}: <span style="color:red;">${utxo.value}</span> sats (TXID: <code>${utxo.txid}</code>) ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
+    `🔹 Fondo #${index + 1}: <span style="color:red;">${utxo.value}</span> sats (TXID: <code>${utxo.txid}</code>) ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
     'info'
   );
 });
@@ -353,7 +363,7 @@ logToOutput(outputHerencia,  `💰 Total: <strong><span style="color:red;">${tot
 logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
 
   } catch (error: any) {
-    logToOutput(outputHerencia,  `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
+    logToOutput(outputHerencia,  `❌ Error al consultar los fondos: ${error.message}`, 'error');
     logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
   }
 };
@@ -437,7 +447,7 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
 };
 
 
-/************************ 🔥  HOT  🔑  ************************/
+/************************ 🔥  PROGENITOR  🔑  ************************/
 
 const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -455,7 +465,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       signersPubKeys: [unvaultKey]
     });
 
-    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura en caliente 🔥`, 'info');
+    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por progenitor 🧓🏻`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
@@ -550,7 +560,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [key_descend_1,  key_descend_2]
     });
 
-    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por herencia ⏳`, 'info');
+    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por testaferro  👤`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
@@ -643,7 +653,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [emergencyKey]
     });
 
-    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura no amistosa 🧑🏻‍⚖️`, 'info');
+    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por testaferro 👤`, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'

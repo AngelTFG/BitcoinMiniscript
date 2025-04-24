@@ -560,7 +560,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [key_recovery_1]
     });
 
-    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de recuperación 🔐`, 'info');
+    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de recuperación 🛡️`, 'info');
     // Obtener la dirección de recepción
     const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net';
@@ -605,7 +605,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con una de las clave de recuperación 🔐`, 'info');
+    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con una de las clave de recuperación 🛡️`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 

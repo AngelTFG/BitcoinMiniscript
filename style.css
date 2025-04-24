@@ -131,17 +131,14 @@ button {
   word-wrap: break-word;
 }
 
-.output-console .info {
-  color: #007BFF;
-  font-weight: bold;
+.output-console .output-info {
+  color: #343537;
 }
 
-.output-console .error {
+.output-console .output-error {
   color: #FF0000;
-  font-weight: bold;
 }
 
-.output-console .success {
+.output-console .output-success {
   color: #28a745;
-  font-weight: bold;
 }

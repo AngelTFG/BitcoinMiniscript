@@ -15,11 +15,11 @@
       <!-- Columna izquierda: Menú de proyectos -->
       <div class="menu">
 
-        <h2>🔏 Pólizas de gasto</h2>
+        <h2>🗝️ Condiciones de gasto</h2>
 
         <!-- 🟦 Fila 1: Botón Autocustodia -->
         <div class="button-row">
-          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/autocustodia.html')">🔑 Autocustodia programada</button>
+          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/autocustodia.html')">🤖 Autocustodia programada</button>
         </div>
 
         <!-- 🟩 Fila 2: Botón Bóveda -->
@@ -29,7 +29,7 @@
 
         <!-- 🟧 Fila 3: Botón Herencia -->
         <div class="button-row">
-          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/herencia.html')">👨‍👩‍👧‍👦 Herencia digital</button>
+          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/herencia.html')">🧬 Herencia digital</button>
         </div>
         <div id="output" class="output-console"></div>
       </div>
@@ -77,9 +77,77 @@
                 script.src = `./dist/${scriptName}.bundle.js`;
                 document.body.appendChild(script); // Añadir al final del body
         
-                // Aquí también puedes llamar a la función para renderizar el árbol de decisión
-                // renderDecisionTree(document.getElementById('output'), getPolicyForProject(scriptName));
-              })
+// 👉 Añadir el árbol de emojis según el proyecto seleccionado
+if (scriptName === 'autocustodia') {
+  document.getElementById('output').innerHTML = `<pre>
+🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
+
+
+<b>🤖 Autocustodia programada</b>
+│    
+├─ 🗓️ <b>Diario: 🔑🔑 de 🔑🔑🔑</b>
+│  │ 
+│  ├─ ✍🏼 @key_daily1
+│  │ 
+│  ├─ ✍🏼 @key_daily2
+│  │ 
+│  └─ ✍🏼 @key_daily3
+│    
+├─ 🛡️<b> Recuperación: 🔑 de 🔑🔑 🔛 🕒 5 bloques</b>
+│  │ 
+│  ├─ ✍🏼 @key_recovery_1
+│  │ 
+│  └─ ✍🏼 @key_recovery_2
+│    
+└─ 🚨<b> Emergencia: 🔑 🔛 ⏰ 10 bloques</b>
+   │ 
+   └─ ✍🏼 @key_emergency
+</pre>
+  `;
+} else if (scriptName === 'boveda') {
+  document.getElementById('output').innerHTML = `<pre>
+🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
+
+
+<b>🏦 Bóveda de seguridad</b>
+│
+├─ ⏳ <b>Apertura retardada: 🔑 🔛 🕒 5 bloques</b>
+│  │ 
+│  └─ ✍🏼 @key_vault2
+│
+└─ 🆘 <b>Botón del pánico: 🔑</b>
+   │ 
+   └─ ✍🏼 @key_emergency
+</pre>
+  `;
+
+} else if (scriptName === 'herencia') {
+  document.getElementById('output').innerHTML = `<pre>
+🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
+
+
+<b>🧬 Herencia digital</b>
+│
+├─ 🧓🏻 <b>Progenitor: 🔑</b>
+│  │ 
+│  └─ ✍🏼 @key_parent
+│
+├─ 🧑🏻👨🏻 <b>Herencia: 🔑🔑 de 🔑🔑 🔛 🕒 5 bloques</b>
+│  │ 
+│  ├─ ✍🏼 @key_heir1
+│  │ 
+│  └─ ✍🏼 @key_heir2
+│
+└─ 🧑🏻‍⚖️ <b>Recuperación: 🔑 🔛 ⏰ 10 bloques</b>
+   │ 
+   └─ ✍🏼 @key_recovery
+</pre>
+  `;
+
+} else {
+  document.getElementById('output').innerHTML = '';
+}
+                })
               .catch(error => {
                 console.error('Error:', error);
                 document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;

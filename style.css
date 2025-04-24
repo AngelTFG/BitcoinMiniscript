@@ -17,7 +17,7 @@ h2 {
   font-size: 1.5rem;
   margin-bottom: 16px;
   color: #444;
-  text-align: left;
+  text-align: center;
 }
 
 
@@ -111,10 +111,12 @@ button {
   display: flex;
   gap: 10px; /* Espacio horizontal entre botones */
   margin-bottom: 10px; /* Espacio vertical entre filas */
+  justify-content: center; 
 }
 
 .output-console {
-  height: 400px;
+  height: 500px;
+  min-width: 380px;
   margin-top: 20px;
   padding: 10px;
   background-color: #fff;

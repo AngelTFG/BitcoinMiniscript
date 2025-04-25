@@ -144,12 +144,12 @@ logToOutput(outputAutocustodia, '🚀 <span style="color:blue;">Inicializar el M
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
-// Modificar initMiniscriptOutput para devolver un objeto con todos los datos necesarios
-const initMiniscriptOutput = async (
+// Modificar initMiniscriptObjet para devolver un objeto con todos los datos necesarios
+const initMiniscriptObjet = async (
   network: any,
   explorer: string
 ): Promise<{
-  MiniscriptDescriptorObjet: InstanceType<typeof Output>;
+  MiniscriptObjet: InstanceType<typeof Output>;
   originalBlockHeight: number;
   policy: string;
   masterNode: BIP32Interface;
@@ -261,16 +261,16 @@ const initMiniscriptOutput = async (
     console.log('Descriptor completo:', wshDescriptor);
 
     // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave de key_emergency
-    const MiniscriptDescriptorObjet = new Output({
+    const MiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
       signersPubKeys: [key_emergency]
     });
 
     // Obtener la dirección derivada del Miniscript
-    const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = MiniscriptObjet.getAddress();
     console.log(`Miniscript address: ${miniscriptAddress}`);
-    console.log('Objeto descriptor expandido:', MiniscriptDescriptorObjet.expand());
+    console.log('Objeto Miniscript expandido:', MiniscriptObjet.expand());
 
     calculateFingerprint(masterNode);
 
@@ -278,7 +278,7 @@ const initMiniscriptOutput = async (
     enableButtons();
 
     // Retornar el descriptor Miniscript, la altura actual del bloque y la política de gasto
-    return { MiniscriptDescriptorObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
+    return { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript, initiazeNetwork muestra el error en la interfaz
     console.error(`Error al inicializar Miniscript: ${error.message}`);
@@ -290,7 +290,7 @@ const initMiniscriptOutput = async (
 
 // Modificar las funciones para aceptar el objeto retornado
 const mostraMIniscript = async (
-    MiniscriptDescriptorObjet: InstanceType<typeof Output>,
+    MiniscriptObjet: InstanceType<typeof Output>,
     originalBlockHeight: number,
     policy: string,
    explorer: string
@@ -314,9 +314,9 @@ const mostraMIniscript = async (
   logToOutput(outputAutocustodia, `🔐 Altura de desbloqueo emergencia: <strong>${originalBlockHeight + BLOCKS_EMERGENCY}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
 
   logToOutput(outputAutocustodia, `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `📜 Miniscript compilado: <strong>${MiniscriptDescriptorObjet.expand().expandedMiniscript}</strong>`);
+  logToOutput(outputAutocustodia, `📜 Miniscript compilado: <strong>${MiniscriptObjet.expand().expandedMiniscript}</strong>`);
 
-  const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+  const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(outputAutocustodia, 
     `🔢 <span style="color:black;">Mostrando la primera dirección derivada del <strong>Miniscript</strong>:</span> <span style="color:green;">Address ${WSH_KEY_PATH}: <strong>${miniscriptAddress}</strong></span>`,
     'info'
@@ -327,10 +327,10 @@ const mostraMIniscript = async (
 
 /************************ 🔍 MOSTRAR UTXOs  ************************/
 
-const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
+const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     // Obtener la dirección desde el objeto pasado como argumento
-    const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = MiniscriptObjet.getAddress();
 
     logToOutput(outputAutocustodia, `📦 Consultando UTXOs en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
 
@@ -376,9 +376,9 @@ const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Out
 };
 
 /************************ 📤 ULTIMA  TX  ************************/
-const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
+const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
-    const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = MiniscriptObjet.getAddress();
     logToOutput(outputAutocustodia, `📦 Consultando última transacción en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
 
     // Obtener historial de transacciones
@@ -456,13 +456,13 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
 
 const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
-    console.log('Descriptor WSH:', wshDescriptor);
+      console.log('Descriptor WSH:', wshDescriptor);
 
-    // Crear un nuevo output para la clave de emergencia
+    // Crear un nuevo objeto para la clave de emergencia
     const dailyKey1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY1}${WSH_KEY_PATH}`).publicKey;
     const dailyKey2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY2}${WSH_KEY_PATH}`).publicKey;
 
-    const localMiniscriptDescriptorObjet = new Output({
+    const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
       signersPubKeys: [dailyKey1, dailyKey2]
@@ -471,7 +471,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de uso diario 🗓️ `, 'info');
 
     // Obtener la dirección de recepción 
-    const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
@@ -502,13 +502,19 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
-    const finalizer = localMiniscriptDescriptorObjet.updatePsbtAsInput({ psbt, vout, txHex });
+    const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    new Output({
+    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    const wshOutput = new Output({
       descriptor: `addr(${TESTNET_COINFAUCET})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+    
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
+
+
+
 
     // Firmar y finalizar la transacción
     logToOutput(outputAutocustodia, `✍️ Firmando la transacción con dos de las tres claves de uso diario 🗓️`, 'info');
@@ -554,7 +560,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     const key_recovery_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY1}${WSH_KEY_PATH}`).publicKey;
     const key_recovery_2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY2}${WSH_KEY_PATH}`).publicKey;
 
-    const localMiniscriptDescriptorObjet = new Output({
+    const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
       signersPubKeys: [key_recovery_1]
@@ -562,7 +568,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
     logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de recuperación 🛡️`, 'info');
     // Obtener la dirección de recepción
-    const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net';
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
@@ -596,7 +602,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
-    const finalizer = localMiniscriptDescriptorObjet.updatePsbtAsInput({ psbt, vout, txHex });
+    const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
     // Crear un output para enviar los fondos
     new Output({
@@ -646,7 +652,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Crear un nuevo output para la clave de emergencia
     const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMERGENCY}${WSH_KEY_PATH}`).publicKey;
 
-    const localMiniscriptDescriptorObjet = new Output({
+    const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
       signersPubKeys: [emergencyKey]
@@ -654,7 +660,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de apertura de emergencia 🚨`, 'info');
     // Obtener la dirección de envio
-    const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
@@ -685,7 +691,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
-    const finalizer = localMiniscriptDescriptorObjet.updatePsbtAsInput({ psbt, vout, txHex });
+    const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
     // Crear un output para enviar los fondos
     new Output({
@@ -732,11 +738,11 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 // Inicializar el Miniscript antes de usar las funciones
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
-    const { MiniscriptDescriptorObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptOutput(network, explorer);
+    const { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptDescriptorObjet, originalBlockHeight, policy, explorer));
-    document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptDescriptorObjet, explorer));
-    document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptDescriptorObjet, explorer));
+    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, policy, explorer));
+    document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
+    document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
     document.getElementById('dailyButton')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor));
     document.getElementById('recoveryButton')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
     document.getElementById('emergencyButton')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor));

@@ -23,7 +23,7 @@ const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
-const WSH_ORIGIN_PATH_HOT = `/301'/1'/0'`;
+const WSH_ORIGIN_PATH_PROGEN = `/301'/1'/0'`;
 const WSH_ORIGIN_PATH_DESCEN_1 = `/302'/1'/0'`;
 const WSH_ORIGIN_PATH_DESCEN_2 = `/303'/1'/0'`;
 const WSH_ORIGIN_PATH_RECOVERY = `/304'/1'/0'`;
@@ -41,7 +41,7 @@ const BLOCKS_RECOVERY = 5;
 // Funcion que toma el valor de la poliza de gasto
 /*
 OR
-├── pk(key_hot) 
+├── pk(key_progen) 
 └── OR
            ├── THRESHOLD(3 of 3) 
             │         ├── pk(key_descend_1) 
@@ -54,7 +54,7 @@ OR
 ////
 
 
-const POLICY = (after_her: number, after_rec: number) => `or(pk(@key_hot), or(thresh(3, pk(@key_descend_1), pk(@key_descend_2), after(${after_her})), thresh(2, pk(@key_recover), after(${after_rec}))))`;
+const POLICY = (after_her: number, after_rec: number) => `or(pk(@key_progen), or(thresh(3, pk(@key_descend_1), pk(@key_descend_2), after(${after_her})), thresh(2, pk(@key_recover), after(${after_rec}))))`;
 
 
 // Consola pagina web
@@ -79,7 +79,7 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
 
 
   // Ver el extended pubkey de unvaultKey
-  const childHot = masterNode.derivePath(`m${WSH_ORIGIN_PATH_HOT}`);
+  const childHot = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}`);
   // Neutered para obtener la clave pública extendida
   const xpubHot = childHot.neutered().toBase58();
 
@@ -153,12 +153,12 @@ logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Inicializar el Mini
 
 /************************ ▶️ Inicializar Miniscript ************************/
 
-// Modificar initMiniscriptOutput para devolver un objeto con todos los datos necesarios
-const initMiniscriptOutput = async (
+// Modificar initMiniscriptObjet para devolver un objeto con todos los datos necesarios
+const initMiniscriptObjet = async (
   network: any,
   explorer: string
 ): Promise<{
-  MiniscriptDescriptorObjet: InstanceType<typeof Output>;
+  MiniscriptObjet: InstanceType<typeof Output>;
   originalBlockHeight: number;
   policy: string;
   masterNode: BIP32Interface;
@@ -198,8 +198,8 @@ const initMiniscriptOutput = async (
     console.log('Miniscript sane:', miniscript);
 
     // Derivar las claves públicas de los nodos hijos
-    const key_hot = masterNode.derivePath(`m${WSH_ORIGIN_PATH_HOT}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key hot:', key_hot.toString('hex'));
+    const key_progen = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`).publicKey;
+    console.log('Public key progenitor:', key_progen.toString('hex'));
     const key_descend_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`).publicKey;
     console.log('Public key descen1:', key_descend_1.toString('hex'));
     const key_descend_2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_2}${WSH_KEY_PATH}`).publicKey;
@@ -210,10 +210,10 @@ const initMiniscriptOutput = async (
     // Crear el descriptor Miniscript reemplazando las claves públicas en la política
     const wshDescriptor = `wsh(${miniscript
       .replace(
-        '@key_hot',
+        '@key_progen',
         descriptors.keyExpressionBIP32({
           masterNode: masterNode,
-          originPath: WSH_ORIGIN_PATH_HOT,
+          originPath: WSH_ORIGIN_PATH_PROGEN,
           keyPath: WSH_KEY_PATH
         })
       )
@@ -244,17 +244,17 @@ const initMiniscriptOutput = async (
 
     console.log('Descriptor completo:', wshDescriptor);
 
-    // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave de key_hot
-    const MiniscriptDescriptorObjet = new Output({
+    // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave de key_progen
+    const MiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
-      signersPubKeys: [key_hot]
+      signersPubKeys: [key_progen]
     });
 
     // Obtener la dirección derivada del Miniscript
-    const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = MiniscriptObjet.getAddress();
     console.log(`Miniscript address: ${miniscriptAddress}`);
-    console.log('Objeto descriptor expandido:', MiniscriptDescriptorObjet.expand());
+    console.log('Miniscript ouput:', MiniscriptObjet.expand());
 
     // Habilitar los botones de la interfaz de usuario después de la inicialización
     enableButtons();
@@ -262,7 +262,7 @@ const initMiniscriptOutput = async (
     calculateFingerprint(masterNode);
 
     // Retornar el descriptor Miniscript, la altura actual del bloque y la política de gasto
-    return { MiniscriptDescriptorObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
+    return { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript
     console.error(`Error al inicializar Miniscript: ${error.message}`);
@@ -274,7 +274,7 @@ const initMiniscriptOutput = async (
 
 // Modificar las funciones para aceptar el objeto retornado
 const mostraMIniscript = async (
-    MiniscriptDescriptorObjet: InstanceType<typeof Output>,
+    MiniscriptObjet: InstanceType<typeof Output>,
     originalBlockHeight: number,
     policy: string,
    explorer: string
@@ -307,12 +307,12 @@ const mostraMIniscript = async (
   //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo herencia: <strong>${originalBlockHeight + BLOCKS_HERENCIA}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
   //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo recovery: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
   //logToOutput(outputHerencia,  `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  //logToOutput(outputHerencia,  `📜 Miniscript compilado: <strong>${MiniscriptDescriptorObjet.expand().expandedMiniscript}</strong>`);
+  //logToOutput(outputHerencia,  `📜 Miniscript compilado: <strong>${MiniscriptObjet.expand().expandedMiniscript}</strong>`);
 
-  const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+  const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(
     outputHerencia,
-    `📬 Dirección del Miniscript: <strong><a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></strong>`, 
+    `📬 Dirección del Miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 
     'info'
   );
 
@@ -321,24 +321,24 @@ const mostraMIniscript = async (
 
 /************************ 🔍 MOSTRAR UTXOs  ************************/
 
-const fetchUtxosMini = async (MiniscriptDescriptorObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
+const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     // Obtener la dirección desde el objeto pasado como argumento
-    const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputHerencia,  `📦 Consultando fondos ...`, 'info');
+    logToOutput(outputHerencia,  `📦 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     if (utxos.length === 0) {
-      logToOutput(outputHerencia,  `🚫 <span style="color:red;">No se encontraron fondos en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
+      logToOutput(outputHerencia,  `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'error');
       logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
       return;
     }
 
-    logToOutput(outputHerencia,  `✅ UTXOs encontrados en la dirección: <strong>${miniscriptAddress}</strong>`, 'success');
+    logToOutput(outputHerencia,  `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -351,9 +351,10 @@ sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: b
   const confirmationStatus = utxo.status.confirmed
     ? '<span style="color:green;">✅ confirmado</span>'
     : '<span style="color:red;">❓ no confirmado</span>';
+
   const blockHeight = utxo.status.block_height || 'Desconocido';
   logToOutput(outputHerencia,  
-    `🔹 Fondo #${index + 1}: <span style="color:red;">${utxo.value}</span> sats (TXID: <code>${utxo.txid}</code>) ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
+    `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
     'info'
   );
 });
@@ -369,17 +370,18 @@ logToOutput(outputHerencia,  `<span style="color:grey;">========================
 };
 
 /************************ 📤 ULTIMA TX ************************/
-const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
+
+const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
-    const miniscriptAddress = MiniscriptDescriptorObjet.getAddress();
-    logToOutput(outputHerencia,  `📦 Consultando última transacción en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    const miniscriptAddress = MiniscriptObjet.getAddress();
+    logToOutput(outputHerencia,  `📦 Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
     console.log('Transacciones:', txHistory);
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
-      logToOutput(outputHerencia,  `<span style="color:red;">🚫 No se encontraron transacciones en la dirección <strong>${miniscriptAddress}</strong></span>`);
+      logToOutput(outputHerencia,  `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
       logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
       return;
     }
@@ -411,13 +413,13 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
       tipo = '🔍 Participación no directa';
     }
 
-    const confirmationStatus = txDetails.status.confirmed
-      ? '<span style="color:green;">✅ confirmada</span>'
-      : '<span style="color:red;">❓ no confirmada</span>';
-    logToOutput(outputHerencia,  
-      `<strong>${tipo}</strong> transacción: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a> ${confirmationStatus}`,
-      'success'
-    );
+    const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;">✅ confirmada</span>' : '<span style="color:red;">❓ no confirmada</span>';
+
+
+    logToOutput(outputHerencia,  `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
+    logToOutput(outputHerencia, `<strong>${tipo}</strong> ${confirmationStatus}`, 'success');
+
+
 
     // Mostrar detalles de las entradas
     if (esEmisor) {
@@ -447,7 +449,7 @@ const fetchTransaction = async (MiniscriptDescriptorObjet: InstanceType<typeof O
 };
 
 
-/************************ 🔥  PROGENITOR  🔑  ************************/
+/************************ 🧓🏻  PROGENITOR  🔑  ************************/
 
 const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -456,18 +458,18 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
 
     console.log('Descriptor WSH:', wshDescriptor);
 
-    // Crear un nuevo output para la clave de emergencia
-    const unvaultKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_HOT}${WSH_KEY_PATH}`).publicKey;
+    // Crear un nuevo Output para la clave de emergencia
+    const progenKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`).publicKey;
 
-    const localMiniscriptDescriptorObjet = new Output({
+    const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
-      signersPubKeys: [unvaultKey]
+      signersPubKeys: [progenKey]
     });
 
     logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por progenitor 🧓🏻`, 'info');
     // Obtener la dirección de recepción desde el objeto global
-    const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
@@ -476,7 +478,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia,  `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia,  `🚀 Devolviendo fondos  a  <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -491,23 +493,26 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💰 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💸 Comisión estimada: <strong>${FEE}</strong> sats`, 'info');
     logToOutput(outputHerencia,  `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
-    const finalizer = localMiniscriptDescriptorObjet.updatePsbtAsInput({ psbt, vout, txHex });
+    const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    new Output({
+    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    const wshOutput = new Output({
       descriptor: `addr(${TESTNET_COINFAUCET})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+    
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍️ Firmando la transacción con  la clave apertura en caliente 🔥`, 'info');
+    logToOutput(outputHerencia,  `✍️ Firmando la transacción con  la clave del progenitor`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -525,7 +530,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript k</span>`, 'error');
       logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
     }
       else {
@@ -554,15 +559,15 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     const key_descend_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`).publicKey;
     const key_descend_2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_2}${WSH_KEY_PATH}`).publicKey;
 
-    const localMiniscriptDescriptorObjet = new Output({
+    const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
       signersPubKeys: [key_descend_1,  key_descend_2]
     });
 
-    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por testaferro  👤`, 'info');
+    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por herencia  🧑🏻👨🏻`, 'info');
     // Obtener la dirección de recepción desde el objeto global
-    const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
@@ -571,7 +576,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia,  `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia,  `🚀 Devolviendo fondos  a  <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -586,14 +591,14 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💰 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💸 Comisión estimada: <strong>${FEE}</strong> sats`, 'info');
     logToOutput(outputHerencia,  `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
-    const finalizer = localMiniscriptDescriptorObjet.updatePsbtAsInput({ psbt, vout, txHex });
+    const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
     // Crear un output para enviar los fondos
     new Output({
@@ -602,7 +607,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍️ Firmando la transacción con las clave apertura por herencia ⏳`, 'info');
+    logToOutput(outputHerencia,  `✍️ Firmando la transacción con las clave de los herederos  `, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -620,7 +625,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript k</span>`, 'error');
       logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
     }
       else {
@@ -635,7 +640,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ 🚨 RECOVERY 🔑  ************************/
+/************************ 🚨 DISPUTA 🔑  ************************/
 
 const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -647,15 +652,15 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Crear un nuevo output para la clave de emergencia
     const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}${WSH_KEY_PATH}`).publicKey;
 
-    const localMiniscriptDescriptorObjet = new Output({
+    const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
       signersPubKeys: [emergencyKey]
     });
 
-    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por testaferro 👤`, 'info');
+    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por disputa 👤`, 'info');
     // Obtener la dirección de envio
-    const miniscriptAddress = localMiniscriptDescriptorObjet.getAddress();
+    const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
@@ -680,14 +685,14 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💰 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💸 Comisión estimada: <strong>${FEE}</strong> sats`, 'info');
     logToOutput(outputHerencia,  `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
-    const finalizer = localMiniscriptDescriptorObjet.updatePsbtAsInput({ psbt, vout, txHex });
+    const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
     // Crear un output para enviar los fondos
     new Output({
@@ -696,7 +701,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍️ Firmando la transacción con  la clave de apertura no amistosa 🧑🏻‍⚖️`, 'info');
+    logToOutput(outputHerencia,  `✍️ Firmando la transacción con  la clave del abogado`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -714,7 +719,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript k</span>`, 'error');
       logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
     } else {
       const txId = txFinal.getId();
@@ -734,11 +739,11 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 // Inicializar el Miniscript antes de usar las funciones
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
-    const { MiniscriptDescriptorObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptOutput(network, explorer);
+    const { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptDescriptorObjet, originalBlockHeight, policy, explorer));
-    document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptDescriptorObjet, explorer));
-    document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptDescriptorObjet, explorer));
+    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, policy, explorer));
+    document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
+    document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
     document.getElementById('hotButton')?.addEventListener('click', () => hotPSBT(masterNode, network, explorer, wshDescriptor));
     document.getElementById('henrenciaButton')?.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor));
     document.getElementById('recoveryButton')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));

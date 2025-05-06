@@ -8,100 +8,111 @@
   </head>
   <body>
     
-    <h1>Miniscript playground</h1>
-
-    <div class="container">
-
-      <!-- Columna izquierda: Menú de proyectos -->
-      <div class="menu">
-
-        <h2>🗂️ Pólizas disponibles</h2>
-
-        <!-- 🟦 Fila 1: Botón Autocustodia -->
-        <div class="button-row">
-          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/herencia.html')">🧬 Herencia digital</button>
-        </div>
-
-        <!-- 🟩 Fila 2: Botón Bóveda -->
-        <div class="button-row">
-          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/autocustodia.html')">🤖 Autocustodia programada</button>
-        </div>
-
-        <!-- 🟧 Fila 3: Botón Herencia -->
-        <div class="button-row">
-          <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/boveda.html')">🏦 Bóveda de seguridad</button>
-        </div>
-        <div id="output" class="output-console"></div>
-      </div>
     
-        <!-- Columna derecha: Contenido del proyecto -->
-        <div class="content">
-          <h2></h2>
-          <div id="content"></div>
+    <!-- Contenedor envoltorio -->
+    <div class="main-wrapper">
+      
+      <!-- Contenido superior -->
+      <div class="top-panel">
+        <div class="top-panel-inner">
+          <img src="./MiniscriptRustLogo.png" alt="Logo" class="top-panel-logo">
+          <span class="top-panel-title"> <h1> 🛝 Miniscript playground 🛝 </h1></span>
         </div>
+      </div>
 
+      <div class="container">
+
+        <!-- Columna izquierda: Menú de proyectos -->
+        <div class="menu">
+          <h2>🗂️ Pólizas disponibles</h2>
+          
+          <!-- 🟦 Fila 1: Botón Autocustodia -->
+          <div class="button-row">
+            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/herencia.html')">🧬 Herencia digital</button>
+          </div>
+          <!-- 🟩 Fila 2: Botón Bóveda -->
+          <div class="button-row">
+            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/autocustodia.html')">🤖 Autocustodia programada</button>
+          </div>
+          <!-- 🟧 Fila 3: Botón Herencia -->
+          <div class="button-row">
+            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/boveda.html')">🏦 Bóveda de seguridad</button>
+          </div>
+          <div id="output" class="output-console"></div>
+        </div>
+      
+          <!-- Columna derecha: Contenido del proyecto -->
+          <div class="content">
+            <h2></h2>
+            <div id="content"></div>
+          </div>
+
+      </div>
     </div>
 
-      <script>
+    <script>
 
-          function setActiveButton(button) {
-            document.querySelectorAll('.menu .app-button').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-          }
+      function setActiveButton(button) {
+        document.querySelectorAll('.menu .app-button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+      }
 
 
-          function loadProjectByURL(proyectoUrl) {
+      function loadProjectByURL(proyectoUrl) {
 
-            // Cargar el contenido de la página seleccionada usando la URL proporcionada
-            fetch(proyectoUrl)
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error('Error al cargar el contenido: ' + response.statusText);
-                }
-                return response.text();
-              })
-              .then(html => {
-                document.getElementById('content').innerHTML = html;
+        // Cargar el contenido de la página seleccionada usando la URL proporcionada
+        fetch(proyectoUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Error al cargar el contenido: ' + response.statusText);
+            }
+            return response.text();
+          })
+          .then(html => {
+            document.getElementById('content').innerHTML = html;
+    
+            // Extraer el nombre del archivo sin la carpeta ni la extensión autocustodia.html >> autocustodia
+            const scriptName = proyectoUrl.split('/').pop().split('.')[0];
+    
+            // Eliminar scripts anteriores del mismo tipo si existen para evitar duplicados
+            const oldScript = document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`);
+            if (oldScript) {
+              oldScript.remove();
+            }
+    
+            // Cargar un script específico para la página
+            const script = document.createElement('script');
+            script.src = `./dist/${scriptName}.bundle.js`;
+            document.body.appendChild(script); // Añadir al final del body
         
-                // Extraer el nombre del archivo sin la carpeta ni la extensión autocustodia.html >> autocustodia
-                const scriptName = proyectoUrl.split('/').pop().split('.')[0];
-        
-                // Eliminar scripts anteriores del mismo tipo si existen para evitar duplicados
-                const oldScript = document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`);
-                if (oldScript) {
-                  oldScript.remove();
-                }
-        
-                // Cargar un script específico para la página
-                const script = document.createElement('script');
-                script.src = `./dist/${scriptName}.bundle.js`;
-                document.body.appendChild(script); // Añadir al final del body
-        
-// 👉 Añadir el árbol de emojis según el proyecto seleccionado
+// Añadir el árbol de emojis según el proyecto seleccionado
 if (scriptName === 'autocustodia') {
   document.getElementById('output').innerHTML = `<pre>
 🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
 
 
-<b>🤖 AUTOCUSTODIA PROGRAMADA</b>
+<b>🤖 Autocustodia programada 🤖</b>
 │    
-├─ 🗓️ <b>Diario: 🔑🔑 de 🔑🔑🔑</b>
+│
+├─ 🗓️ <b>Uso diario: ➡️ 🔑🔑 de 🔑🔑🔑</b>
 │  │ 
-│  ├─ 🗝️ Llave de uso diario 1
+│  ├─ 🗝️ Llave principal 
 │  │ 
-│  ├─ 🗝️ Llave de uso diario 2
+│  ├─ 🗝️ Llave secundaria
 │  │ 
-│  └─ 🗝️ Llave de un custodio
+│  └─ 🗝️ Llave del custodio
 │    
-├─ 🛡️<b> Recuperación: 🕒 3 meses  ➡️ 🔑 de 🔑🔑 </b>
+│    
+├─ 🛡️<b> Recuperación: 🕒 3 meses ➡️ 🔑 de 🔑🔑 </b>
 │  │ 
-│  ├─ 🗝️ Llave de recuperación 1
+│  ├─ 🗝️ Llave de respaldo principal
 │  │ 
-│  └─ 🗝️ Llave de recuperación 2
+│  └─ 🗝️ Llave de respaldo secundaria
+│    
 │    
 └─ 🚨<b> Emergencia: ⏰ 5 meses ➡️ 🔑  </b>
    │ 
-   └─ 🗝️ Llave de emergencia
+   └─ 🗝️ Llave de apertura por perdida
 </pre>
   `;
 } else if (scriptName === 'boveda') {
@@ -109,15 +120,17 @@ if (scriptName === 'autocustodia') {
 🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
 
 
-<b>🏦 BÓVEDA DE SEGURIDAD</b>
+<b>🏦 Bóveda de seguridad 🏦</b>
 │
-├─ 🔧 <b>Apertura retardada: 🕒 72 horas ➡️ 🔑</b>
+│
+├─ 🔧 <b>Apertura forzada: 🕒 72 horas ➡️ 🔑</b>
 │  │ 
 │  └─ 🗝️ Llave de aperura retardada
 │
-└─ 🆘 <b>Botón del pánico: 🔑</b>
-   │ 
-   └─ 🗝️ Llave de apertura de emergencia
+│
+└─ 🆘 <b>Botón del pánico: ➡️ 🔑</b>
+   │
+   └─ 🗝️ Llave de apertura inmediata
 </pre>
   `;
 
@@ -126,17 +139,20 @@ if (scriptName === 'autocustodia') {
 🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
 
 
-<b>🧬 HERENCIA DIGITAL</b>
+<b>🧬 Herencia digital 🧬 </b>
 │
-├─ 🧓🏻 <b>Acceso inmediato: 🔑</b>
+│
+├─ 🧓🏻 <b>Acceso inmediato: ➡️ 🔑</b>
 │  │ 
 │  └─ 🗝️ Llave del progenitor
+│
 │
 ├─ 🧑🏻👨🏻 <b>Herencia: 🕒 3 años ➡️ 🔑🔑 de 🔑🔑</b>
 │  │ 
 │  ├─ 🗝️ Llave de la heredera
 │  │ 
 │  └─ 🗝️ Llave del heredero
+│
 │
 └─ 👤 <b>Disputa: ⏰ 5 años ➡️ 🔑</b>
    │ 
@@ -147,24 +163,24 @@ if (scriptName === 'autocustodia') {
 } else {
   document.getElementById('output').innerHTML = '';
 }
-                })
-              .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;
-              });
-          }
-        
+              })
+            .catch(error => {
+              console.error('Error:', error);
+              document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;
+            });
+        }
       
-        // Autocargar el primer proyecto al iniciar
-        document.addEventListener('DOMContentLoaded', () => {
-          // Selecciona el primer botón del menú (Autocustodia)
-          const firstButton = document.querySelector('.menu .app-button');
-          if (firstButton) {
-            setActiveButton(firstButton);
-          }
-          loadProjectByURL('/htmls/herencia.html');
-        });
-      
-      </script>
+    
+      // Autocargar el primer proyecto al iniciar
+      document.addEventListener('DOMContentLoaded', () => {
+        // Selecciona el primer botón del menú (Autocustodia)
+        const firstButton = document.querySelector('.menu .app-button');
+        if (firstButton) {
+          setActiveButton(firstButton);
+        }
+        loadProjectByURL('/htmls/herencia.html');
+      });
+    
+    </script>
   </body>
 </html>

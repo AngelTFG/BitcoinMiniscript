@@ -140,7 +140,7 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput(outputAutocustodia, '🚀 <span style="color:blue;">Inicializar el Miniscript</span> 🚀');
+logToOutput(outputAutocustodia, '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 

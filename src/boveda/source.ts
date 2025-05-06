@@ -119,7 +119,7 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput(outputBoveda, '🚀 <span style="color:blue;">Inicializar el Miniscript</span> 🚀');
+logToOutput(outputBoveda, '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
 
 /************************ ▶️ Inicializar Miniscript ************************/
 

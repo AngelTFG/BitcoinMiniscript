@@ -149,7 +149,7 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Inicializar el Miniscript</span> 🚀');
+logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
 
 /************************ ▶️ Inicializar Miniscript ************************/
 
@@ -174,8 +174,8 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(network);
 
-    logToOutput(outputHerencia,  `🌐 Cambiando a red ${networkName} 🌐`, 'info');
-    logToOutput(outputHerencia,  `⛓️ Altura actual de la cadena: ${originalBlockHeight} bloques ⛓️`, 'info');
+    logToOutput(outputHerencia,  `🌐 Cambiando a red ${networkName}`, 'info');
+    logToOutput(outputHerencia,  `⛓️ Altura actual de la cadena: ${originalBlockHeight} bloques`, 'info');
     logToOutput(outputHerencia,  '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
     logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
 
@@ -282,28 +282,26 @@ const mostraMIniscript = async (
   // Determinar la red en función del explorador
   const networkName = explorer.includes('testnet') ? 'Testnet' : 'Mainnet';
 
-  // Mostrar mensaje indicando la red utilizada
-  logToOutput(outputHerencia,  `🌐 Red actual: <strong>${networkName}</strong>`, 'info');
-
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
-  const restingBlocksPro = originalBlockHeight - actualBlockHeight;
+  const restingBlocksProgen = originalBlockHeight - actualBlockHeight;
   const restingBlocksHer = originalBlockHeight + BLOCKS_HERENCIA - actualBlockHeight;
   const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
 
-  const displayProgen = restingBlocksPro <= 0 ? 0 : restingBlocksPro;
-  const progenColor = restingBlocksPro > 0 ? 'red' : 'green';
+  // Control sobre el numero de bloques restantes y el color que se le asigna
+  const displayProgen = restingBlocksProgen <= 0 ? 0 : restingBlocksProgen;
+  const progenColor = restingBlocksProgen > 0 ? 'red' : 'green';
 
   const displayHerencia = restingBlocksHer <= 0 ? 0 : restingBlocksHer;
   const herenColor = restingBlocksHer > 0 ? 'red' : 'green';
-  
+
   const displayRecovery = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
   const recoveryColor = restingBlocksRec > 0 ? 'red' : 'green';
 
-
+  logToOutput(outputHerencia,  `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧓🏻 Bloques para poder gastar en la rama del progenitor: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧑🏻👨🏻 Bloques para poder gastar en la rama de herencia: <strong style="color:${herenColor};">${displayHerencia}</strong>`, 'info');
-  logToOutput(outputHerencia,  `⚠️ Bloques para poder gastar en la rama de disputa: <strong style="color:${recoveryColor};">${displayRecovery}</strong>`, 'info');
+  logToOutput(outputHerencia,  `👤 Bloques para poder gastar en la rama de disputa: <strong style="color:${recoveryColor};">${displayRecovery}</strong>`, 'info');
   //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo herencia: <strong>${originalBlockHeight + BLOCKS_HERENCIA}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
   //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo recovery: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
   //logToOutput(outputHerencia,  `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
@@ -312,7 +310,7 @@ const mostraMIniscript = async (
   const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(
     outputHerencia,
-    `📬 Dirección del Miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 
+    `📩 Dirección del Miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 
     'info'
   );
 

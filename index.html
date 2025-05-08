@@ -16,7 +16,8 @@
       <div class="top-panel">
         <div class="top-panel-inner">
           <img src="./MiniscriptRustLogo.png" alt="Logo" class="top-panel-logo">
-          <span class="top-panel-title"> <h1> 🛝 Miniscript playground 🛝 </h1></span>
+          <h1> Miniscript playground  </h1>
+          <span class="top-panel-right">🛝</span>
         </div>
       </div>
 
@@ -88,47 +89,41 @@
 // Añadir el árbol de emojis según el proyecto seleccionado
 if (scriptName === 'autocustodia') {
   document.getElementById('output').innerHTML = `<pre>
-🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
-
-
-<b>🤖 Autocustodia programada 🤖</b>
+<span><span style="font-size:1.5em;">🤖</span><span style="font-size:1.2em;"><b> Autocustodia programada </b></span></span>
 │    
 │
-├─ 🗓️ <b>Uso diario: ➡️ 🔑🔑 de 🔑🔑🔑</b>
+├─ 🗓️ <b>Uso diario: 🔑🔑 ➡️ 🔐🔐🔐 </b>
 │  │ 
-│  ├─ 🗝️ Llave principal 
+│  ├─ 🔑 Llave principal 
 │  │ 
-│  ├─ 🗝️ Llave secundaria
+│  ├─ 🔑 Llave secundaria
 │  │ 
 │  └─ 🗝️ Llave del custodio
 │    
 │    
-├─ 🛡️<b> Recuperación: 🕒 3 meses ➡️ 🔑 de 🔑🔑 </b>
+├─ 🛡️<b> Recuperación 🕒 3 meses: 🔑 ➡️ 🔐🔐 </b>
 │  │ 
-│  ├─ 🗝️ Llave de respaldo principal
+│  ├─ 🔑 Llave de respaldo principal
 │  │ 
-│  └─ 🗝️ Llave de respaldo secundaria
+│  └─ 🔑 Llave de respaldo secundaria
 │    
 │    
-└─ 🚨<b> Emergencia: ⏰ 5 meses ➡️ 🔑  </b>
+└─ 🚨<b> Emergencia ⏰ 5 meses: 🔑 ➡️ 🔐 </b>
    │ 
    └─ 🗝️ Llave de apertura por perdida
 </pre>
   `;
 } else if (scriptName === 'boveda') {
   document.getElementById('output').innerHTML = `<pre>
-🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
-
-
-<b>🏦 Bóveda de seguridad 🏦</b>
+<span><span style="font-size:1.5em;">🏦</span><span style="font-size:1.2em;"><b> Bóveda de seguridad </b></span></span>
 │
 │
-├─ 🔧 <b>Apertura forzada: 🕒 72 horas ➡️ 🔑</b>
+├─ 🔧 <b>Apertura forzada 🕒 72 horas: 🔑 ➡️ 🔐 </b>
 │  │ 
-│  └─ 🗝️ Llave de aperura retardada
+│  └─ 🔑 Llave de apetura retardada
 │
 │
-└─ 🆘 <b>Botón del pánico: ➡️ 🔑</b>
+└─ 🆘 <b>Botón del pánico: 🗝️ ➡️ 🔐 </b>
    │
    └─ 🗝️ Llave de apertura inmediata
 </pre>
@@ -136,25 +131,22 @@ if (scriptName === 'autocustodia') {
 
 } else if (scriptName === 'herencia') {
   document.getElementById('output').innerHTML = `<pre>
-🌳 <span style="color:blue;">Descripción de las ramas de gasto</span> 🌳
-
-
-<b>🧬 Herencia digital 🧬 </b>
+<span><span style="font-size:1.5em;">🧬</span><span style="font-size:1.2em;"><b> Herencia digital </b></span></span>
 │
 │
-├─ 🧓🏻 <b>Acceso inmediato: ➡️ 🔑</b>
+├─ 🧓🏻 <b>Acceso directo: 🔑 ➡️ 🔐 </b>
 │  │ 
-│  └─ 🗝️ Llave del progenitor
+│  └─ 🔑 Llave del progenitor
 │
 │
-├─ 🧑🏻👨🏻 <b>Herencia: 🕒 3 años ➡️ 🔑🔑 de 🔑🔑</b>
+├─ 🧑🏻👨🏻 <b>Herencia 🕒 3 años: 🔑🔑 ➡️ 🔐🔐 </b>
 │  │ 
-│  ├─ 🗝️ Llave de la heredera
+│  ├─ 🔑 Llave de la heredera
 │  │ 
-│  └─ 🗝️ Llave del heredero
+│  └─ 🔑 Llave del heredero
 │
 │
-└─ 👤 <b>Disputa: ⏰ 5 años ➡️ 🔑</b>
+└─ 👤 <b>Disputa ⏰ 5 años: 🗝️ ➡️ 🔐 </b>
    │ 
    └─ 🗝️ Llave del abogado
 </pre>

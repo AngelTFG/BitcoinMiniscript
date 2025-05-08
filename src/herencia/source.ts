@@ -465,7 +465,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       signersPubKeys: [progenKey]
     });
 
-    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de apertura por progenitor 🧓🏻`, 'info');
+    logToOutput(outputHerencia,  `🔘 Se ha pulsado el botón de acceso directo 🧓🏻`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'

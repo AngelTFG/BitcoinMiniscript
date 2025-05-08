@@ -36,7 +36,6 @@ button {
 
 /* === LAYOUT === */
 
-
 .main-wrapper {
   max-width: 1550px; 
   margin: 20px auto 0 auto; /* 20px arriba, auto a los lados, 0 abajo */
@@ -68,13 +67,14 @@ button {
   left: 0;
 }
 
-.top-panel-title {
-  flex: 1;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
+.top-panel-right {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 4.8em;
+  margin-right: 20px;
 }
-
 
 .container {
   display: flex;
@@ -102,6 +102,7 @@ button {
 }
 
 /* === COMPONENTS === */
+
 .app-button {
   display: inline-block;
   width: 271px;
@@ -158,9 +159,9 @@ button {
 
 .output-console {
   height: 500px;
-  min-width: 370px;
+  min-width: 400px;
   margin-top: 20px;
-  padding: 10px;
+  padding: 10px 10px 10px 30px; /* top right bottom left */
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 5px;

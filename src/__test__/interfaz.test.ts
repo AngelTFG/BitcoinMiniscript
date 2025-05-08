@@ -18,14 +18,20 @@ describe('Interfaz de usuario - Botones del menú', () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <div class="menu">
-        <button class="app-button">Uno</button>
-        <button class="app-button">Dos</button>
+        <button class="app-button">🧬 Herencia digital</button>
+        <button class="app-button">🤖 Autocustodia programada</button>
+        <button class="app-button">🏦 Bóveda de seguridad</button>
       </div>
     `;
     window.setActiveButton = function(button) {
       document.querySelectorAll('.menu .app-button').forEach(btn => btn.classList.remove('active'));
       button.classList.add('active');
     };
+    document.querySelectorAll('.app-button').forEach(btn => {
+      btn.addEventListener('click', (event) => {
+        window.setActiveButton(event.currentTarget as Element);
+      });
+    });
   });
 
   it('al pulsar un botón, solo ese botón queda con la clase "active" y los demás no', () => {
@@ -33,6 +39,7 @@ describe('Interfaz de usuario - Botones del menú', () => {
     window.setActiveButton(buttons[1]);
     expect(buttons[0]).not.toHaveClass('active');
     expect(buttons[1]).toHaveClass('active');
+    expect(buttons[2]).not.toHaveClass('active');
   });
 
   it('setActiveButton funciona con cualquier botón del menú', () => {
@@ -42,6 +49,27 @@ describe('Interfaz de usuario - Botones del menú', () => {
     window.setActiveButton(buttons[1]);
     expect(buttons[1]).toHaveClass('active');
     expect(buttons[0]).not.toHaveClass('active');
+    window.setActiveButton(buttons[2]);
+    expect(buttons[2]).toHaveClass('active');
+    expect(buttons[1]).not.toHaveClass('active');
+  });
+
+  it('al hacer click en cada botón del menú, solo ese botón queda activo', () => {
+    const buttons = document.querySelectorAll('.app-button');
+    (buttons[0] as HTMLButtonElement).click();
+    expect(buttons[0]).toHaveClass('active');
+    expect(buttons[1]).not.toHaveClass('active');
+    expect(buttons[2]).not.toHaveClass('active');
+
+    (buttons[1] as HTMLButtonElement).click();
+    expect(buttons[1]).toHaveClass('active');
+    expect(buttons[0]).not.toHaveClass('active');
+    expect(buttons[2]).not.toHaveClass('active');
+
+    (buttons[2] as HTMLButtonElement).click();
+    expect(buttons[2]).toHaveClass('active');
+    expect(buttons[0]).not.toHaveClass('active');
+    expect(buttons[1]).not.toHaveClass('active');
   });
 });
 

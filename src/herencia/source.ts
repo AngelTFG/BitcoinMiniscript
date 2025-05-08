@@ -118,7 +118,7 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
 }
 
 // Función auxiliar para obtener el nombre de la red
-export const getNetworkName = (network: any): string =>
+const getNetworkName = (network: any): string =>
   network === networks.bitcoin
     ? 'Mainnet'
     : network === networks.testnet

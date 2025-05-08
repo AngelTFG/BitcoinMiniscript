@@ -29,7 +29,7 @@ Proyecto/
 │   ├─ __test__/              # Carpeta de tests automáticos
 │   │   ├─ interfaz.test.ts   # Pruebas de interfaz de usuario (DOM, utilidades visuales)
 │   │   └─ jest.setup.ts      # Setup para jest-dom (extiende los matchers de Jest)
-│   ├─ autocustodia/          # Código fuente específico del módulo autocustodia
+│   ├─ autocustodia./          # Código fuente específico del módulo autocustodia
 │   │   └─ source.ts
 │   ├─ boveda/                # Código fuente específico del módulo bóveda
 │   │   └─ source.ts

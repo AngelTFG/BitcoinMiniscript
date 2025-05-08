@@ -1,14 +1,40 @@
-# Guía de Configuración del Proyecto Browserify + Babel
+# Guía de Configuración del Proyecto Browserify 
 
 ## Estructura del Proyecto
 ```plaintext
-browserify/
-  ├─ package.json          (para manejar dependencias)
-  ├─ tsconig.json          (configuración ts)
-  ├─ bundle.js             (archivo ts transpilado)
-  ├─ src/ 
-  │   └─ app.ts            (tu script principal con import/export)
-  └─ index.html            (la página web que cargará bundle.js)
+Proyecto/
+├─ .gitignore                 # Archivos y carpetas que no se suben al control de versiones (por ejemplo, node_modules, dist, etc)
+├─ .prettierrc                # Configuración de formato de código para Prettier
+├─ favicon.svg                # Icono de la página web
+├─ index.html                 # Página principal que carga los bundles JS
+├─ jest.config.js             # Configuración de Jest para pruebas automáticas
+├─ MiniscriptRustLogo.png     # Imagen/logo del proyecto
+├─ package-lock.json          # Archivo de bloqueo de dependencias generado por npm
+├─ package.json               # Manejo de dependencias, scripts y metadatos del proyecto
+├─ readme.md                  # Este archivo, documentación y guía del proyecto
+├─ style.css                  # Estilos CSS globales del proyecto
+├─ test.md                    # Documentación o ejemplos de pruebas (opcional)
+├─ tsconfig.json              # Configuración de TypeScript
+├─ dist/                      # Carpeta de salida de los bundles generados para cada módulo/página
+│   ├─ autocustodia.bundle.js # Bundle JS para la funcionalidad de autocustodia
+│   ├─ boveda.bundle.js       # Bundle JS para la funcionalidad de bóveda
+│   └─ herencia.bundle.js     # Bundle JS para la funcionalidad de herencia
+├─ htmls/                     # HTMLs individuales para cada módulo/página
+│   ├─ autocustodia.html      # Página HTML para autocustodia
+│   ├─ boveda.html            # Página HTML para bóveda
+│   └─ herencia.html          # Página HTML para herencia
+├─ node_modules/              # Dependencias instaladas (no modificar manualmente)
+├─ src/                       # Código fuente del proyecto
+│   ├─ types.d.ts             # Definiciones de tipos globales de TypeScript
+│   ├─ __test__/              # Carpeta de tests automáticos
+│   │   ├─ interfaz.test.ts   # Pruebas de interfaz de usuario (DOM, utilidades visuales)
+│   │   └─ jest.setup.ts      # Setup para jest-dom (extiende los matchers de Jest)
+│   ├─ autocustodia/          # Código fuente específico del módulo autocustodia
+│   │   └─ source.ts
+│   ├─ boveda/                # Código fuente específico del módulo bóveda
+│   │   └─ source.ts
+│   └─ herencia/              # Código fuente específico del módulo herencia
+│       └─ source.ts
 ```
 
 ---
@@ -36,23 +62,25 @@ Browserify empaquetará tus módulos para el navegador.
 
 ### Dependencias de desarrollo:
 ```bash
-npm install --save-dev browserify 
+npm install --save-dev browserify tsify typescript jest ts-jest @types/jest @testing-library/jest-dom
 ```
 
 
 ### Dependencias del proyecto:
 ```bash
-npm install @bitcoinerlab/secp256k1 @bitcoinerlab/descriptors bip39 bitcoinjs-lib
-npm install ledger-bitcoin
+npm install @bitcoinerlab/secp256k1 @bitcoinerlab/descriptors bip39 bitcoinjs-lib 
 ```
 
 ---
 
 ### 3. Configuración tsconfig.json
+
 Crea un archivo `tsconfig.json` 
 "target": "ES6" → tu código se transpila a ES6, que ya es compatible con todos los navegadores modernos
 "module": "commonjs" → es perfecto para que browserify maneje los módulos
 "strict": true → activa chequeos de tipo estrictos, lo cual es bueno para seguridad
+
+Crea el archivo `tsconfig.json` con:
 
 ```json
 {
@@ -77,28 +105,35 @@ Usa el plugin tsify para que Browserify entienda y transpile TypeScript.
 Convierte .ts a .js sobre la marcha durante el empaquetado.
 Le dice a tsify que use el archivo tsconfig.json para las reglas de compilación TypeScript.
 
+Agrega o actualiza la sección `"scripts"` de tu archivo `package.json` para facilitar la construcción y pruebas del proyecto.  
+A continuación tienes ejemplos de scripts útiles para proyectos con varios módulos y tests:
+
 ```json
 {
   "scripts": {
-    "build": "browserify src/app.ts -p tsify --project tsconfig.json -o bundle.js"
+    "build-autocustodia": "browserify [source.ts](http://_vscodecontentref_/0) -p tsify --project [tsconfig.json](http://_vscodecontentref_/1) -o dist/autocustodia.bundle.js",
+    "build-boveda": "browserify [source.ts](http://_vscodecontentref_/2) -p tsify --project [tsconfig.json](http://_vscodecontentref_/3) -o dist/boveda.bundle.js",
+    "build-herencia": "browserify [source.ts](http://_vscodecontentref_/4) -p tsify --project [tsconfig.json](http://_vscodecontentref_/5) -o dist/herencia.bundle.js",
+    "watch-autocustodia": "watchify [source.ts](http://_vscodecontentref_/6) -p tsify --project [tsconfig.json](http://_vscodecontentref_/7) -o [autocustodia.bundle.js](http://_vscodecontentref_/8) --debug --verbose",
+    "watch-boveda": "watchify [source.ts](http://_vscodecontentref_/9) -p tsify --project [tsconfig.json](http://_vscodecontentref_/10) -o [boveda.bundle.js](http://_vscodecontentref_/11) --debug --verbose",
+    "watch-herencia": "watchify [source.ts](http://_vscodecontentref_/12) -p tsify --project [tsconfig.json](http://_vscodecontentref_/13) -o [herencia.bundle.js](http://_vscodecontentref_/14) --debug --verbose",
+    "test": "jest --verbose"
   }
 }
 ```
 
 ---
 
-### 5. Construir el Proyecto
-Para generar el archivo `bundle.js`, ejecuta el siguiente comando:
+## 5. Ejecutar los Tests
+
+Para ejecutar todos los tests y ver los resultados detallados:
+
 ```bash
-npm run build
+npm test
 ```
-
----
-
-### 6. Alternativa: Construir Manualmente
-Si prefieres construir manualmente, puedes usar el siguiente comando:
+o
 ```bash
-npx browserify src/app.js -o bundle.js -t babelify
+npx jest --verbose
 ```
 
 ---

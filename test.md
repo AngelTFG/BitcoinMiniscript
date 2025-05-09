@@ -19,15 +19,21 @@ npx ts-jest config:init
 
 ## 2. Configuración de Jest
 
+Inicializar jest
+
+```bash
+npx ts-jest config:init
+```
+
 Edita tu archivo `jest.config.js` para asegurarte de que contiene lo siguiente:
 
 ```js
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   testEnvironment: "jsdom",
   transform: {
     "^.+\\.tsx?$": ["ts-jest", {}],
   },
-  setupFilesAfterEnv: ["<rootDir>/src/__test__/jest.setup.ts"],
 };
 ```
 

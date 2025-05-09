@@ -9,10 +9,9 @@
     "moduleResolution": "node",
     "types": ["jest"]
   },
-    "include": ["src/**/*.ts", "src/types.d.ts"],
+    "include": ["src/*.ts", "src/types.d.ts"],
     "exclude": [
       "node_modules",
-      "**/node_modules/@types/mocha",
       "src/__test__"
     ]
 }

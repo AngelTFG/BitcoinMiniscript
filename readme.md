@@ -4,8 +4,7 @@
 ```plaintext
 Proyecto/
 ├─ readme.md                  # Este archivo, documentación y guía del proyecto
-├─ test.md                    # Documentación o ejemplos de pruebas (opcional)
-├─ .gitignore                 # Archivos y carpetas que no se suben al control de versiones (por ejemplo, node_modules, dist, etc)
+├─ .gitignore                 # Archivos y carpetas que no se suben al control de versiones
 ├─ .prettierrc                # Configuración de formato de código para Prettier
 ├─ favicon.svg                # Icono de la página web
 ├─ MiniscriptRustLogo.png     # Imagen/logo del proyecto
@@ -26,12 +25,11 @@ Proyecto/
 │   └─ herencia.html          # Página HTML para herencia
 ├─ src/                       # Código fuente del proyecto
 │   ├─ types.d.ts             # Definiciones de tipos globales de TypeScript
+│   ├─ autocustodia.source.ts # Código fuente específico del módulo autocustodia
+│   ├─ boveda.source.ts       # Código fuente específico del módulo bóveda
+│   └─ herencia.source.ts     # Código fuente específico del módulo herencia
 │   ├─ __test__/              # Carpeta de tests automáticos
 │   │   ├─ interfaz.test.ts   # Pruebas de interfaz de usuario (DOM, utilidades visuales)
-│   ├─ autocustodia.source.ts          # Código fuente específico del módulo autocustodia
-│   ├─ boveda.source.ts                # Código fuente específico del módulo bóveda
-│   └─ herencia.source.ts              # Código fuente específico del módulo herencia
-
 
 ```
 
@@ -50,7 +48,7 @@ npm init -y
 ### 2. Instalar Dependencias
 Ejecutar los siguientes comandos para instalar las dependencias necesarias:
 
-Browserify está diseñado para empaquetar código de Node.js y proveer los polyfills necesarios para que funcionen en el navegador (incluyendo Buffer, process, etc.).
+**Browserify** está diseñado para empaquetar código de Node.js y proveer los polyfills necesarios para que funcionen en el navegador (incluyendo Buffer, process, etc.).
 
 ### Dependencias de desarrollo:
 ```bash
@@ -89,7 +87,7 @@ declare module 'entities/decode';
 ```
 
 
-### 3. Configuración tsconfig.json
+### 3. Configuración `tsconfig.json` 
 
 Crea un archivo `tsconfig.json` 
 
@@ -122,7 +120,7 @@ Crea el archivo `tsconfig.json` con:
 ---
 
 
-### 4. Configuración tsconfig.test.json
+### 4. Configuración `tsconfig.test.json`
 
 Crea un archivo `tsconfig.test.json` con la configuración especifica de jest
 
@@ -209,14 +207,10 @@ Para ejecutar todos los tests y ver los resultados detallados:
 ```bash
 npm test
 ```
-o
-```bash
-npx jest --verbose
-```
-o
+o 
 
 ```bash
-npm test -- --verbose
+npx jest --verbose
 ```
 
 

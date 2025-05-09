@@ -15,7 +15,7 @@
       <!-- Contenido superior -->
       <div class="top-panel">
         <div class="top-panel-inner">
-          <img src="./MiniscriptRustLogo.png" alt="Logo" class="top-panel-logo">
+          <img src="./MiniscriptLogo.png" alt="Logo" class="top-panel-logo">
           <h1> Miniscript playground  </h1>
           <span class="top-panel-right">🛝</span>
         </div>
@@ -28,6 +28,12 @@
           <h2>🗂️ Pólizas disponibles</h2>
 
           
+          <div class="button-row">
+            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/herencia.html')">🧬 Herencia digital </button>
+          </div>
+          <div class="button-row">
+            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/autocustodia.html')">🤖 Autocustodia programada </button>
+          </div>
           <div class="button-row">
             <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('/htmls/boveda.html')">🏦 Bóveda de seguridad</button>
           </div>
@@ -157,7 +163,7 @@ if (scriptName === 'autocustodia') {
     
       // Autocargar el primer proyecto al iniciar
       document.addEventListener('DOMContentLoaded', () => {
-        // Selecciona el primer botón del menú (Autocustodia)
+        // Selecciona el primer botón del menú (Herencua)
         const firstButton = document.querySelector('.menu .app-button');
         if (firstButton) {
           setActiveButton(firstButton);

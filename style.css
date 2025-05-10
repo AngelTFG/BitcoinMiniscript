@@ -1,5 +1,5 @@
 body {
-  max-width: 1600px;
+  max-width: 1700px;
   max-height: 100px;
   overflow: auto;
   font-family: 'Roboto', Arial, sans-serif;
@@ -37,7 +37,7 @@ button {
 /* === LAYOUT === */
 
 .main-wrapper {
-  max-width: 1550px; 
+  max-width: 1700px; 
   margin: 20px auto 0 auto; /* 20px arriba, auto a los lados, 0 abajo */
   padding: 0 20px 20px 20px; /* padding: top right bottom left */
   box-sizing: border-box;

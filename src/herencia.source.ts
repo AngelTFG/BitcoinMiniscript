@@ -1,5 +1,6 @@
 // Distributed under the MIT software license
-68
+
+
 import * as secp256k1 from '@bitcoinerlab/secp256k1';
 import * as descriptors from '@bitcoinerlab/descriptors';
 import { compilePolicy } from '@bitcoinerlab/miniscript';
@@ -100,8 +101,7 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
 
   // Mostrar los resultados en la consola
   console.log('Masternode fingerprint:', fingerprint);
-
-  console.log('Extended pubKey progenitor:', xpubHot);
+  console.log('Extended pubKey Progenitor:', xpubHot);
   console.log('Extended pubKey Heredero 1:', xpubDescen1);
   console.log('Extended pubKey Heredero 2:', xpubDescen2);
   console.log('Extended pubKey Abogado :', xpubRecover);
@@ -152,7 +152,6 @@ logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Iniciar el Miniscri
 
 /************************ ▶️ Inicializar Miniscript ************************/
 
-// Modificar initMiniscriptObjet para devolver un objeto con todos los datos necesarios
 const initMiniscriptObjet = async (
   network: any,
   explorer: string
@@ -170,6 +169,15 @@ const initMiniscriptObjet = async (
     // Obtener la altura actual del bloque desde el explorador
     const originalBlockHeight = parseInt(await(await fetch(`${explorer}/api/blocks/tip/height`)).text());
 
+    // Obtener el hash del último bloque
+    const blockHash = await (await fetch(`${explorer}/api/block-height/${originalBlockHeight}`)).text();
+
+    // Obtener los detalles del bloque (incluye el timestamp)
+    const blockDetails = await (await fetch(`${explorer}/api/block/${blockHash}`)).json();
+
+    // El timestamp viene en segundos desde Epoch, conviértelo a fecha legible
+    const blockDate = new Date(blockDetails.timestamp * 1000);
+
     // Obtener el nombre de la red
     const networkName = getNetworkName(network);
 
@@ -185,26 +193,20 @@ const initMiniscriptObjet = async (
     // Crear la política de gasto basada en el valor de "after"
     const policy = POLICY(herencia, recovery);
 
-    console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Policy: ${policy}`);
-
     // Compilar la política de gasto en Miniscript y verificar si es válida
     const { miniscript, issane } = compilePolicy(policy);
 
-    console.log('Generated Miniscript:', miniscript);
-
     if (!issane) throw new Error('Miniscript no válido.');
-    console.log('Miniscript sane:', miniscript);
 
     // Derivar las claves públicas de los nodos hijos
     const key_progen = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key progenitor:', key_progen.toString('hex'));
+    //console.log('Public key progenitor:', key_progen.toString('hex'));
     const key_descend_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key heredero 1:', key_descend_1.toString('hex'));
+    //console.log('Public key heredero 1:', key_descend_1.toString('hex'));
     const key_descend_2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_2}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key heredero 2:', key_descend_2.toString('hex'));
+    //console.log('Public key heredero 2:', key_descend_2.toString('hex'));
     const key_recover = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key  abogado:', key_recover.toString('hex'));
+    //console.log('Public key  abogado:', key_recover.toString('hex'));
 
     // Crear el descriptor Miniscript reemplazando las claves públicas en la política
     const wshDescriptor = `wsh(${miniscript
@@ -241,9 +243,7 @@ const initMiniscriptObjet = async (
         })
       )})`;
 
-    console.log('Descriptor completo:', wshDescriptor);
-
-    // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave de key_progen
+    // Crear el objeto tipo Output con el descriptor y la red, por defecto se utiliza la clave de key_progen
     const MiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
@@ -252,13 +252,35 @@ const initMiniscriptObjet = async (
 
     // Obtener la dirección derivada del Miniscript
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    console.log(`Miniscript address: ${miniscriptAddress}`);
-    console.log('Miniscript ouput:', MiniscriptObjet.expand());
 
     // Habilitar los botones de la interfaz de usuario después de la inicialización
     enableButtons();
 
+    // Mostrar información en la consola
+
+    console.log(`Frase mnemonica: ${MNEMONIC}`);
+
+    console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`);
+    console.log(`Ruta de derivación del Heredero 1: m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`);
+    console.log(`Ruta de derivación del Heredero 2: m${WSH_ORIGIN_PATH_DESCEN_2}${WSH_KEY_PATH}`);
+    console.log(`Ruta de derivación del Abogado: m${WSH_ORIGIN_PATH_RECOVERY}${WSH_KEY_PATH}`);
+
     calculateFingerprint(masterNode);
+
+    console.log('Public key Progenitor:', key_progen.toString('hex'));
+    console.log('Public key Heredero 1:', key_descend_1.toString('hex'));
+    console.log('Public key Heredero 2:', key_descend_2.toString('hex'));
+    console.log('Public key  Abogado:', key_recover.toString('hex'));
+
+    console.log(`Current block height: ${originalBlockHeight}`);
+    console.log(`Fecha y hora del  bloque (${originalBlockHeight}): ${blockDate.toLocaleString()}`);
+
+    console.log(`Policy: ${policy}`);
+    console.log('Generated Miniscript:', miniscript);
+    console.log(`Miniscript address: ${miniscriptAddress}`);
+    console.log('Descriptor:', wshDescriptor);
+    console.log('Miniscript object:', MiniscriptObjet.expand());
+
 
     // Retornar el descriptor Miniscript, la altura actual del bloque y la política de gasto
     return { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
@@ -309,7 +331,7 @@ const mostraMIniscript = async (
   const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(
     outputHerencia,
-    `📩 Dirección del Miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 
+    `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 
     'info'
   );
 

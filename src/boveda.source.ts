@@ -11,6 +11,7 @@ import * as descriptors from '@bitcoinerlab/descriptors';
 import { compilePolicy } from '@bitcoinerlab/miniscript';
 import { generateMnemonic, mnemonicToSeedSync } from 'bip39';
 import type { BIP32Interface } from 'bip32';
+import { encode as olderEncode } from 'bip68';
 import { encode as afterEncode } from 'bip65';
 import { Psbt, networks } from 'bitcoinjs-lib';
 import { createHash } from 'crypto';
@@ -30,9 +31,10 @@ const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
-const WSH_ORIGIN_PATH_VAULT = `/201'/1'/0'`;
-const WSH_ORIGIN_PATH_EMER = `/202'/1'/0'`;
-// 0/0 es la primera dirección derivada de la cuenta 0
+const WSH_ORIGIN_PATH_RETARDADA = `/201'/1'/0'`;
+const WSH_ORIGIN_PATH_INMEDIATA = `/202'/1'/0'`;
+
+// 0/0 es la primera dirección derivada de la cuenta 0, se usa para todas las claves
 const WSH_KEY_PATH = `/0/0`;
 
 // Semilla se utliza para calcular las claves, se dejan harcodeadas, aunque se podrían guardar en localStorage
@@ -40,12 +42,12 @@ const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuen
 
 // Creacion de la poliza de gasto
 const BLOCKS = 5;
+
 // Funcion que toma el valor de la poliza de gasto
-const POLICY = (after: number) => `or(pk(@emergencyKey),and(pk(@unvaultKey),after(${after})))`;
+const POLICY = (after: number) => `or(pk(@key_inmediata),and(pk(@key_retardada),after(${after})))`;
 
 // Consola pagina web
 const outputBoveda = document.getElementById('output-boveda') as HTMLElement;
-
 
 // Declaramos los tipos de mensaje de salida
 type OutputType = 'info' | 'success' | 'error';
@@ -64,27 +66,20 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   // Usar Uint8Array.prototype.slice() para tomar los primeros 4 bytes como fingerprint
   const fingerprint = Buffer.from(new Uint8Array(ripemd160Hash).slice(0, 4)).toString('hex');
 
-  // Ver el extended pubkey de unvaultKey
-  const unvaultChild = masterNode.derivePath(`m${WSH_ORIGIN_PATH_VAULT}`);
+  // Ver el extended pubkey de key_retardada
+  const retardadaChild = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RETARDADA}`);
   // Neutered para obtener la clave pública extendida
-  const unvaultTpub = unvaultChild.neutered().toBase58();
+  const retardadaTpub = retardadaChild.neutered().toBase58();
 
-  // Ver el extended pubkey de emergencyKey
-  const emergencyChild = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMER}`);
+  // Ver el extended pubkey de key_inmediata
+  const inmediataChild = masterNode.derivePath(`m${WSH_ORIGIN_PATH_INMEDIATA}`);
   // Neutered para obtener la clave pública extendida
-  const emergencyTpub = emergencyChild.neutered().toBase58();
+  const inmediataTpub = inmediataChild.neutered().toBase58();
 
   // Mostrar los resultados en la consola
   console.log('Masternode fingerprint:', fingerprint);
-  console.log('Extended pubKey unvault:', unvaultTpub);
-  console.log('Extended pubKey emergency:', emergencyTpub);
-
-  // Mostrar los resultados en la interfaz de usuario
-  /*
-  logToOutput(`🔑 Fingerprint del nodo maestro: <strong>${fingerprint}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey unvault: <strong>${unvaultTpub}</strong>`, 'info');
-  logToOutput(`🔑 Extended pubKey emergency: <strong>${emergencyTpub}</strong>`, 'info');
-  */
+  console.log('Extended pubKey apertura retardada:', retardadaTpub);
+  console.log('Extended pubKey apertura inmediata:', inmediataTpub);
 }
 
 // Función auxiliar para obtener el nombre de la red
@@ -121,7 +116,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(outputBoveda, '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
 
-/************************ ▶️ Inicializar Miniscript ************************/
+/************************ ▶️ INICIALIZAR EL MINISCRIPT ************************/
 
 // Modificar initMiniscriptObjet para devolver un objeto con todos los datos necesarios
 const initMiniscriptObjet = async (
@@ -130,7 +125,6 @@ const initMiniscriptObjet = async (
 ): Promise<{
   MiniscriptObjet: InstanceType<typeof Output>;
   originalBlockHeight: number;
-  policy: string;
   masterNode: BIP32Interface;
   wshDescriptor: string; // Agregar el descriptor original al retorno
 }> => {
@@ -139,6 +133,15 @@ const initMiniscriptObjet = async (
     const masterNode = BIP32.fromSeed(mnemonicToSeedSync(MNEMONIC), network);
     // Obtener la altura actual del bloque desde el explorador
     const originalBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+
+    // Obtener el hash del último bloque
+    const blockHash = await (await fetch(`${explorer}/api/block-height/${originalBlockHeight}`)).text();
+
+    // Obtener los detalles del bloque (incluye el timestamp)
+    const blockDetails = await (await fetch(`${explorer}/api/block/${blockHash}`)).json();
+
+    // El timestamp viene en segundos desde Epoch, conviértelo a fecha legible
+    const blockDate = new Date(blockDetails.timestamp * 1000);
 
     // Obtener el nombre de la red
     const networkName = getNetworkName(network);
@@ -154,61 +157,73 @@ const initMiniscriptObjet = async (
     // Crear la política de gasto basada en el valor de "after"
     const policy = POLICY(after);
 
-    console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Policy: ${policy}`);
-
     // Compilar la política de gasto en Miniscript y verificar si es válida
     const { miniscript, issane } = compilePolicy(policy);
-    if (!issane) throw new Error('Miniscript no válido.');
-    console.log('Miniscript sane:', miniscript);
 
-    // Derivar las claves públicas para unvaultKey y emergencyKey
-    const unvaultKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_VAULT}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key unvault:', unvaultKey.toString('hex'));
-    const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMER}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key emergency:', emergencyKey.toString('hex'));
+    if (!issane) throw new Error('Miniscript no válido.');
+
+    // Derivar las claves públicas para key_retardada y key_inmediata
+    const key_retardada = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`).publicKey;
+    const key_inmediata = masterNode.derivePath(`m${WSH_ORIGIN_PATH_INMEDIATA}${WSH_KEY_PATH}`).publicKey;
+
 
     // Crear el descriptor Miniscript reemplazando las claves públicas en la política
     const wshDescriptor = `wsh(${miniscript
       .replace(
-        '@unvaultKey',
+        '@key_retardada',
         descriptors.keyExpressionBIP32({
           masterNode: masterNode,
-          originPath: WSH_ORIGIN_PATH_VAULT,
+          originPath: WSH_ORIGIN_PATH_RETARDADA,
           keyPath: WSH_KEY_PATH
         })
       )
       .replace(
-        '@emergencyKey',
+        '@key_inmediata',
         descriptors.keyExpressionBIP32({
           masterNode: masterNode,
-          originPath: WSH_ORIGIN_PATH_EMER,
+          originPath: WSH_ORIGIN_PATH_INMEDIATA,
           keyPath: WSH_KEY_PATH
         })
       )})`;
 
-    console.log('Descriptor completo:', wshDescriptor);
-
-    
-    // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave de unvault
+    // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave key_retardada
     const MiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
-      signersPubKeys: [unvaultKey]
+      signersPubKeys: [key_retardada]
     });
 
     // Obtener la dirección derivada del Miniscript
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    console.log(`Miniscript address: ${miniscriptAddress}`);
-    console.log('Objeto MIniscript  descriptor expandido:', MiniscriptObjet.expand());
 
     // Habilitar los botones de la interfaz de usuario después de la inicialización
     enableButtons();
 
+    // Mostrar información en la consola
+
+    console.log(`Frase mnemonica: ${MNEMONIC}`);
+
+    console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`);
+    console.log(`Ruta de derivación del Heredero 1: m${WSH_ORIGIN_PATH_INMEDIATA}${WSH_KEY_PATH}`);
+
     calculateFingerprint(masterNode);
 
+    console.log('Public key apertura retardada:', key_retardada.toString('hex'));
+    console.log('Public key apertura inmediata:', key_inmediata.toString('hex'));
+
+
+    //console.log(`Current block height: ${originalBlockHeight}`);
+    console.log(`Fecha y hora del  bloque ${originalBlockHeight}: ${blockDate.toLocaleString()}`);
+
+    console.log(`Policy: ${policy}`);
+    console.log('Generated Miniscript:', miniscript);
+    console.log(`Miniscript address: ${miniscriptAddress}`);
+    console.log('Descriptor:', wshDescriptor);
+    console.log('Miniscript object:', MiniscriptObjet.expand());
+
+
     // Retornar el descriptor Miniscript, la altura actual del bloque y la política de gasto
-    return { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
+    return { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript
     console.error(`Error al inicializar Miniscript: ${error.message}`);
@@ -216,40 +231,36 @@ const initMiniscriptObjet = async (
   }
 };
 
-/************************ 📜 MOSTRAR MINISCRIPT ************************/
+/************************ 📜 CONSULTAR MINISCRIPT ************************/
 
 // Modificar las funciones para aceptar el objeto retornado
 const mostraMIniscript = async (
     MiniscriptObjet: InstanceType<typeof Output>,
     originalBlockHeight: number,
-    policy: string,
    explorer: string
 ): Promise<void> => {
   // Determinar la red en función del explorador
   const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
 
-  // Mostrar mensaje indicando la red utilizada
-  logToOutput(outputBoveda, `🌐 Red actual: <strong>${networkName}</strong>`, 'info');
-
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
   const restingBlocks = originalBlockHeight + BLOCKS - actualBlockHeight;
-  const restingColor = restingBlocks > 0 ? 'red' : 'green';
 
-  logToOutput(outputBoveda, `📦 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-  logToOutput(outputBoveda, `🔐 Altura de desbloqueo: <strong>${originalBlockHeight + BLOCKS}</strong>, profundidad en bloques: <strong style="color:${restingColor};">${restingBlocks}</strong>`, 'info');
-  logToOutput(outputBoveda, `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  logToOutput(outputBoveda, `📜 Miniscript compilado: <strong>${MiniscriptObjet.expand().expandedMiniscript}</strong>`);
+  // Calcular bloques restantes y colores para cada rama (en bóveda solo hay una rama principal y una retardada)
+  const displayRetardada = restingBlocks > 0 ? restingBlocks : 0;
+  const retardadaColor = restingBlocks > 0 ? 'red' : 'green';
+
+  // Mostrar información detallada y visualmente equivalente a la de herencia
+  logToOutput(outputBoveda, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
+  logToOutput(outputBoveda, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+  logToOutput(outputBoveda, `🔧 Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${retardadaColor};">${displayRetardada}</strong>`, 'info');
+
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
-  logToOutput(outputBoveda, 
-    `🔢 <span style="color:black;">Mostrando la primera dirección derivada del <strong>Miniscript</strong>:</span> <span style="color:green;">Address ${WSH_KEY_PATH}: <strong>${miniscriptAddress}</strong></span>`,
-    'info'
-  );
-
+  logToOutput(outputBoveda, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
   logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
 };
 
-/************************ 🔍 UTXOs Miniscrip ************************/
+/************************ 🔍 BUSCAR FONDOS ************************/
 
 const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
@@ -297,7 +308,7 @@ logToOutput(outputBoveda, `<span style="color:grey;">===========================
   }
 };
 
-/************************ 📤 Última TX Miniscript ************************/
+/************************ 🚛 ULTIMA TX ************************/
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
@@ -380,15 +391,15 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 };
 
 
-/************************ ⏰ Unvault 🔑  ************************/
+/************************ 🔧 APERTURA FORZADA 🕒 🔑  ************************/
 
-const unvaultPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
 
     console.log('Descriptor WSH:', wshDescriptor);
 
     // Crear un nuevo output para la clave de emergencia
-    const unvaultKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_VAULT}${WSH_KEY_PATH}`).publicKey;
+    const unvaultKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`).publicKey;
 
     const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
@@ -477,15 +488,15 @@ const unvaultPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
   }
 };
 
-/************************ 🚨 Emergency 🔑  ************************/
+/************************ 🆘 BOTON DEL PÁNICO 🔑  ************************/
 
-const emergencyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
 
     console.log('Descriptor WSH:', wshDescriptor);
 
     // Crear un nuevo output para la clave de emergencia
-    const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMER}${WSH_KEY_PATH}`).publicKey;
+    const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`).publicKey;
 
     const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
@@ -572,33 +583,27 @@ const emergencyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ Llamada a la funciones  ************************/
+/************************ Llamada a los botones  ************************/
 
-
-
-// Inicializar el Miniscript antes de usar las funciones
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
-    const { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
+    const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, policy, explorer));
+    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
-    document.getElementById('sendUnvaultBtn')?.addEventListener('click', () => unvaultPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('sendEmergBtn')?.addEventListener('click', () => emergencyPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('sendRetardadaBtn')?.addEventListener('click', () => retardadaPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('sendInmediataBtn')?.addEventListener('click', () => inmediataPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
     logToOutput(outputBoveda, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
     logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
   }
 };
 
-
 // Inicializar el Miniscript en la red de testnet
 document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
 // Inicializar el Miniscript en la red de Mainnet
 document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
-
-
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {

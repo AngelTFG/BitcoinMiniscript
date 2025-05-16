@@ -63,10 +63,6 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   // Usar Uint8Array.prototype.slice() para tomar los primeros 4 bytes como fingerprint
   const fingerprint = Buffer.from(new Uint8Array(ripemd160Hash).slice(0, 4)).toString('hex');
 
-  // Mostrar los resultados en la consola
-  console.log('Masternode fingerprint:', fingerprint);
-
-  
   // Ver el extended pubkey Daily
   const childDaily1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY1}`);
   const xpubDaily1 = childDaily1.neutered().toBase58();
@@ -88,24 +84,17 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   const childEmergency = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMERGENCY}`);
   const xpubEmergency = childEmergency.neutered().toBase58();
 
-  console.log('Extended pubKey daily 1:', xpubDaily1);
-  console.log('Extended pubKey daily 2:', xpubDaily2);
-  console.log('Extended pubKey daily 3:', xpubDaily3);
+
+    // Mostrar los resultados en la consola
+  console.log('Masternode fingerprint:', fingerprint);
+  console.log('Extended pubKey Diario 1:', xpubDaily1);
+  console.log('Extended pubKey Diario 2:', xpubDaily2);
+  console.log('Extended pubKey Custodio:', xpubDaily3);
 
   console.log('Extended pubKey Recovery  1:', xpubRecover1);
   console.log('Extended pubKey Recovery 2:', xpubRecover2);
 
   console.log('Extended pubKey Emergency:', xpubEmergency);
-
-  /*
-  // Mostrar los resultados en la interfaz de usuario
-  logToOutput(outputAutocustodia, `🔑 Extended pubKey daily 1: <strong>${xpubDaily1}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔑 Extended pubKey daily 2: <strong>${xpubDaily2}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔑 Extended pubKey daily 3: <strong>${xpubDaily3}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔑 Extended pubKey Recovery 1: <strong>${xpubRecover1}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔑 Extended pubKey Recovery 2: <strong>${xpubRecover2}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔑 Extended pubKey Emergency: <strong>${xpubEmergency}</strong>`, 'info');
-  */
 }
 
 // Función auxiliar para obtener el nombre de la red
@@ -144,24 +133,30 @@ logToOutput(outputAutocustodia, '🚀 <span style="color:blue;">Iniciar el Minis
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
-// Modificar initMiniscriptObjet para devolver un objeto con todos los datos necesarios
 const initMiniscriptObjet = async (
   network: any,
   explorer: string
 ): Promise<{
   MiniscriptObjet: InstanceType<typeof Output>;
   originalBlockHeight: number;
-  policy: string;
   masterNode: BIP32Interface;
   wshDescriptor: string; // Agregar el descriptor original al retorno
 }> => {
   try {
 
-
     // Nodo maestro del que se derivan el resto de hijos
     const masterNode = BIP32.fromSeed(mnemonicToSeedSync(MNEMONIC), network);
     // Obtener la altura actual del bloque desde el explorador
     const originalBlockHeight = parseInt(await(await fetch(`${explorer}/api/blocks/tip/height`)).text());
+
+    // Obtener el hash del último bloque
+    const blockHash = await (await fetch(`${explorer}/api/block-height/${originalBlockHeight}`)).text();
+
+    // Obtener los detalles del bloque (incluye el timestamp)
+    const blockDetails = await (await fetch(`${explorer}/api/block/${blockHash}`)).json();
+
+    // El timestamp viene en segundos desde Epoch, conviértelo a fecha legible
+    const blockDate = new Date(blockDetails.timestamp * 1000);
 
     // Obtener el nombre de la red
     const networkName = getNetworkName(network);
@@ -175,37 +170,22 @@ const initMiniscriptObjet = async (
     const recovery = afterEncode({ blocks: originalBlockHeight + BLOCKS_RECOVERY });
     const emergency = afterEncode({ blocks: originalBlockHeight + BLOCKS_EMERGENCY });
 
-
     // Crear la política de gasto basada en el valor de "after"
     const policy = POLICY(recovery, emergency);
-
-    console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Policy: ${policy}`);
 
     // Compilar la política de gasto en Miniscript y verificar si es válida
     const { miniscript, issane } = compilePolicy(policy);
 
-    console.log('Generated Miniscript:', miniscript);
-
     if (!issane) throw new Error('Miniscript no válido.');
-    console.log('Miniscript sane:', miniscript);
 
     // Derivar las claves públicas de los nodos hijos
     const key_daily1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY1}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key daily 1', key_daily1.toString('hex'));
     const key_daily2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY2}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key daily 2', key_daily2.toString('hex'));
     const key_daily3 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY3}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key daily 3', key_daily3.toString('hex'));
-
-
     const key_recovery_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY1}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key recovery 1:', key_recovery_1.toString('hex'));
     const key_recovery_2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY2}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key recovery 2:', key_recovery_2.toString('hex'));
-
     const key_emergency = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMERGENCY}${WSH_KEY_PATH}`).publicKey;
-    console.log('Public key emergency:', key_emergency.toString('hex'));
+
 
     // Crear el descriptor Miniscript reemplazando las claves públicas en la política
     const wshDescriptor = `wsh(${miniscript
@@ -258,7 +238,7 @@ const initMiniscriptObjet = async (
         })
       )})`;
 
-    console.log('Descriptor completo:', wshDescriptor);
+
 
     // Crear el objeto Output con el descriptor y la red, por defecto se utiliza la clave de key_emergency
     const MiniscriptObjet = new Output({
@@ -269,16 +249,35 @@ const initMiniscriptObjet = async (
 
     // Obtener la dirección derivada del Miniscript
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    console.log(`Miniscript address: ${miniscriptAddress}`);
-    console.log('Objeto Miniscript expandido:', MiniscriptObjet.expand());
-
-    calculateFingerprint(masterNode);
 
     // Habilitar los botones de la interfaz de usuario después de la inicialización
     enableButtons();
 
+    // Mostrar información en la consola
+
+    console.log(`Frase mnemonica: ${MNEMONIC}`);
+
+    console.log('Public key Diario 1', key_daily1.toString('hex'));
+    console.log('Public key Diario 2', key_daily2.toString('hex'));
+    console.log('Public key Custodio', key_daily3.toString('hex'));
+    console.log('Public key Recovery 1:', key_recovery_1.toString('hex'));
+    console.log('Public key Recovery 2:', key_recovery_2.toString('hex'));
+    console.log('Public key Emergency:', key_emergency.toString('hex'));
+
+    calculateFingerprint(masterNode);
+
+    //console.log(`Current block height: ${originalBlockHeight}`);
+    console.log(`Fecha y hora del  bloque ${originalBlockHeight}: ${blockDate.toLocaleString()}`);
+
+    console.log(`Policy: ${policy}`);
+    console.log('Generated Miniscript :', miniscript);
+    console.log(`Miniscript address: ${miniscriptAddress}`);
+    console.log('Descriptor:', wshDescriptor);
+    console.log('Miniscript object:', MiniscriptObjet.expand());
+
+
     // Retornar el descriptor Miniscript, la altura actual del bloque y la política de gasto
-    return { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
+    return { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript, initiazeNetwork muestra el error en la interfaz
     console.error(`Error al inicializar Miniscript: ${error.message}`);
@@ -286,13 +285,12 @@ const initMiniscriptObjet = async (
   }
 };
 
-/************************ 📜 MOSTRAR MINISCRIPT ************************/
+/************************ 📜 CONSULTAR MINISCRIPT ************************/
 
 // Modificar las funciones para aceptar el objeto retornado
 const mostraMIniscript = async (
     MiniscriptObjet: InstanceType<typeof Output>,
     originalBlockHeight: number,
-    policy: string,
    explorer: string
 ): Promise<void> => {
   // Determinar la red en función del explorador
@@ -305,27 +303,27 @@ const mostraMIniscript = async (
   const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
   const restingBlocksHer = originalBlockHeight + BLOCKS_EMERGENCY - actualBlockHeight;
 
-  const herenciaColor = restingBlocksHer > 0 ? 'red' : 'green';
-  const recoveryColor = restingBlocksRec > 0 ? 'red' : 'green';
+// ...código previo...
 
+// Calcular bloques restantes y colores para cada rama
+const displayRec = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
+const recColor = restingBlocksRec > 0 ? 'red' : 'green';
 
-  logToOutput(outputAutocustodia, `📦 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔐 Altura de desbloqueo recuperación: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `🔐 Altura de desbloqueo emergencia: <strong>${originalBlockHeight + BLOCKS_EMERGENCY}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
+const displayEmerg = restingBlocksHer <= 0 ? 0 : restingBlocksHer;
+const emergColor = restingBlocksHer > 0 ? 'red' : 'green';
 
-  logToOutput(outputAutocustodia, `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  logToOutput(outputAutocustodia, `📜 Miniscript compilado: <strong>${MiniscriptObjet.expand().expandedMiniscript}</strong>`);
+// Mostrar información detallada y visualmente equivalente a la de herencia
+logToOutput(outputAutocustodia, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
+logToOutput(outputAutocustodia, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+logToOutput(outputAutocustodia, `🛡️ Bloques para poder gastar en la rama de recuperación: <strong style="color:${recColor};">${displayRec}</strong>`, 'info');
+logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de emergencia: <strong style="color:${emergColor};">${displayEmerg}</strong>`, 'info');
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
-  logToOutput(outputAutocustodia, 
-    `🔢 <span style="color:black;">Mostrando la primera dirección derivada del <strong>Miniscript</strong>:</span> <span style="color:green;">Address ${WSH_KEY_PATH}: <strong>${miniscriptAddress}</strong></span>`,
-    'info'
-  );
-
+  logToOutput(outputAutocustodia, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
   logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
 };
 
-/************************ 🔍 MOSTRAR UTXOs  ************************/
+/************************ 🔍 BUSCAR FONDOS  **********************/
 
 const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
@@ -375,7 +373,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
   }
 };
 
-/************************ 📤 ULTIMA  TX  ************************/
+/************************ 🚛 ULTIMA  TX  ************************/
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
@@ -550,7 +548,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
   }
 };
 
-/************************  🔐 RECUPERACIÓN 🔑:🔑🔑  ************************/
+/************************  🛡️ RECUPERACIÓN 🕒 🔑:🔑🔑  ************************/
 
 const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -643,7 +641,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
   }
 };
 
-/************************ 🚨 EMERGENCIA 🔑 ************************/
+/************************ 🚨 EMERGENCIA ⏰ 🔑 ************************/
 
 const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -732,20 +730,18 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ Llamada a la funciones  ************************/
+/************************ Llamada a los botones  ************************/
 
-
-// Inicializar el Miniscript antes de usar las funciones
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
-    const { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
+    const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, policy, explorer));
+    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
-    document.getElementById('dailyButton')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('recoveryButton')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('emergencyButton')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('dailyBtn')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('recoveryBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('emergencyBtn')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
     logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
@@ -756,9 +752,6 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
 document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
 // Inicializar el Miniscript en la red de Mainnet
 document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
-
-
-
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {

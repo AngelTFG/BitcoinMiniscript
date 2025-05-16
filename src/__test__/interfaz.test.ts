@@ -42,11 +42,6 @@ describe('Interfaz de usuario - Botones del menú', () => {
       const btn = document.getElementById(id) as HTMLButtonElement;
       if (btn) btn.disabled = !enabled;
     };
-    // Simula la función que limpia la consola de salida del menú
-    window.clearOutput = function(id) {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = '';
-    };
     // Añade el comportamiento de selección visual al hacer click en los botones del menú
     document.querySelectorAll('.app-button').forEach(btn => {
       btn.addEventListener('click', (event) => {
@@ -55,7 +50,7 @@ describe('Interfaz de usuario - Botones del menú', () => {
     });
   });
 
-  // Prueba que solo un botón del menú queda activo visualmente al seleccionarlo (como en el frontend)
+  // Prueba que solo un botón del menú queda activo visualmente al seleccionarlo 
   it('al pulsar un botón, solo ese botón queda con la clase "active" y los demás no', () => {
     const buttons = document.querySelectorAll('.app-button');
     window.setActiveButton(buttons[1]);
@@ -77,7 +72,7 @@ describe('Interfaz de usuario - Botones del menú', () => {
     expect(buttons[1]).not.toHaveClass('active');
   });
 
-  // Prueba el comportamiento real de la UI: al hacer click en cada botón, solo ese queda activo (como en la navegación real)
+  // Prueba el comportamiento real de la UI: al hacer click en cada botón, solo ese queda activo 
   it('al hacer click en cada botón del menú, solo ese botón queda activo', () => {
     const buttons = document.querySelectorAll('.app-button');
     (buttons[0] as HTMLButtonElement).click();
@@ -96,11 +91,6 @@ describe('Interfaz de usuario - Botones del menú', () => {
     expect(buttons[1]).not.toHaveClass('active');
   });
 
-  // Prueba que limpiar la consola no lanza error si el elemento no existe (robustez del frontend)
-  it('clearOutput no lanza error si el id no existe', () => {
-    expect(() => window.clearOutput('no-existe')).not.toThrow();
-  });
-
   // Prueba que puedes habilitar y deshabilitar botones del frontend (por ejemplo, tras inicializar la red)
   it('setButtonEnabled habilita y deshabilita el botón', () => {
     window.setButtonEnabled('btn', false);
@@ -109,21 +99,21 @@ describe('Interfaz de usuario - Botones del menú', () => {
     expect((document.getElementById('btn') as HTMLButtonElement).disabled).toBe(false);
   });
 
-  // Prueba que intentar habilitar/deshabilitar un botón inexistente no rompe la app (robustez)
+  // Prueba que intentar habilitar/deshabilitar un botón inexistente no rompe la ejecución de la app 
   it('setButtonEnabled no lanza error si el botón no existe', () => {
     expect(() => window.setButtonEnabled('no-btn', true)).not.toThrow();
   });
 });
 
-// Grupo de tests para utilidades de output y scripts (consola y carga dinámica de JS en el frontend)
-describe('Interfaz de usuario - Output y utilidades', () => {
+// Grupo de tests para la consola de salida (output)
+describe('Interfaz de usuario - Output', () => {
   beforeEach(() => {
     // Simula la consola de salida y un botón genérico en el frontend
     document.body.innerHTML = `
       <div id="output"></div>
       <button id="btn"></button>
     `;
-    // Simula la función que añade mensajes a la consola de salida (como logToOutput en el frontend)
+    // Simula la función que añade mensajes a la consola de salida (como logToOutput)
     window.logToOutput = function(id, message) {
       const el = document.getElementById(id);
       if (el) el.innerHTML += `<p>${message}</p>`;
@@ -133,20 +123,9 @@ describe('Interfaz de usuario - Output y utilidades', () => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = '';
     };
-    // Simula la función que habilita/deshabilita botones
-    window.setButtonEnabled = function(id, enabled) {
-      const btn = document.getElementById(id) as HTMLButtonElement;
-      if (btn) btn.disabled = !enabled;
-    };
-    // Simula la función que añade scripts dinámicamente al body (como cuando cambias de proyecto)
-    window.addScript = function(src) {
-      const script = document.createElement('script');
-      script.src = src;
-      document.body.appendChild(script);
-    };
   });
 
-  // Prueba que logToOutput añade un mensaje a la consola de salida (como mostrar logs en el frontend)
+  // Prueba que logToOutput añade un mensaje a la consola de salida (como mostrar logs)
   it('logToOutput añade un mensaje al output', () => {
     window.logToOutput('output', 'Hola mundo');
     expect(document.getElementById('output')).toHaveTextContent('Hola mundo');
@@ -167,14 +146,33 @@ describe('Interfaz de usuario - Output y utilidades', () => {
     expect(document.getElementById('output')!.innerHTML).toBe('');
   });
 
-  // Prueba que addScript añade un script al body (como cuando se carga el JS de un proyecto al seleccionarlo)
+  // Prueba que limpiar la consola no lanza error si el elemento no existe (robustez del frontend)
+  it('clearOutput no lanza error si el id no existe', () => {
+    expect(() => window.clearOutput('no-existe')).not.toThrow();
+  });
+});
+
+// Grupo de tests para la carga dinámica de scripts (JS de cada proyecto)
+describe('Interfaz de usuario - Carga de scripts', () => {
+  beforeEach(() => {
+    // Simula el DOM vacío para pruebas de scripts
+    document.body.innerHTML = '';
+    // Simula la función que añade scripts dinámicamente al body (como cuando cambias de proyecto)
+    window.addScript = function(src) {
+      const script = document.createElement('script');
+      script.src = src;
+      document.body.appendChild(script);
+    };
+  });
+
+  // Prueba que addScript añade un script al body al seleccionarl el JS de un proyecto)
   it('addScript añade un script al body', () => {
     window.addScript('test.js');
     const script = document.querySelector('script[src="test.js"]');
     expect(script).not.toBeNull();
   });
 
-  // Prueba que addScript puede añadir varios scripts diferentes (como cargar varios módulos JS en el frontend)
+  // Prueba que addScript puede añadir varios scripts diferentes ( cargar varios módulos JS)
   it('addScript puede añadir varios scripts con diferentes src', () => {
     window.addScript('uno.js');
     window.addScript('dos.js');

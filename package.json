@@ -12,9 +12,8 @@
     "watch-autocustodia": "watchify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js --debug --verbose",
     "watch-boveda": "watchify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js --debug --verbose",
     "watch-herencia": "watchify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js --debug --verbose"
-
-
   },
+  
   "keywords": [
     "Bitcoin",
     "Miniscript",

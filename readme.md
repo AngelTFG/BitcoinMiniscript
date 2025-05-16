@@ -1,13 +1,13 @@
-# Guía de Configuración del Proyecto Browserify 
+# Guía de Configuración del Proyecto Miniscript Playground 
 
 ## Estructura del Proyecto
-```plaintext
-Proyecto/
+```json
+Playground/
 ├─ readme.md                  # Este archivo, documentación y guía del proyecto
 ├─ .gitignore                 # Archivos y carpetas que no se suben al control de versiones
 ├─ .prettierrc                # Configuración de formato de código para Prettier
 ├─ favicon.svg                # Icono de la página web
-├─ MiniscriptRustLogo.png     # Imagen/logo del proyecto
+├─ btcLogo.png     # Imagen/logo del proyecto
 ├─ index.html                 # Página principal que carga los bundles JS
 ├─ style.css                  # Estilos CSS globales del proyecto
 ├─ jest.config.js             # Configuración de Jest para pruebas automáticas
@@ -23,13 +23,13 @@ Proyecto/
 │   ├─ autocustodia.html      # Página HTML para autocustodia
 │   ├─ boveda.html            # Página HTML para bóveda
 │   └─ herencia.html          # Página HTML para herencia
-├─ src/                       # Código fuente del proyecto
-│   ├─ types.d.ts             # Definiciones de tipos globales de TypeScript
-│   ├─ autocustodia.source.ts # Código fuente específico del módulo autocustodia
-│   ├─ boveda.source.ts       # Código fuente específico del módulo bóveda
-│   └─ herencia.source.ts     # Código fuente específico del módulo herencia
-│   ├─ __test__/              # Carpeta de tests automáticos
-│   │   ├─ interfaz.test.ts   # Pruebas de interfaz de usuario (DOM, utilidades visuales)
+└─ src/                       # Código fuente del proyecto
+    ├─ types.d.ts             # Definiciones de tipos globales de TypeScript
+    ├─ autocustodia.source.ts # Código fuente específico del módulo autocustodia
+    ├─ boveda.source.ts       # Código fuente específico del módulo bóveda
+    ├─ herencia.source.ts     # Código fuente específico del módulo herencia
+    └─ __test__/              # Carpeta de tests automáticos
+        └─ interfaz.test.ts   # Pruebas de interfaz de usuario (DOM, utilidades visuales)
 
 ```
 
@@ -38,7 +38,7 @@ Proyecto/
 ## Pasos para Configurar el Proyecto
 
 ### 1. Inicializar el Proyecto
-Ejecuta el siguiente comando para crear un archivo `package.json`:
+Ejecutar el siguiente comando para crear un archivo `package.json`:
 ```bash
 npm init -y
 ```
@@ -63,10 +63,10 @@ npm install @bitcoinerlab/secp256k1 @bitcoinerlab/descriptors bip39 bitcoinjs-li
 
 ---
 
-### 3 .Declaraciones de tipos para módulos que no tienen tipado  en TypeScrip
+### 3 .Declaraciones de tipos para módulos que no tienen tipado  en TypeScript
 
 
-Sirve para que el compilador TypeScript no muestre errores al importar y usar los módulos 
+Para que el compilador TypeScript no muestre errores al importar y usar los módulos 
 
 Crear el archivo `types.d.ts` con:
 
@@ -89,13 +89,11 @@ declare module 'entities/decode';
 
 ### 3. Configuración `tsconfig.json` 
 
-Crea un archivo `tsconfig.json` 
+Crear el archivo `tsconfig.json` 
 
-"target": "ES6" → tu código se transpila a ES6, que ya es compatible con todos los navegadores modernos
-"module": "commonjs"  → para que browserify maneje los módulos
-"strict": true → activa chequeos de tipo estrictos, lo cual es bueno para seguridad
-
-Crea el archivo `tsconfig.json` con:
+"target": "ES6" → El código se transpila a ES6, que ya es compatible con todos los navegadores modernos
+"module": "commonjs"  → Para que  browserify maneje los módulos
+"strict": true → Activa chequeos de tipo estrictos, por seguridad
 
 ```json
 {
@@ -122,7 +120,7 @@ Crea el archivo `tsconfig.json` con:
 
 ### 4. Configuración `tsconfig.test.json`
 
-Crea un archivo `tsconfig.test.json` con la configuración especifica de jest
+Crear un archivo `tsconfig.test.json` con la configuración especifica de **jest**
 
 
 ```json
@@ -138,28 +136,33 @@ Crea un archivo `tsconfig.test.json` con la configuración especifica de jest
 ---
 
 
-### 4. Configuración de Scripts en `package.json`
-Agrega el siguiente script en la sección `"scripts"` de tu archivo `package.json`:
-Convierte .ts a .js durante el empaquetado.
-Le dice a tsify que use el archivo tsconfig.json para las reglas de compilación TypeScript.
+### 5. Configuración de Scripts en `package.json`
+
+Agregar el siguiente script en la sección `"scripts"` del archivo `package.json`:
+
+**browserify** empaqueta el codigo en un bundle JS
+**tsify** convierte .ts a .js durante el empaquetado, ahorrando un paso
+**watchify** se queda obsarvando y lanza automaticamente el empaquetado
 
 ```json
 {
   "scripts": {
-    "build-autocustodia": "browserify [source.ts](http://_vscodecontentref_/0) -p tsify --project [tsconfig.json](http://_vscodecontentref_/1) -o dist/autocustodia.bundle.js",
-    "build-boveda": "browserify [source.ts](http://_vscodecontentref_/2) -p tsify --project [tsconfig.json](http://_vscodecontentref_/3) -o dist/boveda.bundle.js",
-    "build-herencia": "browserify [source.ts](http://_vscodecontentref_/4) -p tsify --project [tsconfig.json](http://_vscodecontentref_/5) -o dist/herencia.bundle.js",
-    "watch-autocustodia": "watchify [source.ts](http://_vscodecontentref_/6) -p tsify --project [tsconfig.json](http://_vscodecontentref_/7) -o [autocustodia.bundle.js](http://_vscodecontentref_/8) --debug --verbose",
-    "watch-boveda": "watchify [source.ts](http://_vscodecontentref_/9) -p tsify --project [tsconfig.json](http://_vscodecontentref_/10) -o [boveda.bundle.js](http://_vscodecontentref_/11) --debug --verbose",
-    "watch-herencia": "watchify [source.ts](http://_vscodecontentref_/12) -p tsify --project [tsconfig.json](http://_vscodecontentref_/13) -o [herencia.bundle.js](http://_vscodecontentref_/14) --debug --verbose",
-    "test": "jest --verbose"
-  }
+    "test": "jest",
+
+    "build-autocustodia": "browserify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js",
+    "build-boveda": "browserify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js",
+    "build-herencia": "browserify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js",
+    
+    "watch-autocustodia": "watchify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js --debug --verbose",
+    "watch-boveda": "watchify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js --debug --verbose",
+    "watch-herencia": "watchify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js --debug --verbose"
+  },
 }
 ```
 
 ---
 
-### 5. Compilar el código
+### 6. Compilar el código
 
 Compilar en un paso o en modo watch
 
@@ -178,7 +181,11 @@ npm run watch-herencia
 ---
 
 
-### 6. Configuración de Jest
+### 7. Instalar extension `Live Server` en VSCode
+
+Instalar desde el marketplace y activar "Go Live"
+
+### 8. Configuración de Jest
 
 Inicializar jest
 
@@ -200,7 +207,7 @@ module.exports = {
 
 Esto configura Jest para trabajar con TypeScript y simular el DOM en los tests.
 
-### 7. Ejecutar los Tests
+### 9. Ejecutar los Tests
 
 Para ejecutar todos los tests y ver los resultados detallados:
 

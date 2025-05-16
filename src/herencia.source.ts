@@ -39,24 +39,7 @@ const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuen
 const BLOCKS_HERENCIA = 3;
 const BLOCKS_RECOVERY = 5;
 
-// Funcion que toma el valor de la poliza de gasto
-/*
-OR
-├── pk(key_progen) 
-└── OR
-           ├── THRESHOLD(3 of 3) 
-            │         ├── pk(key_descend_1) 
-            │         ├── pk(key_descend_2) 
-            │         └── older(5) 
-           └── THRESHOLD(2 of 2) 
-                      ├── pk(key_recovery) 
-                      └── older(10)
-*/
-////
-
-
 const POLICY = (after_her: number, after_rec: number) => `or(pk(@key_progen), or(thresh(3, pk(@key_descend_1), pk(@key_descend_2), after(${after_her})), thresh(2, pk(@key_recover), after(${after_rec}))))`;
-
 
 // Consola pagina web
 const outputHerencia = document.getElementById('output-herencia') as HTMLElement;
@@ -79,9 +62,9 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   const fingerprint = Buffer.from(new Uint8Array(ripemd160Hash).slice(0, 4)).toString('hex');
 
   // Ver el extended pubkey de unvaultKey
-  const childHot = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}`);
+  const childProgenitor = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}`);
   // Neutered para obtener la clave pública extendida
-  const xpubHot = childHot.neutered().toBase58();
+  const xpubProgenitor = childProgenitor.neutered().toBase58();
 
   // Ver el extended pubkey de emergencyKey
   const chidDescen1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_1}`);
@@ -101,19 +84,10 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
 
   // Mostrar los resultados en la consola
   console.log('Masternode fingerprint:', fingerprint);
-  console.log('Extended pubKey Progenitor:', xpubHot);
+  console.log('Extended pubKey Progenitor:', xpubProgenitor);
   console.log('Extended pubKey Heredero 1:', xpubDescen1);
   console.log('Extended pubKey Heredero 2:', xpubDescen2);
   console.log('Extended pubKey Abogado :', xpubRecover);
-
-  /*
-  // Mostrar los resultados en la interfaz de usuario
-  logToOutput(outputHerencia,  `🔑 Fingerprint del nodo maestro: <strong>${fingerprint}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔑 Extended pubKey hot: <strong>${xpubHot}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔑 Extended pubKey Descendiente 1: <strong>${xpubDescen1}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔑 Extended pubKey Descendiente 2: <strong>${xpubDescen2}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🔑 Extended pubKey Recovery: <strong>${xpubRecover}</strong>`, 'info');
-*/
 }
 
 // Función auxiliar para obtener el nombre de la red
@@ -150,7 +124,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
 
-/************************ ▶️ Inicializar Miniscript ************************/
+/************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
 const initMiniscriptObjet = async (
   network: any,
@@ -158,7 +132,6 @@ const initMiniscriptObjet = async (
 ): Promise<{
   MiniscriptObjet: InstanceType<typeof Output>;
   originalBlockHeight: number;
-  policy: string;
   masterNode: BIP32Interface;
   wshDescriptor: string; // Agregar el descriptor original al retorno
 }> => {
@@ -200,13 +173,9 @@ const initMiniscriptObjet = async (
 
     // Derivar las claves públicas de los nodos hijos
     const key_progen = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`).publicKey;
-    //console.log('Public key progenitor:', key_progen.toString('hex'));
     const key_descend_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`).publicKey;
-    //console.log('Public key heredero 1:', key_descend_1.toString('hex'));
     const key_descend_2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_2}${WSH_KEY_PATH}`).publicKey;
-    //console.log('Public key heredero 2:', key_descend_2.toString('hex'));
     const key_recover = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}${WSH_KEY_PATH}`).publicKey;
-    //console.log('Public key  abogado:', key_recover.toString('hex'));
 
     // Crear el descriptor Miniscript reemplazando las claves públicas en la política
     const wshDescriptor = `wsh(${miniscript
@@ -272,8 +241,8 @@ const initMiniscriptObjet = async (
     console.log('Public key Heredero 2:', key_descend_2.toString('hex'));
     console.log('Public key  Abogado:', key_recover.toString('hex'));
 
-    console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Fecha y hora del  bloque (${originalBlockHeight}): ${blockDate.toLocaleString()}`);
+    //console.log(`Current block height: ${originalBlockHeight}`);
+    console.log(`Fecha y hora del  bloque ${originalBlockHeight}: ${blockDate.toLocaleString()}`);
 
     console.log(`Policy: ${policy}`);
     console.log('Generated Miniscript:', miniscript);
@@ -283,7 +252,7 @@ const initMiniscriptObjet = async (
 
 
     // Retornar el descriptor Miniscript, la altura actual del bloque y la política de gasto
-    return { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor };
+    return { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript
     console.error(`Error al inicializar Miniscript: ${error.message}`);
@@ -291,13 +260,12 @@ const initMiniscriptObjet = async (
   }
 };
 
-/************************ 📜 MOSTRAR MINISCRIPT ************************/
+/************************ 📜 CONSULTAR MINISCRIPT ************************/
 
 // Modificar las funciones para aceptar el objeto retornado
-const mostraMIniscript = async (
+const mostrarMIniscript = async (
     MiniscriptObjet: InstanceType<typeof Output>,
     originalBlockHeight: number,
-    policy: string,
    explorer: string
 ): Promise<void> => {
   // Determinar la red en función del explorador
@@ -323,22 +291,13 @@ const mostraMIniscript = async (
   logToOutput(outputHerencia,  `🧓🏻 Bloques para poder gastar en la rama del progenitor: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧑🏻👨🏻 Bloques para poder gastar en la rama de herencia: <strong style="color:${herenColor};">${displayHerencia}</strong>`, 'info');
   logToOutput(outputHerencia,  `👤 Bloques para poder gastar en la rama de disputa: <strong style="color:${recoveryColor};">${displayRecovery}</strong>`, 'info');
-  //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo herencia: <strong>${originalBlockHeight + BLOCKS_HERENCIA}</strong>, profundidad en bloques: <strong style="color:${herenciaColor};">${restingBlocksHer}</strong>`, 'info');
-  //logToOutput(outputHerencia,  `🔐 Altura de desbloqueo recovery: <strong>${originalBlockHeight + BLOCKS_RECOVERY}</strong>, profundidad en bloques: <strong style="color:${recoveryColor};">${restingBlocksRec}</strong>`, 'info');
-  //logToOutput(outputHerencia,  `🔏 Póliza de gasto: <strong>${policy}</strong>`, 'info');
-  //logToOutput(outputHerencia,  `📜 Miniscript compilado: <strong>${MiniscriptObjet.expand().expandedMiniscript}</strong>`);
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
-  logToOutput(
-    outputHerencia,
-    `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 
-    'info'
-  );
-
-  logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+  logToOutput(outputHerencia, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
+  logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
 };
 
-/************************ 🔍 MOSTRAR UTXOs  ************************/
+/************************ 🔍 BUSCAR FONDOS  ************************/
 
 const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
@@ -388,7 +347,7 @@ logToOutput(outputHerencia,  `<span style="color:grey;">========================
   }
 };
 
-/************************ 📤 ULTIMA TX ************************/
+/************************ 🚛 ULTIMA TX ************************/
 
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
@@ -468,7 +427,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 };
 
 
-/************************ 🧓🏻  PROGENITOR  🔑  ************************/
+/************************ 🧓🏻  ACCESO DIRECTO  🔑  ************************/
 
 const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -565,7 +524,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
 };
 
 
-/************************ ⏰  HERENCIA 🔑  ************************/
+/************************ 🧑🏻👨🏻  HERENCIA 🕒 🔑  ************************/
 
 const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -659,7 +618,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ 🚨 DISPUTA 🔑  ************************/
+/************************ 👤 DISPUTA ⏰  🔑  ************************/
 
 const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
   try {
@@ -752,20 +711,18 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
   }
 };
 
-/************************ Llamada a la funciones  ************************/
+/************************ Llamada a los botones  ************************/
 
-
-// Inicializar el Miniscript antes de usar las funciones
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
-    const { MiniscriptObjet, originalBlockHeight, policy, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
+    const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, policy, explorer));
+    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostrarMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
-    document.getElementById('hotButton')?.addEventListener('click', () => hotPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('henrenciaButton')?.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('recoveryButton')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('directBtn')?.addEventListener('click', () => hotPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('henrenciaBtn')?.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('disputaBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
     logToOutput(outputHerencia,  `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
     logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
@@ -776,9 +733,6 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
 document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
 // Inicializar el Miniscript en la red de Mainnet
 document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
-
-
-
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {

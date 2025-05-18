@@ -293,28 +293,29 @@ const mostraMIniscript = async (
     originalBlockHeight: number,
    explorer: string
 ): Promise<void> => {
+
   // Determinar la red en función del explorador
   const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
 
-  // Mostrar mensaje indicando la red utilizada
-  logToOutput(outputAutocustodia, `🌐 Red actual: <strong>${networkName}</strong>`, 'info');
-
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+  const restingBlocksDiario = originalBlockHeight - actualBlockHeight;
   const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
-  const restingBlocksHer = originalBlockHeight + BLOCKS_EMERGENCY - actualBlockHeight;
+  const restingBlocksEmer = originalBlockHeight + BLOCKS_EMERGENCY - actualBlockHeight;
 
-// ...código previo...
+  // Control sobre el numero de bloques restantes y el color que se le asigna
+const displayDiario = restingBlocksDiario <= 0 ? 0 : restingBlocksDiario;
+const DiarioColor = restingBlocksDiario > 0 ? 'red' : 'green';
 
-// Calcular bloques restantes y colores para cada rama
 const displayRec = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
 const recColor = restingBlocksRec > 0 ? 'red' : 'green';
 
-const displayEmerg = restingBlocksHer <= 0 ? 0 : restingBlocksHer;
-const emergColor = restingBlocksHer > 0 ? 'red' : 'green';
+const displayEmerg = restingBlocksEmer <= 0 ? 0 : restingBlocksEmer;
+const emergColor = restingBlocksEmer > 0 ? 'red' : 'green';
 
 // Mostrar información detallada y visualmente equivalente a la de herencia
 logToOutput(outputAutocustodia, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
 logToOutput(outputAutocustodia, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+logToOutput(outputAutocustodia,  `🗓️ Bloques para poder gastar en la rama de uso diario: <strong style="color:${DiarioColor};">${displayDiario}</strong>`, 'info');
 logToOutput(outputAutocustodia, `🛡️ Bloques para poder gastar en la rama de recuperación: <strong style="color:${recColor};">${displayRec}</strong>`, 'info');
 logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de emergencia: <strong style="color:${emergColor};">${displayEmerg}</strong>`, 'info');
 
@@ -330,20 +331,28 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputAutocustodia, `📦 Consultando UTXOs en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🔍 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
+    // Verificar si se encontraron UTXOs
     if (utxos.length === 0) {
-      logToOutput(outputAutocustodia, `🚫 <span style="color:red;">No se encontraron UTXOs en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
+      logToOutput(
+        outputAutocustodia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+        'error'
+      );
       logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
       return;
     }
 
-
-    logToOutput(outputAutocustodia, `✅ UTXOs encontrados en la dirección: <strong>${miniscriptAddress}</strong>`, 'success');
+    logToOutput(
+      outputAutocustodia,
+      `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+      'success'
+    );
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -353,20 +362,14 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
     sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
-      const confirmationStatus = utxo.status.confirmed
-        ? '<span style="color:green;">✅ confirmado</span>'
-        : '<span style="color:red;">❓ no confirmado</span>';
+      const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
       const blockHeight = utxo.status.block_height || 'Desconocido';
-      logToOutput(outputAutocustodia, 
-        `🔹 UTXO #${index + 1}: <span style="color:red;">${utxo.value}</span> sats (TXID: <code>${utxo.txid}</code>) ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
-        'info'
-      );
+      logToOutput(outputAutocustodia, `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
     });
 
     // Mostrar el total de los UTXOs
     logToOutput(outputAutocustodia, `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
     logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
-
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
     logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
@@ -377,26 +380,20 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputAutocustodia, `📦 Consultando última transacción en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚛 Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
     console.log('Transacciones:', txHistory);
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
-      logToOutput(outputAutocustodia, `<span style="color:red;">🚫 No se encontraron transacciones en la dirección <strong>${miniscriptAddress}</strong></span>`);
+      logToOutput(outputAutocustodia,  `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
       logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
       return;
     }
     
-    // Obtener detalles de la primera transacción
-    // const txnID = txHistory[0].txid;
-    // Obtener detalles la primera transacción
-    // const txnID = txHistory[txHistory.length -1].txid;
-
     // Obtener detalles de la transacción con el block_height más alto, que indica la última transacción
     const txnID = txHistory.sort((a: any, b: any) => b.status.block_height - a.status.block_height)[0].txid;
-
     const txDetails = await(await fetch(`${explorer}/api/tx/${txnID}`)).json();
 
     // Determinar si es envío o recepción
@@ -414,13 +411,10 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
       tipo = '🔍 Participación no directa';
     }
 
-    const confirmationStatus = txDetails.status.confirmed
-      ? '<span style="color:green;">✅ confirmada</span>'
-      : '<span style="color:red;">❓ no confirmada</span>';
-    logToOutput(outputAutocustodia, 
-      `<strong>${tipo}</strong> transacción: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a> ${confirmationStatus}`,
-      'success'
-    );
+    const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;">✅ confirmada</span>' : '<span style="color:red;">❓ no confirmada</span>';
+    
+    logToOutput(outputAutocustodia,  `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
+    logToOutput(outputAutocustodia, `${tipo} ${confirmationStatus}`, 'success');
 
     // Mostrar detalles de las entradas
     if (esEmisor) {

@@ -268,6 +268,7 @@ const mostrarMIniscript = async (
     originalBlockHeight: number,
    explorer: string
 ): Promise<void> => {
+
   // Determinar la red en función del explorador
   const networkName = explorer.includes('testnet') ? 'Testnet' : 'Mainnet';
 
@@ -288,7 +289,7 @@ const mostrarMIniscript = async (
 
   logToOutput(outputHerencia,  `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-  logToOutput(outputHerencia,  `🧓🏻 Bloques para poder gastar en la rama del progenitor: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
+  logToOutput(outputHerencia,  `🧓🏻 Bloques para poder gastar en la rama de acceso directo: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧑🏻👨🏻 Bloques para poder gastar en la rama de herencia: <strong style="color:${herenColor};">${displayHerencia}</strong>`, 'info');
   logToOutput(outputHerencia,  `👤 Bloques para poder gastar en la rama de disputa: <strong style="color:${recoveryColor};">${displayRecovery}</strong>`, 'info');
 
@@ -304,46 +305,44 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputHerencia,  `🔍 Consultando fondos...`, 'info');
+    logToOutput(outputHerencia, `🔍 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
+    // Verificar si se encontraron UTXOs
     if (utxos.length === 0) {
-      logToOutput(outputHerencia,  `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'error');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+      logToOutput(
+        outputHerencia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+        'error'
+      );
+      logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
       return;
     }
 
-    logToOutput(outputHerencia,  `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
+    logToOutput(outputHerencia, `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
 
-// Ordenar los UTXOs por block_height en orden ascendente (de más antiguo a más reciente)
-const sortedUtxos = utxos.sort((a: any, b: any) => (a.status.block_height || 0) - (b.status.block_height || 0));
+    // Ordenar los UTXOs por block_height en orden ascendente (de más antiguo a más reciente)
+    const sortedUtxos = utxos.sort((a: any, b: any) => (a.status.block_height || 0) - (b.status.block_height || 0));
 
-// Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
-sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
-  const confirmationStatus = utxo.status.confirmed
-    ? '<span style="color:green;">✅ confirmado</span>'
-    : '<span style="color:red;">❓ no confirmado</span>';
+    // Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
+    sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
+      const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
+      const blockHeight = utxo.status.block_height || 'Desconocido';
+      logToOutput(outputHerencia, `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
+    });
 
-  const blockHeight = utxo.status.block_height || 'Desconocido';
-  logToOutput(outputHerencia,  
-    `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
-    'info'
-  );
-});
-
-// Mostrar el total de los UTXOs
-logToOutput(outputHerencia,  `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
-
+    // Mostrar el total de los UTXOs
+    logToOutput(outputHerencia, `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
+    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
-    logToOutput(outputHerencia,  `❌ Error al consultar los fondos: ${error.message}`, 'error');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia, `❌ Error al consultar los fondos: ${error.message}`, 'error');
+    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -352,29 +351,24 @@ logToOutput(outputHerencia,  `<span style="color:grey;">========================
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputHerencia,  `🚛 Consultando última transacción...`, 'info');
+    logToOutput(outputHerencia, `🚛 Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
     console.log('Transacciones:', txHistory);
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
-      logToOutput(outputHerencia,  `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+      logToOutput(
+        outputHerencia,
+        `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`
+      );
+      logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
       return;
     }
 
-    // Obtener detalles de la primera transacción
-    // const txnID = txHistory[0].txid;
-    // Obtener detalles la primera transacción
-    // const txnID = txHistory[txHistory.length -1].txid;
-
     // Obtener detalles de la transacción con el block_height más alto, que indica la última transacción
     const txnID = txHistory.sort((a: any, b: any) => b.status.block_height - a.status.block_height)[0].txid;
-
-
-
-    const txDetails = await(await fetch(`${explorer}/api/tx/${txnID}`)).json();
+    const txDetails = await (await fetch(`${explorer}/api/tx/${txnID}`)).json();
 
     // Determinar si es envío o recepción
     const esEmisor = txDetails.vin.some((vin: any) => vin.prevout?.scriptpubkey_address === miniscriptAddress);
@@ -382,22 +376,20 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     let tipo: string;
     if (esEmisor && esReceptor) {
-      tipo = '📤📥 Envío + Recepción (cambio)';
+      tipo = '📤📥 Tipo: Envío + Recepción (cambio)';
     } else if (esEmisor) {
-      tipo = '📤 Envío';
+      tipo = '📤 Tipo: <span style="color:red;">Envío</span>';
     } else if (esReceptor) {
-      tipo = '📥 Recepción';
+      tipo = '📥 Tipo: <span style="color:green;">Recepción</span>';
     } else {
-      tipo = '🔍 Participación no directa';
+      tipo = '🔍  Tipo: Participación no directa';
     }
 
     const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;">✅ confirmada</span>' : '<span style="color:red;">❓ no confirmada</span>';
+    logToOutput(outputHerencia, `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
 
-
-    logToOutput(outputHerencia,  `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
-    logToOutput(outputHerencia, `${tipo} ${confirmationStatus}`, 'success');
-
-
+    const blockHeight = txDetails.status.block_height || 'Desconocido';
+    logToOutput(outputHerencia, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
     // Mostrar detalles de las entradas
     if (esEmisor) {
@@ -406,23 +398,23 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
         const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
         const prevoutValue = vin.prevout?.value || 'Desconocido';
         const match = vin.prevout?.scriptpubkey_address ? '✔️' : '➖';
-        logToOutput(outputHerencia,  `VIN ${index}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
+        logToOutput(outputHerencia, `⬅️ Entrada ${index+1}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
       });
     }
-    
+
     // Mostrar detalles de las salidas
     if (esReceptor) {
       // Mostrar detalles de las salidas (vout) si es receptor
       txDetails.vout.forEach((vout: any, index: number) => {
         const match = vout.scriptpubkey_address === miniscriptAddress ? '✔️' : '➖';
-        logToOutput(outputHerencia,  `VOUT ${index}: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ${match}` , 'info');
+        logToOutput(outputHerencia, `➡️ Salida ${index+1}: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ${match}`, 'info');
       });
     }
 
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
-    logToOutput(outputHerencia,  `❌ Error al consultar la transacción: ${error.message}`, 'error');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
+    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
   }
 };
 
@@ -456,7 +448,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       throw new Error('No hay UTXOs disponibles en la dirección del Miniscript');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia,  `🚀 Devolviendo fondos  a  <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia,  `🚀 Devolviendo fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -554,7 +546,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       throw new Error('No hay UTXOs disponibles en la dirección del Miniscript');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Devolviendo fondos  a  <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -648,7 +640,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }
 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia,  `🚀 Devolviendo fondos  a  <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia,  `🚀 Devolviendo fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];

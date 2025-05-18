@@ -41,7 +41,7 @@ const WSH_KEY_PATH = `/0/0`;
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
 // Creacion de la poliza de gasto
-const BLOCKS = 5;
+const BLOCKS_RETARDADA = 5;
 
 // Funcion que toma el valor de la poliza de gasto
 const POLICY = (after: number) => `or(pk(@key_inmediata),and(pk(@key_retardada),after(${after})))`;
@@ -152,7 +152,7 @@ const initMiniscriptObjet = async (
     logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
-    const after = afterEncode({ blocks: originalBlockHeight + BLOCKS });
+    const after = afterEncode({ blocks: originalBlockHeight + BLOCKS_RETARDADA });
 
     // Crear la política de gasto basada en el valor de "after"
     const policy = POLICY(after);
@@ -239,21 +239,26 @@ const mostraMIniscript = async (
     originalBlockHeight: number,
    explorer: string
 ): Promise<void> => {
+
   // Determinar la red en función del explorador
   const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
 
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
-  const restingBlocks = originalBlockHeight + BLOCKS - actualBlockHeight;
+  const restingBlocksInmediata = originalBlockHeight - actualBlockHeight;
+  const restingBlocksRetardada = originalBlockHeight + BLOCKS_RETARDADA - actualBlockHeight;
 
-  // Calcular bloques restantes y colores para cada rama (en bóveda solo hay una rama principal y una retardada)
-  const displayRetardada = restingBlocks > 0 ? restingBlocks : 0;
-  const retardadaColor = restingBlocks > 0 ? 'red' : 'green';
+  // Control sobre el numero de bloques restantes y el color que se le asigna
+  const displayInmediata = restingBlocksInmediata <= 0 ? 0 : restingBlocksInmediata;
+  const inmediataColor = restingBlocksInmediata > 0 ? 'red' : 'green';
+
+  const displayRetardada = restingBlocksRetardada > 0 ? restingBlocksRetardada : 0;
+  const retardadaColor = restingBlocksRetardada > 0 ? 'red' : 'green';
 
   // Mostrar información detallada y visualmente equivalente a la de herencia
   logToOutput(outputBoveda, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
   logToOutput(outputBoveda, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
   logToOutput(outputBoveda, `🔧 Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${retardadaColor};">${displayRetardada}</strong>`, 'info');
-
+  logToOutput(outputBoveda, `🆘 Bloques para poder gastar en la rama de boton del pánico: <strong style="color:${inmediataColor};">${displayInmediata}</strong>`, 'info');
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(outputBoveda, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
@@ -267,19 +272,20 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputBoveda, `📦 Consultando UTXOs en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputBoveda,  `🔍 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     if (utxos.length === 0) {
-      logToOutput(outputBoveda, `🚫 <span style="color:red;">No se encontraron UTXOs en la dirección <strong>${miniscriptAddress}</strong></span>`, 'error');
+      logToOutput(outputBoveda, `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'error');
       logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
       return;
     }
 
-    logToOutput(outputBoveda, `✅ UTXOs encontrados en la dirección: <strong>${miniscriptAddress}</strong>`, 'success');
+    logToOutput(outputBoveda, `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
+
 
 // Calcular el total de todos los UTXOs
 const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -289,12 +295,11 @@ const sortedUtxos = utxos.sort((a: any, b: any) => (a.status.block_height || 0) 
 
 // Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
 sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
-  const confirmationStatus = utxo.status.confirmed
-    ? '<span style="color:green;">✅ confirmado</span>'
-    : '<span style="color:red;">❓ no confirmado</span>';
+  const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
   const blockHeight = utxo.status.block_height || 'Desconocido';
+  
   logToOutput(outputBoveda, 
-    `🔹 UTXO #${index + 1}: <span style="color:red;">${utxo.value}</span> sats (TXID: <code>${utxo.txid}</code>) ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
+    `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
     'info'
   );
 });
@@ -312,18 +317,14 @@ logToOutput(outputBoveda, `<span style="color:grey;">===========================
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputBoveda, `📦 Consultando última transacción en la dirección: <code><strong>${miniscriptAddress}</strong></code>`, 'info');
+    logToOutput(outputBoveda, `🚛 Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
-    // const txResponse = await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`);
-    // const txHistory = await txResponse.json();
-
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
-
     console.log('Transacciones:', txHistory);
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
-      logToOutput(outputBoveda, `<span style="color:red;">🚫 No se encontraron transacciones en la dirección <strong>${miniscriptAddress}</strong></span>`);
+      logToOutput(outputBoveda, `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
       logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
       return;
     }
@@ -331,13 +332,6 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     // Obtener detalles de la transacción con el block_height más alto, que indica la última transacción
     const txnID = txHistory.sort((a: any, b: any) => b.status.block_height - a.status.block_height)[0].txid;
-
-
-    // Obtener detalles de la primera transacción
-    // const txnID = txHistory[0].txid;
-    // Obtener detalles la primera transacción
-    // const txnID = txHistory[txHistory.length -1].txid;
-    
     const txDetails = await(await fetch(`${explorer}/api/tx/${txnID}`)).json();
 
     // Determinar si es envío o recepción
@@ -355,13 +349,11 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
       tipo = '🔍 Participación no directa,';
     }
 
-    const confirmationStatus = txDetails.status.confirmed
-      ? '<span style="color:green;">✅ confirmada</span>'
-      : '<span style="color:red;">❓ no confirmada</span>';
-    logToOutput(outputBoveda, 
-      `<strong>${tipo}</strong> transacción: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a> ${confirmationStatus}`,
-      'success'
-    );
+    const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;">✅ confirmada</span>' : '<span style="color:red;">❓ no confirmada</span>';
+
+    logToOutput(outputBoveda,  `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
+    logToOutput(outputBoveda, `${tipo} ${confirmationStatus}`, 'success');
+
 
     // Mostrar detalles de las entradas
     if (esEmisor) {
@@ -496,7 +488,7 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     console.log('Descriptor WSH:', wshDescriptor);
 
     // Crear un nuevo output para la clave de emergencia
-    const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`).publicKey;
+    const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_INMEDIATA}${WSH_KEY_PATH}`).publicKey;
 
     const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,

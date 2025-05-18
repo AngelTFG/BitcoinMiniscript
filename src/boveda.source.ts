@@ -272,41 +272,41 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputBoveda,  `🔍 Consultando fondos...`, 'info');
+    logToOutput(outputBoveda, `🔍 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     if (utxos.length === 0) {
-      logToOutput(outputBoveda, `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'error');
+      logToOutput(
+        outputBoveda,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+        'error'
+      );
       logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
       return;
     }
 
-    logToOutput(outputBoveda, `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
+    logToOutput(outputBoveda, `✅ Fondos: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
+    // Calcular el total de todos los UTXOs
+    const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
 
-// Calcular el total de todos los UTXOs
-const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
+    // Ordenar los UTXOs por block_height en orden ascendente (de más antiguo a más reciente)
+    const sortedUtxos = utxos.sort((a: any, b: any) => (a.status.block_height || 0) - (b.status.block_height || 0));
 
-// Ordenar los UTXOs por block_height en orden ascendente (de más antiguo a más reciente)
-const sortedUtxos = utxos.sort((a: any, b: any) => (a.status.block_height || 0) - (b.status.block_height || 0));
+    // Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
+    sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
+      const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
+      const blockHeight = utxo.status.block_height || 'Desconocido';
 
-// Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
-sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
-  const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
-  const blockHeight = utxo.status.block_height || 'Desconocido';
-  
-  logToOutput(outputBoveda, 
-    `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`,
-    'info'
-  );
-});
+      logToOutput(outputBoveda, `🪙 Fondos encontrados: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
+    });
 
-// Mostrar el total de los UTXOs
-logToOutput(outputBoveda, `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    // Mostrar el total de los UTXOs
+    logToOutput(outputBoveda, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
+    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
     logToOutput(outputBoveda, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
     logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);

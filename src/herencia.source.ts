@@ -322,7 +322,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
       return;
     }
 
-    logToOutput(outputHerencia, `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
+    logToOutput(outputHerencia, `✅ Fondos encontrados: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -334,11 +334,11 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
       const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
       const blockHeight = utxo.status.block_height || 'Desconocido';
-      logToOutput(outputHerencia, `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
+      logToOutput(outputHerencia, `🪙 Fondos: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
     });
 
     // Mostrar el total de los UTXOs
-    logToOutput(outputHerencia, `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
+    logToOutput(outputHerencia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
     logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar los fondos: ${error.message}`, 'error');
@@ -391,26 +391,33 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     const blockHeight = txDetails.status.block_height || 'Desconocido';
     logToOutput(outputHerencia, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
-    // Mostrar detalles de las entradas
-    if (esEmisor) {
-      // Mostrar detalles de las entradas (vin) si es emisor
-      txDetails.vin.forEach((vin: any, index: number) => {
-        const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
-        const prevoutValue = vin.prevout?.value || 'Desconocido';
-        const match = vin.prevout?.scriptpubkey_address ? '✔️' : '➖';
-        logToOutput(outputHerencia, `⬅️ Entrada ${index+1}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
-      });
+// Mostrar detalles de las entradas SOLO si la dirección es la del miniscript
+if (esEmisor) {
+  txDetails.vin.forEach((vin: any, index: number) => {
+    const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
+    const prevoutValue = vin.prevout?.value || 'Desconocido';
+    if (prevoutAddress === miniscriptAddress) {
+      logToOutput(
+        outputHerencia,
+        `🪙 Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} ✔️`,
+        'info'
+      );
     }
+  });
+}
 
-    // Mostrar detalles de las salidas
-    if (esReceptor) {
-      // Mostrar detalles de las salidas (vout) si es receptor
-      txDetails.vout.forEach((vout: any, index: number) => {
-        const match = vout.scriptpubkey_address === miniscriptAddress ? '✔️' : '➖';
-        logToOutput(outputHerencia, `➡️ Salida ${index+1}: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ${match}`, 'info');
-      });
+// Mostrar detalles de las salidas SOLO si la dirección es la del miniscript
+if (esReceptor) {
+  txDetails.vout.forEach((vout: any, index: number) => {
+    if (vout.scriptpubkey_address === miniscriptAddress) {
+      logToOutput(
+        outputHerencia,
+        `🪙 Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ✔️`,
+        'info'
+      );
     }
-
+  });
+}
     logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
@@ -437,7 +444,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       signersPubKeys: [progenKey]
     });
 
-    logToOutput(outputHerencia,  `🧓🏻 Se ha pulsado el botón de acceso directo...`, 'info');
+    logToOutput(outputHerencia,  `🧓🏻 Se ha pulsado el botón "Acceso directo"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
@@ -445,10 +452,10 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript');
+      throw new Error('No hay fondos disponibles en el Miniscript');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia,  `🚀 Devolviendo fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -463,9 +470,9 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `🪙  Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Comisión estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💰 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -482,7 +489,7 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍🏼 Firmando la transacción con  la clave del progenitor`, 'info');
+    logToOutput(outputHerencia,  `✍🏼 Firmando la transacción con la clave del progenitor...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -535,7 +542,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [key_descend_1,  key_descend_2]
     });
 
-    logToOutput(outputHerencia,  `🧑🏻👨🏻 Se ha pulsado el botón de herencia...`, 'info');
+    logToOutput(outputHerencia,  `🧑🏻👨🏻 Se ha pulsado el botón "Herencia"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
@@ -543,10 +550,10 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript');
+      throw new Error('No hay fondos disponibles en el Miniscript');
     }
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -562,8 +569,8 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
     logToOutput(outputHerencia,  `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Comisión estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💰 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -577,7 +584,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍🏼✍🏼 Firmando la transacción con las claves de los herederos  `, 'info');
+    logToOutput(outputHerencia,  `✍🏻✍🏼Firmando la transacción con las claves de los herederos...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -628,7 +635,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [abogadoKey]
     });
 
-    logToOutput(outputHerencia,  `👤 Se ha pulsado el botón de disputa...`, 'info');
+    logToOutput(outputHerencia,  `👤 Se ha pulsado el botón "Disputa"...`, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptObjet.getAddress();
     const addressDestino = 'BitcoinFaucet.uo1.net'
@@ -636,11 +643,11 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript');
+      throw new Error('No hay fondos disponibles en el Miniscript');
     }
 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia,  `🚀 Devolviendo fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -656,8 +663,8 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
     logToOutput(outputHerencia,  `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Comisión estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💰 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia,  `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -671,7 +678,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍🏼 Firmando la transacción con  la clave del abogado`, 'info');
+    logToOutput(outputHerencia,  `✍🏼 Firmando la transacción con  la clave del abogado...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 

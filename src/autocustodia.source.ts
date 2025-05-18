@@ -350,7 +350,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     logToOutput(
       outputAutocustodia,
-      `✅ Fondos encontrados en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+      `✅ Fondos encontrados: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
       'success'
     );
 
@@ -364,11 +364,11 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
       const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
       const blockHeight = utxo.status.block_height || 'Desconocido';
-      logToOutput(outputAutocustodia, `🪙 Monedas: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `🪙 Fondos: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
     });
 
     // Mostrar el total de los UTXOs
-    logToOutput(outputAutocustodia, `💰 Total: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
     logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
@@ -509,7 +509,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
 
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con dos de las tres claves de uso diario 🗓️`, 'info');
+    logToOutput(outputAutocustodia, `✍🏻✍🏻 Firmando la transacción con las claves de uso diario 🗓️`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -603,7 +603,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con una de las clave de recuperación 🛡️`, 'info');
+    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la de recuperación 🛡️`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -692,7 +692,7 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍️ Firmando la transacción con  la clave de emergencia 🚨`, 'info');
+    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de emergencia 🚨`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 

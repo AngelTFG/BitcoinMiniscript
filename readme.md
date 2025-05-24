@@ -152,6 +152,7 @@ Agregar el siguiente script en la sección `"scripts"` del archivo `package.json
     "build-autocustodia": "browserify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js",
     "build-boveda": "browserify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js",
     "build-herencia": "browserify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js",
+    "build-all": "browserify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js && browserify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js && browserify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js",
     
     "watch-autocustodia": "watchify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js --debug --verbose",
     "watch-boveda": "watchify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js --debug --verbose",

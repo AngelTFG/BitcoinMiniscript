@@ -1,10 +1,4 @@
-// Copyright (c) 2023 Jose-Luis Landabaso - https://bitcoinerlab.com
 // Distributed under the MIT software license
-// import no utlizados
-//import './codesandboxFixes.js';
-
-import { glob, readFileSync, writeFileSync } from 'fs';
-import type { ECPairInterface } from 'ecpair';
 
 import * as secp256k1 from '@bitcoinerlab/secp256k1';
 import * as descriptors from '@bitcoinerlab/descriptors';
@@ -17,7 +11,6 @@ import { Psbt, networks } from 'bitcoinjs-lib';
 import { createHash } from 'crypto';
 
 // https://coinfaucet.eu/en/btc-testnet/      =>  tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
-// https://coinfaucet.eu/en/btc-testnet/      =>  tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
 // https://bitcoinfaucet.uo1.net/                   =>  b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7q
 
 // Address faucet devolver utxos
@@ -28,6 +21,7 @@ const TESTNET_BITCOINFAUCET : string = 'b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7
 const { wpkhBIP32 } = descriptors.scriptExpressions;
 const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 
+// Comisiones de la red
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
@@ -37,14 +31,11 @@ const WSH_ORIGIN_PATH_INMEDIATA = `/202'/1'/0'`;
 // 0/0 es la primera dirección derivada de la cuenta 0, se usa para todas las claves
 const WSH_KEY_PATH = `/0/0`;
 
-// Semilla se utliza para calcular las claves, se dejan harcodeadas, aunque se podrían guardar en localStorage
+// Semilla se utliza para calcular las claves, se dejan harcodeadas,  se podrían guardar en localStorage
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
-// Creacion de la poliza de gasto
+// Bloqueos
 const BLOCKS_RETARDADA = 5;
-
-// Funcion que toma el valor de la poliza de gasto
-const POLICY = (after: number) => `or(pk(@key_inmediata),and(pk(@key_retardada),after(${after})))`;
 
 // Consola pagina web
 const outputBoveda = document.getElementById('output-boveda') as HTMLElement;
@@ -53,6 +44,9 @@ const outputBoveda = document.getElementById('output-boveda') as HTMLElement;
 type OutputType = 'info' | 'success' | 'error';
 
 /************************ FUNCIONES AUXILIARES  ************************/
+
+// Funcion que toma el valor de la poliza de gasto
+const POLICY = (after: number) => `or(pk(@key_inmediata),and(pk(@key_retardada),after(${after})))`;
 
 // Función para mostrar por pantalla el fingerprint del nodo maestro y las xpubkeys
 function calculateFingerprint(masterNode: BIP32Interface): void {
@@ -201,6 +195,7 @@ const initMiniscriptObjet = async (
 
     // Mostrar información en la consola
 
+    console.log(`Bloque, fecha y hora:${originalBlockHeight}: ${blockDate.toLocaleString()}`);
     console.log(`Frase mnemonica: ${MNEMONIC}`);
 
     console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`);
@@ -210,10 +205,6 @@ const initMiniscriptObjet = async (
 
     console.log('Public key apertura retardada:', key_retardada.toString('hex'));
     console.log('Public key apertura inmediata:', key_inmediata.toString('hex'));
-
-
-    //console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Fecha y hora del  bloque ${originalBlockHeight}: ${blockDate.toLocaleString()}`);
 
     console.log(`Policy: ${policy}`);
     console.log('Generated Miniscript:', miniscript);

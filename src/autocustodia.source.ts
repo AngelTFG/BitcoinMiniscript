@@ -21,6 +21,7 @@ const TESTNET_BITCOINFAUCET : string = 'b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7
 const { wpkhBIP32 } = descriptors.scriptExpressions;
 const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 
+// Comisiones de la red
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
@@ -34,14 +35,12 @@ const WSH_ORIGIN_PATH_EMERGENCY = `/107'/1'/0'`;
 // 0/0 es la primera dirección derivada de la cuenta 0, se usa para todas las claves
 const WSH_KEY_PATH = `/0/0`;
 
-// Semilla se utliza para calcular las claves, se dejan harcodeadas, aunque se podrían guardar en localStorage
+// Semilla se utliza para calcular las claves, se dejan harcodeadas,  se podrían guardar en localStorage
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
 // Bloqueos
 const BLOCKS_RECOVERY = 3;
 const BLOCKS_EMERGENCY =5;
-
-const POLICY = (after_rec: number, after_eme: number) => `or(thresh(2,pk(@key_daily1),pk(@key_daily2),pk(@key_daily3)),or(and(after(${after_rec}),thresh(1,pk(@key_recovery_1),pk(@key_recovery_2))),thresh(2,pk(@key_emergency),after(${after_eme}))))`;
 
 // Consola pagina web
 const outputAutocustodia= document.getElementById('output-autocustodia') as HTMLElement;
@@ -50,6 +49,9 @@ const outputAutocustodia= document.getElementById('output-autocustodia') as HTML
 type OutputType = 'info' | 'success' | 'error';
 
 /************************ FUNCIONES AUXILIARES  ************************/
+
+// Funcion que toma el valor de la poliza de gasto
+const POLICY = (after_rec: number, after_eme: number) => `or(thresh(2,pk(@key_daily1),pk(@key_daily2),pk(@key_daily3)),or(and(after(${after_rec}),thresh(1,pk(@key_recovery_1),pk(@key_recovery_2))),thresh(2,pk(@key_emergency),after(${after_eme}))))`;
 
 // Función para mostrar por pantalla el fingerprint del nodo maestro y las xpubkeys
 function calculateFingerprint(masterNode: BIP32Interface): void {
@@ -90,10 +92,8 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   console.log('Extended pubKey Diario 1:', xpubDaily1);
   console.log('Extended pubKey Diario 2:', xpubDaily2);
   console.log('Extended pubKey Custodio:', xpubDaily3);
-
   console.log('Extended pubKey Recovery  1:', xpubRecover1);
   console.log('Extended pubKey Recovery 2:', xpubRecover2);
-
   console.log('Extended pubKey Emergency:', xpubEmergency);
 }
 
@@ -255,6 +255,7 @@ const initMiniscriptObjet = async (
 
     // Mostrar información en la consola
 
+    console.log(`Bloque, fecha y hora:${originalBlockHeight}: ${blockDate.toLocaleString()}`);
     console.log(`Frase mnemonica: ${MNEMONIC}`);
 
     console.log('Public key Diario 1', key_daily1.toString('hex'));
@@ -266,8 +267,7 @@ const initMiniscriptObjet = async (
 
     calculateFingerprint(masterNode);
 
-    //console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Fecha y hora del  bloque ${originalBlockHeight}: ${blockDate.toLocaleString()}`);
+
 
     console.log(`Policy: ${policy}`);
     console.log('Generated Miniscript :', miniscript);

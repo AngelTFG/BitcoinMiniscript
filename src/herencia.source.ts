@@ -1,6 +1,5 @@
 // Distributed under the MIT software license
 
-
 import * as secp256k1 from '@bitcoinerlab/secp256k1';
 import * as descriptors from '@bitcoinerlab/descriptors';
 import { compilePolicy } from '@bitcoinerlab/miniscript';
@@ -21,6 +20,7 @@ const TESTNET_BITCOINFAUCET : string = 'b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7
 const { wpkhBIP32 } = descriptors.scriptExpressions;
 const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
 
+// Comisiones de la red
 const FEE = 200;
 
 // El purpuse se puede elegir libremiente
@@ -32,14 +32,12 @@ const WSH_ORIGIN_PATH_RECOVERY = `/304'/1'/0'`;
 // 0/0 es la primera dirección derivada de la cuenta 0, se usa para todas las claves
 const WSH_KEY_PATH = `/0/0`;
 
-// Semilla se utliza para calcular las claves, se dejan harcodeadas, aunque se podrían guardar en localStorage
+// Semilla se utliza para calcular las claves, se dejan harcodeadas,  se podrían guardar en localStorage
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
 // Bloqueos
 const BLOCKS_HERENCIA = 3;
 const BLOCKS_RECOVERY = 5;
-
-const POLICY = (after_her: number, after_rec: number) => `or(pk(@key_progen), or(thresh(3, pk(@key_descend_1), pk(@key_descend_2), after(${after_her})), thresh(2, pk(@key_recover), after(${after_rec}))))`;
 
 // Consola pagina web
 const outputHerencia = document.getElementById('output-herencia') as HTMLElement;
@@ -48,6 +46,9 @@ const outputHerencia = document.getElementById('output-herencia') as HTMLElement
 type OutputType = 'info' | 'success' | 'error';
 
 /************************ FUNCIONES AUXILIARES  ************************/
+
+// Funcion que toma el valor de la poliza de gasto
+const POLICY = (after_her: number, after_rec: number) => `or(pk(@key_progen), or(thresh(3, pk(@key_descend_1), pk(@key_descend_2), after(${after_her})), thresh(2, pk(@key_recover), after(${after_rec}))))`;
 
 // Función para mostrar por pantalla el fingerprint del nodo maestro y las xpubkeys
 function calculateFingerprint(masterNode: BIP32Interface): void {
@@ -227,6 +228,7 @@ const initMiniscriptObjet = async (
 
     // Mostrar información en la consola
 
+    console.log(`Bloque, fecha y hora:${originalBlockHeight} ${blockDate.toLocaleString()}`);
     console.log(`Frase mnemonica: ${MNEMONIC}`);
 
     console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`);
@@ -240,9 +242,6 @@ const initMiniscriptObjet = async (
     console.log('Public key Heredero 1:', key_descend_1.toString('hex'));
     console.log('Public key Heredero 2:', key_descend_2.toString('hex'));
     console.log('Public key  Abogado:', key_recover.toString('hex'));
-
-    //console.log(`Current block height: ${originalBlockHeight}`);
-    console.log(`Fecha y hora del  bloque ${originalBlockHeight}: ${blockDate.toLocaleString()}`);
 
     console.log(`Policy: ${policy}`);
     console.log('Generated Miniscript:', miniscript);
@@ -728,8 +727,12 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
   }
 };
 
-// Inicializar el Miniscript en la red de testnet
+// Inicializar el Miniscript en la red de testnet3
 document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
+
+// Inicializar el Miniscript en la red de testnet4
+//document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));
+
 // Inicializar el Miniscript en la red de Mainnet
 document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
 

@@ -3,9 +3,9 @@ import '@testing-library/jest-dom';
 declare global {
   interface Window {
     setActiveButton: (button: Element) => void;
+    setButtonEnabled: (id: string, enabled: boolean) => void;
     logToOutput: (id: string, message: string) => void;
     clearOutput: (id: string) => void;
-    setButtonEnabled: (id: string, enabled: boolean) => void;
     addScript: (src: string) => void;
   }
 }
@@ -15,11 +15,13 @@ declare global {
  * Cada test está relacionado con una funcionalidad real del frontend:
  * - Activación visual de botones de menú (navegación de proyectos)
  * - Habilitación/deshabilitación de botones según el estado de la app
- * - Limpieza y escritura en la consola de salida
+ * - Limpieza y escritura de salida por interfaz
  * - Carga dinámica de scripts según el proyecto seleccionado
  */
 
-// Grupo de tests para los botones del menú (columna izquierda del frontend)
+
+/************************  🧪 TESTS BOTONES DEL MENU (columna izquierda) ************************/
+ 
 describe('Interfaz de usuario - Botones del menú', () => {
   beforeEach(() => {
     // Simula el menú lateral de proyectos del frontend
@@ -105,7 +107,8 @@ describe('Interfaz de usuario - Botones del menú', () => {
   });
 });
 
-// Grupo de tests para la consola de salida (output)
+/************************ 🧪 TESTS SALIDA POR PANTALLA (output) ************************/
+
 describe('Interfaz de usuario - Output', () => {
   beforeEach(() => {
     // Simula la consola de salida y un botón genérico en el frontend
@@ -152,7 +155,8 @@ describe('Interfaz de usuario - Output', () => {
   });
 });
 
-// Grupo de tests para la carga dinámica de scripts (JS de cada proyecto)
+/************************  🧪 TESTS  CARGA SCRIPTS (JS de cada proyecto)************************/
+
 describe('Interfaz de usuario - Carga de scripts', () => {
   beforeEach(() => {
     // Simula el DOM vacío para pruebas de scripts

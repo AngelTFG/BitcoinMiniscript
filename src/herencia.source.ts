@@ -91,13 +91,12 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   console.log('Extended pubKey Abogado :', xpubRecover);
 }
 
-// Función auxiliar para obtener el nombre de la red
-const getNetworkName = (network: any): string =>
-  network === networks.bitcoin
-    ? 'Mainnet'
-    : network === networks.testnet
-    ? 'Testnet'
-    : 'Desconocida';
+// Función auxiliar para obtener el nombre de la red según el explorer
+const getNetworkName = (explorer: string): string => {
+  if (explorer.includes('testnet4')) return 'Testnet 4';
+  if (explorer.includes('testnet')) return 'Testnet 3';
+  return 'Desconocida';
+};
 
 // Función para mostrar mensajes en la interfaz de usuario
 const logToOutput = (outputContainer: HTMLElement, message: string, type: OutputType = 'info'): void => {
@@ -112,7 +111,7 @@ const logToOutput = (outputContainer: HTMLElement, message: string, type: Output
 function enableButtons(): void {
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {
-    if (button.id !== 'initMainnetBtn' && button.id !== 'initTestnetBtn') {
+    if (button.id !== 'initTestnet4Btn' && button.id !== 'initTestnet3Btn') {
       button.disabled = false;
     }
     // Deshabilitar el botón de inicialización si ya se ha inicializado
@@ -153,7 +152,7 @@ const initMiniscriptObjet = async (
     const blockDate = new Date(blockDetails.timestamp * 1000);
 
     // Obtener el nombre de la red
-    const networkName = getNetworkName(network);
+    const networkName = getNetworkName(explorer);
 
     logToOutput(outputHerencia,  `🌐 Cambiando a red ${networkName} 🌐`, 'info');
     logToOutput(outputHerencia,  `⛓️ Altura actual de la cadena: ${originalBlockHeight} bloques ⛓️ `, 'info');
@@ -228,7 +227,7 @@ const initMiniscriptObjet = async (
 
     // Mostrar información en la consola
 
-    console.log(`Bloque, fecha y hora:${originalBlockHeight} ${blockDate.toLocaleString()}`);
+    console.log(`Bloque, fecha y hora: ${originalBlockHeight} ${blockDate.toLocaleString()}`);
     console.log(`Frase mnemonica: ${MNEMONIC}`);
 
     console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`);
@@ -286,6 +285,7 @@ const mostrarMIniscript = async (
   const displayRecovery = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
   const recoveryColor = restingBlocksRec > 0 ? 'red' : 'green';
 
+  // Mostrar información detallada 
   logToOutput(outputHerencia,  `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
   logToOutput(outputHerencia,  `🧓🏻 Bloques para poder gastar en la rama de acceso directo: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
@@ -728,13 +728,11 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
 };
 
 // Inicializar el Miniscript en la red de testnet3
-document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
-
+document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
 // Inicializar el Miniscript en la red de testnet4
-//document.getElementById('initTestnetBtn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));
-
+document.getElementById('initTestnet4Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));
 // Inicializar el Miniscript en la red de Mainnet
-document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
+//document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {

@@ -35,7 +35,7 @@ const WSH_KEY_PATH = `/0/0`;
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
 // Bloqueos
-const BLOCKS_RETARDADA = 5;
+const BLOCKS_RETARDADA = 1;
 
 // Consola pagina web
 const outputBoveda = document.getElementById('output-boveda') as HTMLElement;
@@ -107,7 +107,8 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput(outputBoveda, '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
+logToOutput(outputBoveda,  '🚀 <span style="color:blue;">Elegir red de pruebas: Testnet 3 o Testnet 4</span> 🚀');
+
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT ************************/
 
@@ -142,7 +143,7 @@ const initMiniscriptObjet = async (
     logToOutput(outputBoveda, `🌐 Cambiando a red ${networkName} 🌐`, 'info');
     logToOutput(outputBoveda, `⛓️ Altura de bloque: ${originalBlockHeight} ⛓️`, 'info');
     logToOutput(outputBoveda, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
     const after = afterEncode({ blocks: originalBlockHeight + BLOCKS_RETARDADA });
@@ -195,7 +196,7 @@ const initMiniscriptObjet = async (
     // Mostrar información en la consola
 
     console.log(`Bloque, fecha y hora:${originalBlockHeight}: ${blockDate.toLocaleString()}`);
-    console.log(`Frase mnemonica: ${MNEMONIC}`);
+    console.log(`Frase mnemónica: ${MNEMONIC}`);
 
     console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`);
     console.log(`Ruta de derivación del Heredero 1: m${WSH_ORIGIN_PATH_INMEDIATA}${WSH_KEY_PATH}`);
@@ -230,8 +231,8 @@ const mostraMIniscript = async (
    explorer: string
 ): Promise<void> => {
 
-  // Determinar la red en función del explorador
-  const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
+  // Obtener el nombre de la red
+  const networkName = getNetworkName(explorer);
 
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
   const restingBlocksInmediata = originalBlockHeight - actualBlockHeight;
@@ -252,7 +253,7 @@ const mostraMIniscript = async (
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(outputBoveda, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
-  logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+  logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
 };
 
 /************************ 🔍 BUSCAR FONDOS ************************/
@@ -296,10 +297,10 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar el total de los UTXOs
     logToOutput(outputBoveda, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputBoveda, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -315,7 +316,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
       logToOutput(outputBoveda, `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
-      logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -365,10 +366,10 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
       });
     }
 
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputBoveda, `❌ Error al consultar la transacción: ${error.message}`, 'error');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -456,17 +457,17 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
       logToOutput(outputBoveda, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     }
       else {
       const txId = txFinal.getId();
       logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
     logToOutput(outputBoveda, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -552,16 +553,16 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
       logToOutput(outputBoveda, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
       logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
     logToOutput(outputBoveda, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -578,7 +579,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('sendInmediataBtn')?.addEventListener('click', () => inmediataPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
     logToOutput(outputBoveda, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
-    logToOutput(outputBoveda, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 

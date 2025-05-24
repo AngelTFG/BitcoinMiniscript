@@ -36,8 +36,8 @@ const WSH_KEY_PATH = `/0/0`;
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
 // Bloqueos
-const BLOCKS_HERENCIA = 3;
-const BLOCKS_RECOVERY = 5;
+const BLOCKS_HERENCIA = 1;
+const BLOCKS_RECOVERY = 2;
 
 // Consola pagina web
 const outputHerencia = document.getElementById('output-herencia') as HTMLElement;
@@ -122,7 +122,7 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
+logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Elegir red de pruebas: Testnet 3 o Testnet 4</span> 🚀');
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
@@ -157,7 +157,7 @@ const initMiniscriptObjet = async (
     logToOutput(outputHerencia,  `🌐 Cambiando a red ${networkName} 🌐`, 'info');
     logToOutput(outputHerencia,  `⛓️ Altura actual de la cadena: ${originalBlockHeight} bloques ⛓️ `, 'info');
     logToOutput(outputHerencia,  '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
     const herencia = afterEncode({ blocks: originalBlockHeight + BLOCKS_HERENCIA });
@@ -228,7 +228,7 @@ const initMiniscriptObjet = async (
     // Mostrar información en la consola
 
     console.log(`Bloque, fecha y hora: ${originalBlockHeight} ${blockDate.toLocaleString()}`);
-    console.log(`Frase mnemonica: ${MNEMONIC}`);
+    console.log(`Frase mnemónica: ${MNEMONIC}`);
 
     console.log(`Ruta de derivación del Progenitor: m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`);
     console.log(`Ruta de derivación del Heredero 1: m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`);
@@ -267,8 +267,8 @@ const mostrarMIniscript = async (
    explorer: string
 ): Promise<void> => {
 
-  // Determinar la red en función del explorador
-  const networkName = explorer.includes('testnet') ? 'Testnet' : 'Mainnet';
+  // Obtener el nombre de la red
+  const networkName = getNetworkName(explorer);
 
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
   const restingBlocksProgen = originalBlockHeight - actualBlockHeight;
@@ -294,7 +294,7 @@ const mostrarMIniscript = async (
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(outputHerencia, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
-  logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+  logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
 };
 
 /************************ 🔍 BUSCAR FONDOS  ************************/
@@ -317,7 +317,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
         `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
         'error'
       );
-      logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -338,10 +338,10 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar el total de los UTXOs
     logToOutput(outputHerencia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar los fondos: ${error.message}`, 'error');
-    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -361,7 +361,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
         outputHerencia,
         `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`
       );
-      logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -417,10 +417,10 @@ if (esReceptor) {
     }
   });
 }
-    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
-    logToOutput(outputHerencia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -443,10 +443,10 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       signersPubKeys: [progenKey]
     });
 
-    logToOutput(outputHerencia,  `🧓🏻 Se ha pulsado el botón "Acceso directo"...`, 'info');
+    logToOutput(outputHerencia, `🧓🏻 Se ha pulsado el botón "Acceso directo"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
+    const addressDestino = 'BitcoinFaucet.uo1.net';
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
@@ -457,10 +457,13 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
-    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
+    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
     const { txid, vout, value: valueIn } = utxo;
 
-    console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+    console.log(
+      'UTXOS:',
+      utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+    );
     console.log('UTXO:', utxo);
 
     // Obtener la transacción  en formato HEX
@@ -469,9 +472,9 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -483,18 +486,18 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
       descriptor: `addr(${TESTNET_COINFAUCET})`,
       network
     });
-    
+
     console.log('Objeto wsh expandido:', wshOutput.expand());
     wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍🏼 Firmando la transacción con la clave del progenitor...`, 'info');
+    logToOutput(outputHerencia, `✍🏼 Firmando la transacción con la clave del progenitor...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
     // Extraer y transmitir la transacción
     const txFinal = psbt.extractTransaction();
-    const txResponse = await(
+    const txResponse = await (
       await fetch(`${explorer}/api/tx`, {
         method: 'POST',
         body: txFinal.toHex()
@@ -505,19 +508,18 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
-    if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
-    }
-      else {
+    if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
+      logToOutput(outputHerencia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    } else {
       const txId = txFinal.getId();
-      logToOutput(outputHerencia,  `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputHerencia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputHerencia,  `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -538,16 +540,16 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     const localMiniscriptObjet = new Output({
       descriptor: wshDescriptor,
       network,
-      signersPubKeys: [key_descend_1,  key_descend_2]
+      signersPubKeys: [key_descend_1, key_descend_2]
     });
 
-    logToOutput(outputHerencia,  `🧑🏻👨🏻 Se ha pulsado el botón "Herencia"...`, 'info');
+    logToOutput(outputHerencia, `🧑🏻👨🏻 Se ha pulsado el botón "Herencia"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
+    const addressDestino = 'BitcoinFaucet.uo1.net';
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
-    const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
+    const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     if (!utxos.length) {
       throw new Error('No hay fondos disponibles en el Miniscript');
     }
@@ -555,21 +557,24 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
-    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
+    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
     const { txid, vout, value: valueIn } = utxo;
 
-    console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+    console.log(
+      'UTXOS:',
+      utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+    );
     console.log('UTXO:', utxo);
 
     // Obtener la transacción  en formato HEX
-    const txHex = await (await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
+    const txHex = await(await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
 
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -583,7 +588,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍🏻✍🏼Firmando la transacción con las claves de los herederos...`, 'info');
+    logToOutput(outputHerencia, `✍🏻✍🏼Firmando la transacción con las claves de los herederos...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -600,19 +605,18 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
-    if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
-    }
-      else {
+    if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
+      logToOutput(outputHerencia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    } else {
       const txId = txFinal.getId();
-      logToOutput(outputHerencia,  `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputHerencia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputHerencia,  `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -696,16 +700,16 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
       logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
       logToOutput(outputHerencia,  `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
     logToOutput(outputHerencia,  `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -723,7 +727,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('disputaBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
     logToOutput(outputHerencia,  `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
-    logToOutput(outputHerencia,  `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
   }
 };
 

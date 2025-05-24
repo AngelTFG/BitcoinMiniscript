@@ -39,8 +39,8 @@ const WSH_KEY_PATH = `/0/0`;
 const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuente pulpo empate lagarto';
 
 // Bloqueos
-const BLOCKS_RECOVERY = 3;
-const BLOCKS_EMERGENCY =5;
+const BLOCKS_RECOVERY = 1;
+const BLOCKS_EMERGENCY =2;
 
 // Consola pagina web
 const outputAutocustodia= document.getElementById('output-autocustodia') as HTMLElement;
@@ -129,7 +129,7 @@ function enableButtons(): void {
 
 
 // Mensaje de bienvenida
-logToOutput(outputAutocustodia, '🚀 <span style="color:blue;">Iniciar el Miniscript</span> 🚀');
+logToOutput(outputAutocustodia,  '🚀 <span style="color:blue;">Elegir red de pruebas: Testnet 3 o Testnet 4</span> 🚀');
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
@@ -164,7 +164,7 @@ const initMiniscriptObjet = async (
     logToOutput(outputAutocustodia, `🌐 Cambiando a red ${networkName} 🌐`, 'info');
     logToOutput(outputAutocustodia, `⛓️ Altura de bloque: ${originalBlockHeight} ⛓️`, 'info');
     logToOutput(outputAutocustodia, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
     const recovery = afterEncode({ blocks: originalBlockHeight + BLOCKS_RECOVERY });
@@ -256,7 +256,7 @@ const initMiniscriptObjet = async (
     // Mostrar información en la consola
 
     console.log(`Bloque, fecha y hora:${originalBlockHeight}: ${blockDate.toLocaleString()}`);
-    console.log(`Frase mnemonica: ${MNEMONIC}`);
+    console.log(`Frase mnemónica: ${MNEMONIC}`);
 
     console.log('Public key Diario 1', key_daily1.toString('hex'));
     console.log('Public key Diario 2', key_daily2.toString('hex'));
@@ -294,8 +294,8 @@ const mostraMIniscript = async (
    explorer: string
 ): Promise<void> => {
 
-  // Determinar la red en función del explorador
-  const networkName = explorer.includes('testnet') ? 'Testnet3' : 'Mainnet';
+  // Obtener el nombre de la red
+  const networkName = getNetworkName(explorer);
 
   const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
   const restingBlocksDiario = originalBlockHeight - actualBlockHeight;
@@ -321,7 +321,7 @@ logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de em
 
   const miniscriptAddress = MiniscriptObjet.getAddress();
   logToOutput(outputAutocustodia, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
-  logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+  logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
 };
 
 /************************ 🔍 BUSCAR FONDOS  **********************/
@@ -344,7 +344,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
         `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
         'error'
       );
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -369,10 +369,10 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar el total de los UTXOs
     logToOutput(outputAutocustodia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -388,7 +388,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
       logToOutput(outputAutocustodia,  `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
       return;
     }
     
@@ -436,10 +436,10 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
       });
     }
 
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -528,17 +528,17 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
       logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
       else {
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
     logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -622,16 +622,16 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
       logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
     logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -711,16 +711,16 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
       logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
     logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -738,7 +738,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('emergencyBtn')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor));
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
-    logToOutput(outputAutocustodia, `<span style="color:grey;">========================================</span>`);
+    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 

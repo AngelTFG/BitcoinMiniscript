@@ -14,8 +14,8 @@ import { createHash } from 'crypto';
 // https://bitcoinfaucet.uo1.net/                   =>  b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7q
 
 // Address faucet devolver utxos
-const TESTNET_COINFAUCET : string = 'tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er';
-const TESTNET_BITCOINFAUCET : string = 'b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7q';
+const TESTNET3_FAUCET : string = 'tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er';
+const TESTNET4_FAUCET : string = 'tb1qn9rvr53m7qvrpysx48svuxsgahs88xfsskx367';
 
 // Importar herramientas de descriptors
 const { wpkhBIP32 } = descriptors.scriptExpressions;
@@ -109,7 +109,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputBoveda,
-  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">▶️ Testnet 3</a> - <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  '🚀 Iniciar red de pruebas: ▶️ <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">Testnet 3</a> - ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 
@@ -477,8 +477,22 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       return;
     }
 
+    // Determinar el faucet según la red
+    const networkName = getNetworkName(explorer);
+    let selectedFaucet = TESTNET3_FAUCET;
+    if (networkName === 'Testnet 4') {
+      selectedFaucet = TESTNET4_FAUCET;
+    }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputBoveda, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
+    const faucetMsg =
+    networkName === 'Testnet 4'
+      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      : networkName === 'Testnet 3'
+        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+
+    logToOutput(outputBoveda, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
@@ -505,9 +519,9 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    // Crear un Output WSH para usar como output en la transacción y enviar los fondos
     const wshOutput = new Output({
-      descriptor: `addr(${TESTNET_COINFAUCET})`,
+      descriptor: `addr(${selectedFaucet})`,
       network
     });
 
@@ -606,8 +620,22 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       return;
     }
 
+    // Determinar el faucet según la red
+    const networkName = getNetworkName(explorer);
+    let selectedFaucet = TESTNET3_FAUCET;
+    if (networkName === 'Testnet 4') {
+      selectedFaucet = TESTNET4_FAUCET;
+    }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputBoveda, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
+    const faucetMsg =
+    networkName === 'Testnet 4'
+      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      : networkName === 'Testnet 3'
+        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+
+    logToOutput(outputBoveda, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -633,9 +661,9 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    // Crear un Output WSH para usar como output en la transacción y enviar los fondos
     const wshOutput = new Output({
-      descriptor: `addr(${TESTNET_COINFAUCET})`,
+      descriptor: `addr(${selectedFaucet})`,
       network
     });
 

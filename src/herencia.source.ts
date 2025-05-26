@@ -14,8 +14,8 @@ import { createHash } from 'crypto';
 // https://bitcoinfaucet.uo1.net/                   =>  b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7q
 
 // Address faucet devolver utxos
-const TESTNET_COINFAUCET : string = 'tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er';
-const TESTNET_BITCOINFAUCET : string = 'b1qlj64u6fqutr0xue85kl55fx0gt4m4urun25p7q';
+const TESTNET3_FAUCET : string = 'tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er';
+const TESTNET4_FAUCET : string = 'tb1qn9rvr53m7qvrpysx48svuxsgahs88xfsskx367';
 
 const { wpkhBIP32 } = descriptors.scriptExpressions;
 const { Output, BIP32 } = descriptors.DescriptorsFactory(secp256k1);
@@ -124,7 +124,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputHerencia,
-  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">▶️ Testnet 3</a> - <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  '🚀 Iniciar red de pruebas: ▶️ <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">Testnet 3</a> - ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
@@ -398,7 +398,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
           'info'
         );
       } else {
-        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible</span>`, 'info');
       }
 
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
@@ -515,8 +515,22 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
       return;
     }
 
+    // Determinar el faucet según la red
+    const networkName = getNetworkName(explorer);
+    let selectedFaucet = TESTNET3_FAUCET;
+    if (networkName === 'Testnet 4') {
+      selectedFaucet = TESTNET4_FAUCET;
+    }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
+    const faucetMsg =
+    networkName === 'Testnet 4'
+      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      : networkName === 'Testnet 3'
+        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+
+    logToOutput(outputHerencia, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -543,9 +557,9 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    // Crear un Output WSH para usar como output en la transacción y enviar los fondos
     const wshOutput = new Output({
-      descriptor: `addr(${TESTNET_COINFAUCET})`,
+      descriptor: `addr(${selectedFaucet})`,
       network
     });
 
@@ -645,8 +659,22 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       return;
     }
     
+    // Determinar el faucet según la red
+    const networkName = getNetworkName(explorer);
+    let selectedFaucet = TESTNET3_FAUCET;
+    if (networkName === 'Testnet 4') {
+      selectedFaucet = TESTNET4_FAUCET;
+    }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
+    const faucetMsg =
+    networkName === 'Testnet 4'
+      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      : networkName === 'Testnet 3'
+        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+
+    logToOutput(outputHerencia, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -673,11 +701,14 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    new Output({
-      descriptor: `addr(${TESTNET_COINFAUCET})`,
+    // Crear un Output WSH para usar como output en la transacción y enviar los fondos
+    const wshOutput = new Output({
+      descriptor: `addr(${selectedFaucet})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
     logToOutput(outputHerencia, `✍🏻✍🏼 Firmando la transacción con las claves de los herederos...`, 'info');
@@ -699,7 +730,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
       logToOutput(outputHerencia, `🧑🏻👨🏻 Bloques para poder gastar en la rama de herencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los minero han bloqueado la transacción</span>`, 'error');
+      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
@@ -771,8 +802,22 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
       return;
     }
 
+    // Determinar el faucet según la red
+    const networkName = getNetworkName(explorer);
+    let selectedFaucet = TESTNET3_FAUCET;
+    if (networkName === 'Testnet 4') {
+      selectedFaucet = TESTNET4_FAUCET;
+    }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
+    const faucetMsg =
+    networkName === 'Testnet 4'
+      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      : networkName === 'Testnet 3'
+        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+
+    logToOutput(outputHerencia, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -799,11 +844,14 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    new Output({
-      descriptor: `addr(${TESTNET_COINFAUCET})`,
+    // Crear un Output WSH para usar como output en la transacción y enviar los fondos
+    const wshOutput = new Output({
+      descriptor: `addr(${selectedFaucet})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
     logToOutput(outputHerencia, `✍🏼 Firmando la transacción con  la clave del abogado...`, 'info');
@@ -825,7 +873,7 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
       logToOutput(outputHerencia, `👤 Bloques para poder gastar en la rama de disputa: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los minero han bloqueado la transacción</span>`, 'error');
+      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();

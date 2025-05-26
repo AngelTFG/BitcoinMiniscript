@@ -127,9 +127,12 @@ function enableButtons(): void {
   });
 }
 
-
 // Mensaje de bienvenida
-logToOutput(outputAutocustodia,  '🚀 <span style="color:blue;">Elegir red de pruebas: Testnet 3 o Testnet 4</span> 🚀');
+logToOutput(
+  outputAutocustodia,
+  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  'info'
+);
 
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
@@ -161,8 +164,7 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(explorer);
 
-    logToOutput(outputAutocustodia, `🌐 Cambiando a red ${networkName} 🌐`, 'info');
-    logToOutput(outputAutocustodia, `⛓️ Altura de bloque: ${originalBlockHeight} ⛓️`, 'info');
+    logToOutput(outputAutocustodia, `🌐 Cambiando a red <strong>${networkName}</strong>`, 'info');
     logToOutput(outputAutocustodia, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
 
@@ -334,25 +336,40 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     logToOutput(outputAutocustodia, `🔍 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
-    const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
+    const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     // Verificar si se encontraron UTXOs
     if (utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
       logToOutput(
         outputAutocustodia,
-        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
         'error'
       );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputAutocustodia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
       logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
-    logToOutput(
-      outputAutocustodia,
-      `✅ Fondos encontrados: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
-      'success'
-    );
+    logToOutput(outputAutocustodia, `✅ Fondos encontrados: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -369,7 +386,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar el total de los UTXOs
     logToOutput(outputAutocustodia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);

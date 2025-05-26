@@ -122,8 +122,11 @@ function enableButtons(): void {
 }
 
 // Mensaje de bienvenida
-logToOutput(outputHerencia,  '🚀 <span style="color:blue;">Elegir red de pruebas: Testnet 3 o Testnet 4</span> 🚀');
-
+logToOutput(
+  outputHerencia,
+  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  'info'
+);
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 
 const initMiniscriptObjet = async (
@@ -154,8 +157,7 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(explorer);
 
-    logToOutput(outputHerencia,  `🌐 Cambiando a red ${networkName} 🌐`, 'info');
-    logToOutput(outputHerencia,  `⛓️ Altura actual de la cadena: ${originalBlockHeight} bloques ⛓️ `, 'info');
+    logToOutput(outputHerencia,  `🌐 Cambiando a red <strong>${networkName}</strong>`, 'info');
     logToOutput(outputHerencia,  '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
     logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
 
@@ -307,16 +309,35 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     logToOutput(outputHerencia, `🔍 Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
-    const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
+    const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
     console.log('UTXOs:', utxos);
 
     // Verificar si se encontraron UTXOs
     if (utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
       logToOutput(
         outputHerencia,
-        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
         'error'
       );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
@@ -338,7 +359,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar el total de los UTXOs
     logToOutput(outputHerencia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar los fondos: ${error.message}`, 'error');
     logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
@@ -732,7 +753,8 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
 };
 
 // Inicializar el Miniscript en la red de testnet3
-document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
+//document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
+document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet'));
 // Inicializar el Miniscript en la red de testnet4
 document.getElementById('initTestnet4Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));
 // Inicializar el Miniscript en la red de Mainnet

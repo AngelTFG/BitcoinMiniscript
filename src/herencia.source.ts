@@ -124,7 +124,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputHerencia,
-  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">▶️ Testnet 3</a> - <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
   'info'
 );
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
@@ -449,7 +449,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
         }
       });
     }
-    
+
     logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
@@ -458,14 +458,16 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 };
 
 
-/************************ 🧓🏻  ACCESO DIRECTO  🔑  ************************/
+/************************ 🧓🏻  ACCESO DIRECTO  🔑:🔑  ************************/
 
-const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
-    // Define la clave que se usará para firmar la transacción, false para unvaultKey y true para emergencyKey
-    //emergency = false;
-
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo Output para la clave de emergencia
     const progenKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`).publicKey;
@@ -479,15 +481,42 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
     logToOutput(outputHerencia, `🧓🏻 Se ha pulsado el botón "Acceso directo"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net';
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay fondos disponibles en el Miniscript');
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputHerencia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -542,7 +571,8 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
+      logToOutput(outputHerencia, `🧓🏻 Bloques para poder gastar en la rama de acceso directo:  <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
@@ -556,15 +586,17 @@ const hotPSBT = async (masterNode: BIP32Interface, network: any, explorer: strin
   }
 };
 
+/************************ 🧑🏻👨🏻  HERENCIA 🔑🔑:🔑🔑  ************************/
 
-/************************ 🧑🏻👨🏻  HERENCIA 🕒 🔑  ************************/
-
-const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
-    // Define la clave que se usará para firmar la transacción, false para unvaultKey y true para emergencyKey
-    //emergency = false;
-
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight + BLOCKS_HERENCIA - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
+
 
     // Crear un nuevo output para la clave de emergencia
     const key_descend_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DESCEN_1}${WSH_KEY_PATH}`).publicKey;
@@ -579,15 +611,42 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     logToOutput(outputHerencia, `🧑🏻👨🏻 Se ha pulsado el botón "Herencia"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net';
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
-    const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay fondos disponibles en el Miniscript');
+    const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputHerencia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
+    
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -621,7 +680,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia, `✍🏻✍🏼Firmando la transacción con las claves de los herederos...`, 'info');
+    logToOutput(outputHerencia, `✍🏻✍🏼 Firmando la transacción con las claves de los herederos...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -639,7 +698,8 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
+      logToOutput(outputHerencia, `🧑🏻👨🏻 Bloques para poder gastar en la rama de herencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los minero han bloqueado la transacción</span>`, 'error');
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
@@ -653,14 +713,17 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ 👤 DISPUTA ⏰  🔑  ************************/
+/************************ 👤 DISPUTA 🔑:🔑  ************************/
 
-const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string,   originalBlockHeight: number): Promise<void> => {
   try {
-    // Define la clave que se usará para firmar la transacción, false para unvaultKey y true para emergencyKey
-    //emergency = true;
 
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo output para la clave de emergencia
     const abogadoKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}${WSH_KEY_PATH}`).publicKey;
@@ -671,25 +734,54 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [abogadoKey]
     });
 
-    logToOutput(outputHerencia,  `👤 Se ha pulsado el botón "Disputa"...`, 'info');
+    logToOutput(outputHerencia, `👤 Se ha pulsado el botón "Disputa"...`, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay fondos disponibles en el Miniscript');
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputHerencia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputHerencia, `🚀 Enviando fondos a <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputHerencia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
-    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
+    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
     const { txid, vout, value: valueIn } = utxo;
 
-    console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+    console.log(
+      'UTXOS:',
+      utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+    );
     console.log('UTXO:', utxo);
 
     // Obtener la transacción  en formato HEX
@@ -698,9 +790,9 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputHerencia,  `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputHerencia,  `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputHerencia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -714,7 +806,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputHerencia,  `✍🏼 Firmando la transacción con  la clave del abogado...`, 'info');
+    logToOutput(outputHerencia, `✍🏼 Firmando la transacción con  la clave del abogado...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -732,17 +824,18 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia,  `⏳ <span style="color:red;">La transacción está bloqueada temporalmente, consultar Miniscript</span>`, 'error');
-      logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputHerencia, `👤 Bloques para poder gastar en la rama de disputa: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los minero han bloqueado la transacción</span>`, 'error');
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
-      logToOutput(outputHerencia,  `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputHerencia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputHerencia,  `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
-    logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputHerencia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -755,9 +848,9 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostrarMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
-    document.getElementById('directBtn')?.addEventListener('click', () => hotPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('henrenciaBtn')?.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('disputaBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('directBtn')?.addEventListener('click', () => directoPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('henrenciaBtn')?.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('disputaBtn')?.addEventListener('click', () => disputaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
     logToOutput(outputHerencia,  `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
     logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
@@ -765,7 +858,6 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
 };
 
 // Inicializar el Miniscript en la red de testnet3
-//document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
 document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet'));
 // Inicializar el Miniscript en la red de testnet4
 document.getElementById('initTestnet4Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));

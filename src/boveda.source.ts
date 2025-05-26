@@ -109,7 +109,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputBoveda,
-  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">▶️ Testnet 3</a> - <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
   'info'
 );
 
@@ -391,14 +391,14 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     logToOutput(outputBoveda, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
 
-    // Mostrar detalles de las entradas
+    // Mostrar detalles de las entradas SOLO si la dirección es la del miniscript
     if (esEmisor) {
-      // Mostrar detalles de las entradas (vin) si es emisor
       txDetails.vin.forEach((vin: any, index: number) => {
         const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
         const prevoutValue = vin.prevout?.value || 'Desconocido';
-        const match = vin.prevout?.scriptpubkey_address ? '✔️' : '➖';
-        logToOutput(outputBoveda, `VIN ${index}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
+        if (prevoutAddress === miniscriptAddress) {
+          logToOutput(outputBoveda, `🪙 Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} ✔️`, 'info');
+        }
       });
     }
     
@@ -419,12 +419,17 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 };
 
 
-/************************ 🔧 APERTURA FORZADA 🕒 🔑  ************************/
+/************************ 🔧 APERTURA FORZADA 🔑:🔑  ************************/
 
-const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
 
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight + BLOCKS_RETARDADA - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo output para la clave de emergencia
     const unvaultKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RETARDADA}${WSH_KEY_PATH}`).publicKey;
@@ -435,30 +440,54 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [unvaultKey]
     });
 
-    logToOutput(outputBoveda, `🔘 Se ha pulsado el botón de apertura retardada ⏳`, 'info');
+    logToOutput(outputBoveda, `🔧 Se ha pulsado el botón de "Apertura forzada"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputBoveda,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputBoveda,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputBoveda,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputBoveda, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputBoveda, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
-
-    // Seleccionar el último UTXO disponible
-    // const utxo = utxos[utxos.length - 1];
-    // const { txid, vout, value: valueIn } = utxo;
-
-
+    logToOutput(outputBoveda, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
     const { txid, vout, value: valueIn } = utxo;
 
-    console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+    console.log(
+      'UTXOS:',
+      utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+    );
     console.log('UTXO:', utxo);
 
     // Obtener la transacción  en formato HEX
@@ -467,20 +496,23 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputBoveda, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputBoveda, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputBoveda, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputBoveda, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputBoveda, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputBoveda, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    new Output({
+    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    const wshOutput = new Output({
       descriptor: `addr(${TESTNET_COINFAUCET})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
     logToOutput(outputBoveda, `✍️ Firmando la transacción con  la clave apertura retardada ⏰`, 'info');
@@ -496,12 +528,13 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       })
     ).text();
 
-    console.log(`Pushing: ${txFinal.toHex()}`);
+    console.log(`Pushing TX: ${txFinal.toHex()}`);
     console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputBoveda, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputBoveda, `🔧 Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputBoveda, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     }
       else {
@@ -516,12 +549,16 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ 🆘 BOTON DEL PÁNICO 🔑  ************************/
+/************************ 🆘 BOTON DEL PÁNICO 🔑:🔑  ************************/
 
-const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
-
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await(await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo output para la clave de emergencia
     const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_INMEDIATA}${WSH_KEY_PATH}`).publicKey;
@@ -532,51 +569,78 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [emergencyKey]
     });
 
-    logToOutput(outputBoveda, `🔘 Se ha pulsado el botón del pánico 🔧`, 'info');
+    logToOutput(outputBoveda, `🆘 Se ha pulsado el "Botón del pánico" `, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
-    const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
+    const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputBoveda,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputBoveda,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputBoveda,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputBoveda, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputBoveda, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
-
-    // Seleccionar el último UTXO disponible
-    // const utxo = utxos[utxos.length - 1];
-    // const { txid, vout, value: valueIn } = utxo;
+    logToOutput(outputBoveda, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
-    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
+    const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
     const { txid, vout, value: valueIn } = utxo;
 
-    console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+    console.log(
+      'UTXOS:',
+      utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+    );
     console.log('UTXO:', utxo);
 
-    const txHex = await (await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
+    const txHex = await(await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
 
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputBoveda, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputBoveda, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputBoveda, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputBoveda, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputBoveda, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputBoveda, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    // Crear un output para enviar los fondos
-    new Output({
+    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    const wshOutput = new Output({
       descriptor: `addr(${TESTNET_COINFAUCET})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
     logToOutput(outputBoveda, `✍️ Firmando la transacción con la clave de emergencia 🚨`, 'info');
@@ -585,24 +649,25 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Extraer y transmitir la transacción
     const txFinal = psbt.extractTransaction();
-    const txResponse = await (
+    const txResponse = await(
       await fetch(`${explorer}/api/tx`, {
         method: 'POST',
         body: txFinal.toHex()
       })
     ).text();
 
-    console.log(`Pushing: ${txFinal.toHex()}`);
+    console.log(`Pushing TX: ${txFinal.toHex()}`);
     console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputBoveda, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
-      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputBoveda, `🆘 Bloques para poder gastar en la rama de boton del pánico: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputBoveda, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
+      logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
       logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
@@ -620,8 +685,8 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
-    document.getElementById('sendRetardadaBtn')?.addEventListener('click', () => retardadaPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('sendInmediataBtn')?.addEventListener('click', () => inmediataPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('sendRetardadaBtn')?.addEventListener('click', () => retardadaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('sendInmediataBtn')?.addEventListener('click', () => inmediataPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
     logToOutput(outputBoveda, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
     logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);

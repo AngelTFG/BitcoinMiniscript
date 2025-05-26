@@ -130,7 +130,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputAutocustodia,
-  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
+  '🚀 Iniciar red de pruebas: <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">▶️ Testnet 3</a> - <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">▶️ Testnet 4</a>',
   'info'
 );
 
@@ -457,14 +457,14 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     const blockHeight = txDetails.status.block_height || 'Desconocido';
     logToOutput(outputAutocustodia, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
-    // Mostrar detalles de las entradas
+    // Mostrar detalles de las entradas SOLO si la dirección es la del miniscript
     if (esEmisor) {
-      // Mostrar detalles de las entradas (vin) si es emisor
       txDetails.vin.forEach((vin: any, index: number) => {
         const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
         const prevoutValue = vin.prevout?.value || 'Desconocido';
-        const match = vin.prevout?.scriptpubkey_address ? '✔️' : '➖';
-        logToOutput(outputAutocustodia, `VIN ${index}: <span style="color:red;">${prevoutValue}</span> sats ← ${prevoutAddress} ${match}`, 'info');
+        if (prevoutAddress === miniscriptAddress) {
+          logToOutput(outputAutocustodia, `🪙 Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} ✔️`, 'info');
+        }
       });
     }
     
@@ -487,9 +487,14 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
 /************************ 🗓️ DIARIO 🔑🔑:🔑🔑🔑  ************************/
 
-const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
-      console.log('Descriptor WSH:', wshDescriptor);
+    console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo objeto para la clave de emergencia
     const dailyKey1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY1}${WSH_KEY_PATH}`).publicKey;
@@ -501,25 +506,55 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
       signersPubKeys: [dailyKey1, dailyKey2]
     });
 
-    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de uso diario 🗓️ `, 'info');
+    logToOutput(outputAutocustodia, `🗓️ Se ha pulsado el botón "Uso diario..."`, 'info');
 
     // Obtener la dirección de recepción 
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputAutocustodia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputAutocustodia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputAutocustodia, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
     const { txid, vout, value: valueIn } = utxo;
 
-    console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+    console.log(
+      'UTXOS:',
+      utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+    );
     console.log('UTXO:', utxo);
 
     // Obtener la transacción  en formato HEX
@@ -528,9 +563,9 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputAutocustodia, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -546,11 +581,8 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     console.log('Objeto wsh expandido:', wshOutput.expand());
     wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
-
-
-
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍🏻✍🏻 Firmando la transacción con las claves de uso diario 🗓️`, 'info');
+    logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -563,12 +595,13 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
       })
     ).text();
 
-    console.log(`TX hex: ${txFinal.toHex()}`);
-    console.log('TXID:', txResponse);
+    console.log(`Pushing TX: ${txFinal.toHex()}`);
+    console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputAutocustodia, `🗓️ Bloques para poder gastar en la rama de uso diario: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
       else {
@@ -585,9 +618,14 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
 
 /************************  🛡️ RECUPERACIÓN 🕒 🔑:🔑🔑  ************************/
 
-const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo output para la clave de emergencia
     const key_recovery_1 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY1}${WSH_KEY_PATH}`).publicKey;
@@ -599,18 +637,45 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [key_recovery_1]
     });
 
-    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de recuperación 🛡️`, 'info');
+    logToOutput(outputAutocustodia, `🛡️ Se ha pulsado el botón "Recuperación"... `, 'info');
     // Obtener la dirección de recepción
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net';
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputAutocustodia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputAutocustodia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
+
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputAutocustodia, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -628,9 +693,9 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputAutocustodia, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -644,7 +709,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     }).updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la de recuperación 🛡️`, 'info');
+    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -657,12 +722,13 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       })
     ).text();
 
-    console.log(`TX hex: ${txFinal.toHex()}`);
-    console.log('TXID:', txResponse);
+    console.log(`Pushing TX: ${txFinal.toHex()}`);
+    console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputAutocustodia, `🛡️ Bloques para poder gastar en la rama de recuperación: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
@@ -678,9 +744,14 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
 /************************ 🚨 EMERGENCIA ⏰ 🔑 ************************/
 
-const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string): Promise<void> => {
+const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
     console.log('Descriptor WSH:', wshDescriptor);
+
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocks = originalBlockHeight + BLOCKS_EMERGENCY - actualBlockHeight;
+    const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
+    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
 
     // Crear un nuevo output para la clave de emergencia
     const emergencyKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_EMERGENCY}${WSH_KEY_PATH}`).publicKey;
@@ -691,25 +762,54 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [emergencyKey]
     });
 
-    logToOutput(outputAutocustodia, `🔘 Se ha pulsado el botón de apertura de emergencia 🚨`, 'info');
+    logToOutput(outputAutocustodia, `🚨 Se ha pulsado el botón "Apertura de emergencia"... `, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptObjet.getAddress();
-    const addressDestino = 'BitcoinFaucet.uo1.net'
 
     // Consultar UTXOs disponibles en la direccion del Miniscript
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
-    if (!utxos.length) {
-      throw new Error('No hay UTXOs disponibles en la dirección del Miniscript ❌');
+    console.log('UTXOs:', utxos);
+
+    if (!Array.isArray(utxos) || utxos.length === 0) {
+      const networkName = getNetworkName(explorer);
+
+      logToOutput(
+        outputAutocustodia,
+        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        'error'
+      );
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputAutocustodia,
+          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputAutocustodia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
+      return;
     }
 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
-    logToOutput(outputAutocustodia, `🚀 Devolviendo UTXOs desde <code><strong>${miniscriptAddress}</strong></code> hacia <code><strong>${addressDestino}</strong></code>`, 'info');
+    logToOutput(outputAutocustodia, `🚀 Devolviendo fondos a <code><strong>Bitcoin faucet</strong></code>`, 'info');
 
   // Seleccionar el UTXO más antiguo
   const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height )[0];
   const { txid, vout, value: valueIn } = utxo;
 
-  console.log('UTXOS:', utxos.sort((a: any, b: any) => b.status.block_height  - a.status.block_height ));
+  console.log(
+    'UTXOS:',
+    utxos.sort((a: any, b: any) => b.status.block_height - a.status.block_height)
+  );
   console.log('UTXO:', utxo);
 
     const txHex = await (await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
@@ -717,23 +817,26 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
 
-    logToOutput(outputAutocustodia, `💰 Valor del UTXO: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💸 Fee estimada: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `🔢 Valor final de la transacción: <strong>${valueOut}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+    logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
     // Crear el finalizador con los inputs
     const finalizer = localMiniscriptObjet.updatePsbtAsInput({ psbt, vout, txHex });
 
-    // Crear un output para enviar los fondos
-    new Output({
+    // Crear un Output WSH para usar como output en la transacción y  enviar los fondos
+    const wshOutput = new Output({
       descriptor: `addr(${TESTNET_COINFAUCET})`,
       network
-    }).updatePsbtAsOutput({ psbt, value: valueOut });
+    });
+
+    console.log('Objeto wsh expandido:', wshOutput.expand());
+    wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de emergencia 🚨`, 'info');
+    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de apertura por perdida...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -746,12 +849,13 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       })
     ).text();
 
-    console.log(`TX hex: ${txFinal.toHex()}`);
-    console.log('TXID:', txResponse);
+    console.log(`Pushing TX: ${txFinal.toHex()}`);
+    console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputAutocustodia, `⏳ <span style="color:red;">La transacción está bloqueada temporalmente debido a un timelock</span>`, 'error');
+      logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de emergencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     } else {
       const txId = txFinal.getId();
@@ -774,9 +878,9 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
-    document.getElementById('dailyBtn')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('recoveryBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor));
-    document.getElementById('emergencyBtn')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor));
+    document.getElementById('dailyBtn')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('recoveryBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('emergencyBtn')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);

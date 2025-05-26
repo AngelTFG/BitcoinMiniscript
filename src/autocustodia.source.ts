@@ -403,11 +403,34 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
     console.log('Transacciones:', txHistory);
 
-    if (!Array.isArray(txHistory) || txHistory.length === 0) {
-      logToOutput(outputAutocustodia,  `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`);
-      logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
-      return;
+  if (!Array.isArray(txHistory) || txHistory.length === 0) {
+    const networkName = getNetworkName(explorer);
+
+    logToOutput(
+      outputAutocustodia,
+      `🚫 <span style="color:red;">No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+      'error'
+    );
+
+    if (networkName === 'Testnet 4') {
+      logToOutput(
+        outputAutocustodia,
+        `💧 Recibir transacción a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+        'info'
+      );
+    } else if (networkName === 'Testnet 3') {
+      logToOutput(
+        outputAutocustodia,
+        `💧 Recibir transacción a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+        'info'
+      );
+    } else {
+      logToOutput(outputAutocustodia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
     }
+
+    logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
+    return;
+  }
     
     // Obtener detalles de la transacción con el block_height más alto, que indica la última transacción
     const txnID = txHistory.sort((a: any, b: any) => b.status.block_height - a.status.block_height)[0].txid;
@@ -429,9 +452,10 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     }
 
     const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;">✅ confirmada</span>' : '<span style="color:red;">❓ no confirmada</span>';
-    
-    logToOutput(outputAutocustodia,  `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
-    logToOutput(outputAutocustodia, `${tipo} ${confirmationStatus}`, 'success');
+    logToOutput(outputAutocustodia, `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
+
+    const blockHeight = txDetails.status.block_height || 'Desconocido';
+    logToOutput(outputAutocustodia, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
     // Mostrar detalles de las entradas
     if (esEmisor) {
@@ -444,12 +468,12 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
       });
     }
     
-    // Mostrar detalles de las salidas
+    // Mostrar detalles de las salidas SOLO si la dirección es la del miniscript
     if (esReceptor) {
-      // Mostrar detalles de las salidas (vout) si es receptor
       txDetails.vout.forEach((vout: any, index: number) => {
-        const match = vout.scriptpubkey_address === miniscriptAddress ? '✔️' : '➖';
-        logToOutput(outputAutocustodia, `VOUT ${index}: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ${match}` , 'info');
+        if (vout.scriptpubkey_address === miniscriptAddress) {
+          logToOutput(outputAutocustodia, `🪙 Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ✔️`, 'info');
+        }
       });
     }
 

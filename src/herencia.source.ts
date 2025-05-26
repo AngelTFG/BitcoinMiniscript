@@ -374,21 +374,40 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     logToOutput(outputHerencia, `🚛 Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
-    const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
+    const txHistory = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
     console.log('Transacciones:', txHistory);
 
     if (!Array.isArray(txHistory) || txHistory.length === 0) {
+      const networkName = getNetworkName(explorer);
+
       logToOutput(
         outputHerencia,
-        `<span style="color:red;">🚫 No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`
+        `🚫 <span style="color:red;">No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`
       );
-      logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+
+      if (networkName === 'Testnet 4') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir transacción a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          'info'
+        );
+      } else if (networkName === 'Testnet 3') {
+        logToOutput(
+          outputHerencia,
+          `💧 Recibir transacción a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          'info'
+        );
+      } else {
+        logToOutput(outputHerencia, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      }
+
+      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
     // Obtener detalles de la transacción con el block_height más alto, que indica la última transacción
     const txnID = txHistory.sort((a: any, b: any) => b.status.block_height - a.status.block_height)[0].txid;
-    const txDetails = await (await fetch(`${explorer}/api/tx/${txnID}`)).json();
+    const txDetails = await(await fetch(`${explorer}/api/tx/${txnID}`)).json();
 
     // Determinar si es envío o recepción
     const esEmisor = txDetails.vin.some((vin: any) => vin.prevout?.scriptpubkey_address === miniscriptAddress);
@@ -411,34 +430,27 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     const blockHeight = txDetails.status.block_height || 'Desconocido';
     logToOutput(outputHerencia, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
-// Mostrar detalles de las entradas SOLO si la dirección es la del miniscript
-if (esEmisor) {
-  txDetails.vin.forEach((vin: any, index: number) => {
-    const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
-    const prevoutValue = vin.prevout?.value || 'Desconocido';
-    if (prevoutAddress === miniscriptAddress) {
-      logToOutput(
-        outputHerencia,
-        `🪙 Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} ✔️`,
-        'info'
-      );
+    // Mostrar detalles de las entradas SOLO si la dirección es la del miniscript
+    if (esEmisor) {
+      txDetails.vin.forEach((vin: any, index: number) => {
+        const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
+        const prevoutValue = vin.prevout?.value || 'Desconocido';
+        if (prevoutAddress === miniscriptAddress) {
+          logToOutput(outputHerencia, `🪙 Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} ✔️`, 'info');
+        }
+      });
     }
-  });
-}
 
-// Mostrar detalles de las salidas SOLO si la dirección es la del miniscript
-if (esReceptor) {
-  txDetails.vout.forEach((vout: any, index: number) => {
-    if (vout.scriptpubkey_address === miniscriptAddress) {
-      logToOutput(
-        outputHerencia,
-        `🪙 Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ✔️`,
-        'info'
-      );
+    // Mostrar detalles de las salidas SOLO si la dirección es la del miniscript
+    if (esReceptor) {
+      txDetails.vout.forEach((vout: any, index: number) => {
+        if (vout.scriptpubkey_address === miniscriptAddress) {
+          logToOutput(outputHerencia, `🪙 Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ✔️`, 'info');
+        }
+      });
     }
-  });
-}
-    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+    
+    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
     logToOutput(outputHerencia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
     logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);

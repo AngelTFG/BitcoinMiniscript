@@ -282,48 +282,51 @@ const initMiniscriptObjet = async (
     return { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript, initiazeNetwork muestra el error en la interfaz
-    console.error(`Error al inicializar Miniscript: ${error.message}`);
+    console.error(`❌ Error al inicializar Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
     throw error;
   }
 };
 
 /************************ 📜 CONSULTAR MINISCRIPT ************************/
 
-// Modificar las funciones para aceptar el objeto retornado
-const mostraMIniscript = async (
-    MiniscriptObjet: InstanceType<typeof Output>,
-    originalBlockHeight: number,
-   explorer: string
+const mostrarMiniscript = async (
+  MiniscriptObjet: InstanceType<typeof Output>,
+  originalBlockHeight: number,
+  explorer: string
 ): Promise<void> => {
+  try {
+    // Obtener el nombre de la red
+    const networkName = getNetworkName(explorer);
 
-  // Obtener el nombre de la red
-  const networkName = getNetworkName(explorer);
+    const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
+    const restingBlocksDiario = originalBlockHeight - actualBlockHeight;
+    const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
+    const restingBlocksEmer = originalBlockHeight + BLOCKS_EMERGENCY - actualBlockHeight;
 
-  const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
-  const restingBlocksDiario = originalBlockHeight - actualBlockHeight;
-  const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
-  const restingBlocksEmer = originalBlockHeight + BLOCKS_EMERGENCY - actualBlockHeight;
+    // Control sobre el número de bloques restantes y el color que se le asigna
+    const displayDiario = restingBlocksDiario <= 0 ? 0 : restingBlocksDiario;
+    const DiarioColor = restingBlocksDiario > 0 ? 'red' : 'green';
 
-  // Control sobre el numero de bloques restantes y el color que se le asigna
-const displayDiario = restingBlocksDiario <= 0 ? 0 : restingBlocksDiario;
-const DiarioColor = restingBlocksDiario > 0 ? 'red' : 'green';
+    const displayRec = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
+    const recColor = restingBlocksRec > 0 ? 'red' : 'green';
 
-const displayRec = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
-const recColor = restingBlocksRec > 0 ? 'red' : 'green';
+    const displayEmerg = restingBlocksEmer <= 0 ? 0 : restingBlocksEmer;
+    const emergColor = restingBlocksEmer > 0 ? 'red' : 'green';
 
-const displayEmerg = restingBlocksEmer <= 0 ? 0 : restingBlocksEmer;
-const emergColor = restingBlocksEmer > 0 ? 'red' : 'green';
+    // Mostrar información detallada
+    logToOutput(outputAutocustodia, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputAutocustodia, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+    logToOutput(outputAutocustodia, `🗓️ Bloques para poder gastar en la rama de uso diario: <strong style="color:${DiarioColor};">${displayDiario}</strong>`, 'info');
+    logToOutput(outputAutocustodia, `🛡️ Bloques para poder gastar en la rama de recuperación: <strong style="color:${recColor};">${displayRec}</strong>`, 'info');
+    logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de emergencia: <strong style="color:${emergColor};">${displayEmerg}</strong>`, 'info');
 
-// Mostrar información detallada
-logToOutput(outputAutocustodia, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
-logToOutput(outputAutocustodia, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-logToOutput(outputAutocustodia,  `🗓️ Bloques para poder gastar en la rama de uso diario: <strong style="color:${DiarioColor};">${displayDiario}</strong>`, 'info');
-logToOutput(outputAutocustodia, `🛡️ Bloques para poder gastar en la rama de recuperación: <strong style="color:${recColor};">${displayRec}</strong>`, 'info');
-logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de emergencia: <strong style="color:${emergColor};">${displayEmerg}</strong>`, 'info');
-
-  const miniscriptAddress = MiniscriptObjet.getAddress();
-  logToOutput(outputAutocustodia, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
-  logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
+    const miniscriptAddress = MiniscriptObjet.getAddress();
+    logToOutput(outputAutocustodia, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
+    logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
+  } catch (error: any) {
+    logToOutput(outputAutocustodia, `❌ Error al mostrar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
+  }
 };
 
 /************************ 🔍 BUSCAR FONDOS  **********************/
@@ -388,7 +391,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     logToOutput(outputAutocustodia, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
     logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error.message}`, 'error');
+    logToOutput(outputAutocustodia, `❌ Error al consultar los UTXOs: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -479,7 +482,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputAutocustodia, `❌ Error al consultar la transacción: ${error.message}`, 'error');
+    logToOutput(outputAutocustodia, `❌ Error al consultar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -554,9 +557,9 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
     const faucetMsg =
     networkName === 'Testnet 4'
-      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
       : networkName === 'Testnet 3'
-        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
         : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
 
     logToOutput(outputAutocustodia, faucetMsg, 'info');
@@ -574,12 +577,9 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     // Obtener la transacción  en formato HEX
     const txHex = await (await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
 
+    // Lanzar error si el UTXO no cubre la comisión
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
-
-    logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -596,7 +596,6 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
     wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -614,18 +613,21 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputAutocustodia, `🗓️ Bloques para poder gastar en la rama de uso diario: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `🧱 Bloques para poder gastar en la rama de uso diario: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
       logToOutput(outputAutocustodia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
       else {
+      logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputAutocustodia, `❌ Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -698,9 +700,9 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
     const faucetMsg =
     networkName === 'Testnet 4'
-      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
       : networkName === 'Testnet 3'
-        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
         : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
 
     logToOutput(outputAutocustodia, faucetMsg, 'info');
@@ -718,12 +720,9 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     // Obtener la transacción  en formato HEX 
     const txHex = await(await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
 
+    // Lanzar error si el UTXO no cubre la comisión
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
-
-    logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -740,7 +739,6 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -758,17 +756,20 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputAutocustodia, `🛡️ Bloques para poder gastar en la rama de recuperación: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `🧱 Bloques para poder gastar en la rama de recuperación: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
       logToOutput(outputAutocustodia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     } else {
+      logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputAutocustodia, `❌ Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -840,9 +841,9 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
     const faucetMsg =
     networkName === 'Testnet 4'
-      ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
       : networkName === 'Testnet 3'
-        ? '🚀 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
         : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
 
     logToOutput(outputAutocustodia, faucetMsg, 'info');
@@ -859,12 +860,9 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     const txHex = await (await fetch(`${explorer}/api/tx/${txid}/hex`)).text();
 
+    // Lanzar error si el UTXO no cubre la comisión
     const valueOut = valueIn - FEE;
     if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
-
-    logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-    logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -881,7 +879,6 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     wshOutput.updatePsbtAsOutput({ psbt, value: valueOut });
 
     // Firmar y finalizar la transacción
-    logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de apertura por perdida...`, 'info');
     descriptors.signers.signBIP32({ psbt, masterNode });
     finalizer({ psbt });
 
@@ -899,17 +896,20 @@ const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputAutocustodia, `🚨 Bloques para poder gastar en la rama de emergencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputAutocustodia, `🧱 Bloques para poder gastar en la rama de emergencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
       logToOutput(outputAutocustodia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     } else {
+      logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de apertura por perdida...`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputAutocustodia, `❌ <span style="color:red;">Error al enviar la transacción:</span> ${errorDetails}`, 'error');
+    logToOutput(outputAutocustodia, `❌ Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -920,14 +920,14 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
   try {
     const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostraMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
+    document.getElementById('showMiniscriptBtn')?.addEventListener('click', () => mostrarMiniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
     document.getElementById('dailyBtn')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     document.getElementById('recoveryBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     document.getElementById('emergencyBtn')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
-    logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error.message}`, 'error');
+    logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
   }
 };

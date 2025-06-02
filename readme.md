@@ -1,35 +1,35 @@
-# Guía de Configuración del Proyecto Miniscript Playground 
+# Guía de configuración del proyecto Miniscript Playground 
 
 ## Estructura del Proyecto
-```json
+```txt
 Playground/
-├─ readme.md                  # Este archivo, documentación y guía del proyecto
-├─ .gitignore                 # Archivos y carpetas que no se suben al control de versiones
-├─ .prettierrc                # Configuración de formato de código para Prettier
-├─ favicon.svg                # Icono de la página web
-├─ btcLogo.png     # Imagen/logo del proyecto
-├─ index.html                 # Página principal que carga los bundles JS
-├─ style.css                  # Estilos CSS globales del proyecto
-├─ jest.config.js             # Configuración de Jest para pruebas automáticas
-├─ package-lock.json          # Archivo de bloqueo de dependencias generado por npm
-├─ package.json               # Manejo de dependencias, scripts y metadatos del proyecto
-├─ tsconfig.json              # Configuración de TypeScript
-├─ node_modules/              # Dependencias instaladas 
-├─ dist/                      # Carpeta de salida de los bundles generados para cada módulo/página
-│   ├─ autocustodia.bundle.js # Bundle JS para la funcionalidad de autocustodia
-│   ├─ boveda.bundle.js       # Bundle JS para la funcionalidad de bóveda
-│   └─ herencia.bundle.js     # Bundle JS para la funcionalidad de herencia
-├─ htmls/                     # HTMLs individuales para cada módulo/página
-│   ├─ autocustodia.html      # Página HTML para autocustodia
-│   ├─ boveda.html            # Página HTML para bóveda
-│   └─ herencia.html          # Página HTML para herencia
-└─ src/                       # Código fuente del proyecto
-    ├─ types.d.ts             # Definiciones de tipos globales de TypeScript
-    ├─ autocustodia.source.ts # Código fuente específico del módulo autocustodia
-    ├─ boveda.source.ts       # Código fuente específico del módulo bóveda
-    ├─ herencia.source.ts     # Código fuente específico del módulo herencia
-    └─ __test__/              # Carpeta de tests automáticos
-        └─ interfaz.test.ts   # Pruebas de interfaz de usuario (DOM, utilidades visuales)
+├─ readme.md                     # Este archivo, documentación y guía del proyecto
+├─ .gitignore                    # Archivos y carpetas que no se suben al control de versiones
+├─ .prettierrc                   # Configuración de formato de código para Prettier
+├─ favicon.svg                   # Icono de la página web
+├─ btcLogo.png                   # Imagen/logo del proyecto
+├─ index.html                    # Página principal que carga los bundles JS
+├─ style.css                     # Estilos CSS globales del proyecto
+├─ jest.config.js                # Configuración de Jest para pruebas automáticas
+├─ package-lock.json             # Archivo de bloqueo de dependencias generado por npm
+├─ package.json                  # Manejo de dependencias, scripts y metadatos del proyecto
+├─ tsconfig.json                 # Configuración de TypeScript
+├─ node_modules/                 # Dependencias instaladas 
+├─ dist/                         # Carpeta de salida de los bundles generados para cada módulo/página
+│   ├─ autocustodia.bundle.js    # Bundle JS para la funcionalidad de autocustodia
+│   ├─ boveda.bundle.js          # Bundle JS para la funcionalidad de bóveda
+│   └─ herencia.bundle.js        # Bundle JS para la funcionalidad de herencia
+├─ htmls/                        # HTMLs individuales para cada módulo/página
+│   ├─ autocustodia.html         # Página HTML para autocustodia
+│   ├─ boveda.html               # Página HTML para bóveda
+│   └─ herencia.html             # Página HTML para herencia
+└─ src/                          # Código fuente del proyecto
+    ├─ types.d.ts                # Definiciones de tipos globales de TypeScript
+    ├─ autocustodia.source.ts    # Código fuente específico del módulo autocustodia
+    ├─ boveda.source.ts          # Código fuente específico del módulo bóveda
+    ├─ herencia.source.ts        # Código fuente específico del módulo herencia
+    └─ __test__/                 # Carpeta de tests automáticos
+        └─ interfaz.test.ts      # Pruebas de interfaz de usuario (DOM, utilidades visuales)
 
 ```
 

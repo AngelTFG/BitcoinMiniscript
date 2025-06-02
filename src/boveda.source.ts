@@ -512,7 +512,7 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Lanzar error si el UTXO no cubre la comisión
     const valueOut = valueIn - FEE;
-    if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
+    if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });
@@ -654,7 +654,7 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Lanzar error si el UTXO no cubre la comisión
     const valueOut = valueIn - FEE;
-    if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión.');
+    if (valueOut <= 0) throw new Error('El valor del UTXO no cubre la comisión');
 
     // Crear la transacción PSBT
     const psbt = new Psbt({ network });

@@ -65,10 +65,10 @@ npm install @bitcoinerlab/secp256k1 @bitcoinerlab/descriptors bip39 bitcoinjs-li
 
 ### 3 .Declaraciones de tipos para módulos que no tienen tipado  en TypeScript
 
+Crear el archivo `types.d.ts`
 
 Para que el compilador TypeScript no muestre errores al importar y usar los módulos 
 
-Crear el archivo `types.d.ts` con:
 
 ```js
 // Declaraciones de tipos para módulos que no soportan tipado de TypeScript
@@ -117,7 +117,7 @@ Crear el archivo `tsconfig.json`
 
 ---
 
-
+ 
 ### 4. Configuración `tsconfig.test.json`
 
 Crear un archivo `tsconfig.test.json` con la configuración especifica de **jest**
@@ -165,12 +165,13 @@ Agregar el siguiente script en la sección `"scripts"` del archivo `package.json
 
 ### 6. Compilar el código
 
-Compilar en un paso o en modo watch
+Compilar en un paso o en modo watch:
 
 ```bash
 npm run build-autocustodia
 npm run build-boveda
 npm run build-herencia
+npm run build-all
 ```
 o
 ```bash
@@ -194,7 +195,7 @@ Inicializar jest
 npx ts-jest config:init
 ```
 
-Edita tu archivo `jest.config.js` para asegurarte de que contiene lo siguiente:
+Editar `jest.config.js` con la siguiente configuración:
 
 ```js
 /** @type {import('ts-jest').JestConfigWithTsJest} */
@@ -206,7 +207,7 @@ module.exports = {
 };
 ```
 
-Esto configura Jest para trabajar con TypeScript y simular el DOM en los tests.
+De esta manera Jest puede trabajar con TypeScript y simular el DOM en los tests.
 
 ### 9. Ejecutar los Tests
 

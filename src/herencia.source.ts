@@ -262,7 +262,7 @@ const initMiniscriptObjet = async (
 
 /************************ 📜 CONSULTAR MINISCRIPT ************************/
 
-const mostrarMIniscript = async (
+const mostrarMiniscript = async (
   MiniscriptObjet: InstanceType<typeof Output>,
   originalBlockHeight: number,
   explorer: string
@@ -726,7 +726,7 @@ const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
-    if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
+    if (txResponse.match('non-BIP68ninal') || txResponse.match('non-final')) {
       logToOutput(outputHerencia, `🧱 Bloques para poder gastar en la rama de herencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
       logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
@@ -894,7 +894,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
   try {
     const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = await initMiniscriptObjet(network, explorer);
 
-    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostrarMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
+    document.getElementById('showMiniscripBtn')?.addEventListener('click', () => mostrarMiniscript(MiniscriptObjet, originalBlockHeight, explorer));
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
     document.getElementById('directBtn')?.addEventListener('click', () => directoPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));

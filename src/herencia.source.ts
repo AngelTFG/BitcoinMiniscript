@@ -124,7 +124,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputHerencia,
-  '🚀 Iniciar red de pruebas: ▶️ <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">Testnet 3</a> - ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
+  '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
@@ -157,8 +157,8 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(explorer);
 
-    logToOutput(outputHerencia,  `🌐 Cambiando a red <strong>${networkName}</strong>`, 'info');
-    logToOutput(outputHerencia,  '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
+    logToOutput(outputHerencia,  `🌐 Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputHerencia,  '<span style="color:green;">🌟 ¡El Playground ha sido inicializado con éxito! 🌟</span>', 'success');
     logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
@@ -888,7 +888,7 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
   }
 };
 
-/************************ Llamada a los botones  ************************/
+/************************ 🛜 CONECTAR CON LA RED BITCOIN  ************************/
 
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
@@ -905,6 +905,8 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
   }
 };
+
+/************************ 🔘 LLAMADAS A LOS BOTONES   ************************/
 
 // Inicializar el Miniscript en la red de testnet3
 document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet'));

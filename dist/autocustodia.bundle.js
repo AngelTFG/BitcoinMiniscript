@@ -72655,7 +72655,7 @@ function enableButtons() {
     });
 }
 // Mensaje de bienvenida
-logToOutput(outputAutocustodia, '🚀 Iniciar red de pruebas: ▶️ <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">Testnet 3</a> - ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
+logToOutput(outputAutocustodia, '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -72671,8 +72671,8 @@ const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, voi
         const blockDate = new Date(blockDetails.timestamp * 1000);
         // Obtener el nombre de la red
         const networkName = getNetworkName(explorer);
-        logToOutput(outputAutocustodia, `🌐 Cambiando a red <strong>${networkName}</strong>`, 'info');
-        logToOutput(outputAutocustodia, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
+        logToOutput(outputAutocustodia, `🌐 Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
+        logToOutput(outputAutocustodia, '<span style="color:green;">🌟 ¡El Playground ha sido inicializado con éxito! 🌟</span>', 'success');
         logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
         // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
         const recovery = (0, bip65_1.encode)({ blocks: originalBlockHeight + BLOCKS_RECOVERY });
@@ -73214,7 +73214,7 @@ const emergancyPSBT = (masterNode, network, explorer, wshDescriptor, originalBlo
         logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
     }
 });
-/************************ Llamada a los botones  ************************/
+/************************ 🛜 CONECTAR CON LA RED BITCOIN  ************************/
 const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
     try {
@@ -73231,8 +73231,9 @@ const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 
         logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
     }
 });
+/************************ 🔘 LLAMADAS A LOS BOTONES   ************************/
 // Inicializar el Miniscript en la red de testnet3
-(_a = document.getElementById('initTestnet3Btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => initializeNetwork(bitcoinjs_lib_1.networks.testnet, 'https://blockstream.info/testnet'));
+(_a = document.getElementById('initTestnet3Btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => initializeNetwork(bitcoinjs_lib_1.networks.testnet, 'https://mempool.space/testnet'));
 // Inicializar el Miniscript en la red de testnet4
 (_b = document.getElementById('initTestnet4Btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => initializeNetwork(bitcoinjs_lib_1.networks.testnet, 'https://mempool.space/testnet4'));
 // Inicializar el Miniscript en la red de Mainnet

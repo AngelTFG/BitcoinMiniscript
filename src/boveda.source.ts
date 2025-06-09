@@ -109,7 +109,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputBoveda,
-  '🚀 Iniciar red de pruebas: ▶️ <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">Testnet 3</a> - ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
+  '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 
@@ -143,8 +143,8 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(explorer);
 
-    logToOutput(outputBoveda, `🌐 Cambiando a red <strong>${networkName}</strong>`, 'info');
-    logToOutput(outputBoveda, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
+    logToOutput(outputBoveda,  `🌐 Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputBoveda, '<span style="color:green;">🌟 ¡El Playground ha sido inicializado con éxito! 🌟</span>', 'success');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
@@ -420,7 +420,6 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
-
 
 /************************ 🔧 APERTURA FORZADA 🔑:🔑  ************************/
 
@@ -706,7 +705,7 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ Llamada a los botones  ************************/
+/************************ 🛜 CONECTAR CON LA RED BITCOIN  ************************/
 
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
@@ -723,8 +722,10 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
   }
 };
 
+/************************ 🔘 LLAMADAS A LOS BOTONES   ************************/
+
 // Inicializar el Miniscript en la red de testnet3
-document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://blockstream.info/testnet'));
+document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet'));
 // Inicializar el Miniscript en la red de testnet4
 document.getElementById('initTestnet4Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));
 // Inicializar el Miniscript en la red de Mainnet

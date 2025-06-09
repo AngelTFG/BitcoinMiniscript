@@ -72651,7 +72651,7 @@ function enableButtons() {
     });
 }
 // Mensaje de bienvenida
-logToOutput(outputHerencia, '🚀 Iniciar red de pruebas: ▶️ <a href="#" onclick="document.getElementById(\'initTestnet3Btn\').click();return false;">Testnet 3</a> - ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
+logToOutput(outputHerencia, '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -72667,8 +72667,8 @@ const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, voi
         const blockDate = new Date(blockDetails.timestamp * 1000);
         // Obtener el nombre de la red
         const networkName = getNetworkName(explorer);
-        logToOutput(outputHerencia, `🌐 Cambiando a red <strong>${networkName}</strong>`, 'info');
-        logToOutput(outputHerencia, '<span style="color:green;">🌟 ¡El Miniscript ha sido inicializado con éxito! 🌟</span>', 'success');
+        logToOutput(outputHerencia, `🌐 Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
+        logToOutput(outputHerencia, '<span style="color:green;">🌟 ¡El Playground ha sido inicializado con éxito! 🌟</span>', 'success');
         logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
         // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
         const herencia = (0, bip65_1.encode)({ blocks: originalBlockHeight + BLOCKS_HERENCIA });
@@ -72743,7 +72743,7 @@ const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, voi
     }
 });
 /************************ 📜 CONSULTAR MINISCRIPT ************************/
-const mostrarMIniscript = (MiniscriptObjet, originalBlockHeight, explorer) => __awaiter(void 0, void 0, void 0, function* () {
+const mostrarMiniscript = (MiniscriptObjet, originalBlockHeight, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Obtener el nombre de la red
         const networkName = getNetworkName(explorer);
@@ -73077,7 +73077,7 @@ const henrenciaPSBT = (masterNode, network, explorer, wshDescriptor, originalBlo
         console.log(`Pushing: ${txFinal.toHex()}`);
         console.log('Resultado TXID:', txResponse);
         // Manejar el error "non-final"
-        if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
+        if (txResponse.match('non-BIP68ninal') || txResponse.match('non-final')) {
             logToOutput(outputHerencia, `🧱 Bloques para poder gastar en la rama de herencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
             logToOutput(outputHerencia, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
             logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
@@ -73201,12 +73201,12 @@ const disputaPSBT = (masterNode, network, explorer, wshDescriptor, originalBlock
         logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     }
 });
-/************************ Llamada a los botones  ************************/
+/************************ 🛜 CONECTAR CON LA RED BITCOIN  ************************/
 const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
     try {
         const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = yield initMiniscriptObjet(network, explorer);
-        (_a = document.getElementById('showMiniscripBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => mostrarMIniscript(MiniscriptObjet, originalBlockHeight, explorer));
+        (_a = document.getElementById('showMiniscripBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => mostrarMiniscript(MiniscriptObjet, originalBlockHeight, explorer));
         (_b = document.getElementById('fetchUtxosBtn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
         (_c = document.getElementById('fetchTransactionBtn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
         (_d = document.getElementById('directBtn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => directoPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
@@ -73218,6 +73218,7 @@ const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 
         logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
     }
 });
+/************************ 🔘 LLAMADAS A LOS BOTONES   ************************/
 // Inicializar el Miniscript en la red de testnet3
 (_a = document.getElementById('initTestnet3Btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => initializeNetwork(bitcoinjs_lib_1.networks.testnet, 'https://mempool.space/testnet'));
 // Inicializar el Miniscript en la red de testnet4

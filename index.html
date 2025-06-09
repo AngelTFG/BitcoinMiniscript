@@ -23,7 +23,7 @@
 
       <div class="container">
 
-        <!-- Columna izquierda: Menú de proyectos -->
+        <!-- Columna izquierda: Menú de pólizas -->
         <div class="menu">
           <h2>🗂️ Pólizas disponibles</h2>
 
@@ -70,7 +70,7 @@
           .then(html => {
             document.getElementById('content').innerHTML = html;
     
-            // Extraer el nombre del archivo sin la carpeta ni la extensión autocustodia.html >> autocustodia
+            // Extraer el nombre del archivo sin la carpeta ni la extensión ej: htmls/autocustodia.html >> autocustodia
             const scriptName = proyectoUrl.split('/').pop().split('.')[0];
     
             // Eliminar scripts anteriores del mismo tipo si existen para evitar duplicados
@@ -84,6 +84,7 @@
             script.src = `./dist/${scriptName}.bundle.js`;
             document.body.appendChild(script); // Añadir al final del body
         
+
 // Añadir el árbol de emojis según el proyecto seleccionado
 if (scriptName === 'autocustodia') {
   document.getElementById('output').innerHTML = `<pre>

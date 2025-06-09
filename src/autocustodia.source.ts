@@ -130,7 +130,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputAutocustodia,
-  '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
+  '🚀 Iniciar en red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 
@@ -621,7 +621,7 @@ const dailyPSBT = async (masterNode: BIP32Interface, network: any, explorer: str
       logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
       logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
       logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria`, 'info');
+      logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria...`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);
@@ -763,7 +763,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
       logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
       logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal`, 'info');
+      logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal...`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);

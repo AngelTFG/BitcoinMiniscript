@@ -109,7 +109,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputBoveda,
-  '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
+  '🚀 Iniciar en red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 
@@ -553,7 +553,7 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       logToOutput(outputBoveda, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
       logToOutput(outputBoveda, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
       logToOutput(outputBoveda, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `✍🏼 Firmando la transacción con  la clave apertura retardada ⏰`, 'info');
+      logToOutput(outputBoveda, `✍🏼 Firmando la transacción con  la clave apertura retardada...`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
@@ -694,7 +694,7 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       logToOutput(outputBoveda, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
       logToOutput(outputBoveda, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
       logToOutput(outputBoveda, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `✍🏼 Firmando la transacción con la clave de emergencia 🚨`, 'info');
+      logToOutput(outputBoveda, `✍🏼 Firmando la transacción con la clave de apertura inmediata...`, 'info');
       const txId = txFinal.getId();
       logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);

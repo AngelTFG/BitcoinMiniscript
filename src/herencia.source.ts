@@ -124,7 +124,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputHerencia,
-  '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
+  '🚀 Iniciar en red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/

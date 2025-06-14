@@ -2,7 +2,7 @@
 
 body {
   max-width: 1700px;
-  max-height: 100px;
+  min-height: 100vh;
   overflow: auto;
   font-family: 'Roboto', Arial, sans-serif;
   background-color: #f4f4f9;

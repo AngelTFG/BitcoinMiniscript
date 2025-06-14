@@ -72,7 +72,7 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   const childDaily2 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY2}`);
   const xpubDaily2 = childDaily2.neutered().toBase58();  
 
-  const childDaily3 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY2}`);
+  const childDaily3 = masterNode.derivePath(`m${WSH_ORIGIN_PATH_DAILY3}`);
   const xpubDaily3 = childDaily3.neutered().toBase58();  
 
   // Ver el extended pubkey Recovery

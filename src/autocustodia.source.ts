@@ -40,7 +40,7 @@ const MNEMONIC = 'fábula medalla sastre pronto mármol rutina diez poder fuen
 
 // Bloqueos
 const BLOCKS_RECOVERY = 1;
-const BLOCKS_EMERGENCY =2;
+const BLOCKS_EMERGENCY = 2;
 
 // Consola pagina web
 const outputAutocustodia= document.getElementById('output-autocustodia') as HTMLElement;
@@ -58,7 +58,7 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   // Obtener la clave pública del nodo maestro
   const publicKey = masterNode.publicKey;
 
-  // Calcular el hash SHA256 seguido de RIPEMD160
+  // Calcular el hash SHA256 seguido de RIPEMD160 = H
   const sha256Hash = createHash('sha256').update(publicKey).digest();
   const ripemd160Hash = createHash('ripemd160').update(sha256Hash).digest();
 
@@ -87,7 +87,7 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   const xpubEmergency = childEmergency.neutered().toBase58();
 
 
-    // Mostrar los resultados en la consola
+  // Mostrar los resultados en la consola
   console.log('Masternode fingerprint:', fingerprint);
   console.log('Extended pubKey Diario 1:', xpubDaily1);
   console.log('Extended pubKey Diario 2:', xpubDaily2);
@@ -776,7 +776,7 @@ const recoveryPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
 
 /************************ 🚨 EMERGENCIA ⏰ 🔑 ************************/
 
-const emergancyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
+const emergencyPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
     console.log('Descriptor WSH:', wshDescriptor);
 
@@ -925,7 +925,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
     document.getElementById('dailyBtn')?.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     document.getElementById('recoveryBtn')?.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
-    document.getElementById('emergencyBtn')?.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('emergencyBtn')?.addEventListener('click', () => emergencyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
     logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputAutocustodia,  `<hr style="border:1px dashed #ccc;">`);

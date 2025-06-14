@@ -3,33 +3,33 @@
 ## Estructura del Proyecto
 ```txt
 Playground/
-├─ readme.md                     # Este archivo, documentación y guía del proyecto
-├─ .gitignore                    # Archivos y carpetas que no se suben al control de versiones
-├─ .prettierrc                   # Configuración de formato de código para Prettier
-├─ favicon.svg                   # Icono de la página web
-├─ btcLogo.png                   # Imagen/logo del proyecto
-├─ index.html                    # Página principal que carga los bundles JS
-├─ style.css                     # Estilos CSS globales del proyecto
-├─ jest.config.js                # Configuración de Jest para pruebas automáticas
-├─ package-lock.json             # Archivo de bloqueo de dependencias generado por npm
-├─ package.json                  # Manejo de dependencias, scripts y metadatos del proyecto
+├─ readme.md                     # Documentación y guía
+├─ .gitignore                    # Archivos a excluir del repositorio
+├─ .prettierrc                   # Estilo de código
+├─ favicon.svg                   # Icono de la página 
+├─ btcLogo.png                   # Llogo del proyecto
+├─ index.html                    # Página principal 
+├─ style.css                     # Estilos globales 
+├─ jest.config.js                # Configuración de Jest
+├─ package-lock.json             # Bloqueo de dependencias 
+├─ package.json                  # Scripts y dependencias
 ├─ tsconfig.json                 # Configuración de TypeScript
 ├─ node_modules/                 # Dependencias instaladas 
-├─ dist/                         # Carpeta de salida de los bundles generados para cada módulo/página
-│   ├─ autocustodia.bundle.js    # Bundle JS para la funcionalidad de autocustodia
-│   ├─ boveda.bundle.js          # Bundle JS para la funcionalidad de bóveda
-│   └─ herencia.bundle.js        # Bundle JS para la funcionalidad de herencia
-├─ htmls/                        # HTMLs individuales para cada módulo/página
-│   ├─ autocustodia.html         # Página HTML para autocustodia
-│   ├─ boveda.html               # Página HTML para bóveda
-│   └─ herencia.html             # Página HTML para herencia
-└─ src/                          # Código fuente del proyecto
+├─ dist/                         # Bundles JS generados para cada módulo
+│   ├─ autocustodia.bundle.js    
+│   ├─ boveda.bundle.js          
+│   └─ herencia.bundle.js        
+├─ htmls/                        # HTMLs para cada módulo
+│   ├─ autocustodia.html        
+│   ├─ boveda.html              
+│   └─ herencia.html             
+└─ src/                          # Código fuente 
     ├─ types.d.ts                # Definiciones de tipos globales de TypeScript
-    ├─ autocustodia.source.ts    # Código fuente específico del módulo autocustodia
-    ├─ boveda.source.ts          # Código fuente específico del módulo bóveda
-    ├─ herencia.source.ts        # Código fuente específico del módulo herencia
-    └─ __test__/                 # Carpeta de tests automáticos
-        └─ interfaz.test.ts      # Pruebas de interfaz de usuario (DOM, utilidades visuales)
+    ├─ autocustodia.source.ts    
+    ├─ boveda.source.ts        
+    ├─ herencia.source.ts       
+    └─ __test__/                 # Tests de interfaz
+        └─ interfaz.test.ts      
 
 ```
 
@@ -142,7 +142,7 @@ Agregar el siguiente script en la sección `"scripts"` del archivo `package.json
 
 **browserify** empaqueta el codigo en un bundle JS
 **tsify** convierte .ts a .js durante el empaquetado, ahorrando un paso
-**watchify** se queda obsarvando y lanza automaticamente el empaquetado
+**watchify** se queda observando y lanza automaticamente el empaquetado
 
 ```json
 {

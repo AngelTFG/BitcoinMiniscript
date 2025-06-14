@@ -163,6 +163,7 @@ describe('Interfaz de usuario - Carga de scripts', () => {
     document.body.innerHTML = '';
     // Simula la función que añade scripts dinámicamente al body (como cuando cambias de proyecto)
     window.addScript = function(src) {
+      if (document.querySelector(`script[src="${src}"]`)) return;
       const script = document.createElement('script');
       script.src = src;
       document.body.appendChild(script);
@@ -183,6 +184,17 @@ describe('Interfaz de usuario - Carga de scripts', () => {
     expect(document.querySelector('script[src="uno.js"]')).not.toBeNull();
     expect(document.querySelector('script[src="dos.js"]')).not.toBeNull();
   });
+
+  // Prueba que addScript no duplica un script si se usa el mismo src dos veces
+  it('addScript no añade scripts duplicados', () => {
+    window.addScript('dup.js');
+    window.addScript('dup.js');
+    const scripts = document.querySelectorAll('script[src="dup.js"]');
+    expect(scripts.length).toBe(1);
+  });
+
+
+
 });
 
 export {};

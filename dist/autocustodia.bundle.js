@@ -72596,7 +72596,7 @@ const POLICY = (after_rec, after_eme) => `or(thresh(2,pk(@key_daily1),pk(@key_da
 function calculateFingerprint(masterNode) {
     // Obtener la clave pública del nodo maestro
     const publicKey = masterNode.publicKey;
-    // Calcular el hash SHA256 seguido de RIPEMD160
+    // Calcular el hash SHA256 seguido de RIPEMD160 = H
     const sha256Hash = (0, crypto_1.createHash)('sha256').update(publicKey).digest();
     const ripemd160Hash = (0, crypto_1.createHash)('ripemd160').update(sha256Hash).digest();
     // Usar Uint8Array.prototype.slice() para tomar los primeros 4 bytes como fingerprint
@@ -72655,7 +72655,7 @@ function enableButtons() {
     });
 }
 // Mensaje de bienvenida
-logToOutput(outputAutocustodia, '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
+logToOutput(outputAutocustodia, '🚀 Iniciar en red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -72997,7 +72997,7 @@ const dailyPSBT = (masterNode, network, explorer, wshDescriptor, originalBlockHe
             logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
             logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
             logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-            logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria`, 'info');
+            logToOutput(outputAutocustodia, `✍🏻✍🏼 Firmando la transacción con las claves principal y secundaria...`, 'info');
             const txId = txFinal.getId();
             logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
             logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
@@ -73101,7 +73101,7 @@ const recoveryPSBT = (masterNode, network, explorer, wshDescriptor, originalBloc
             logToOutput(outputAutocustodia, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
             logToOutput(outputAutocustodia, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
             logToOutput(outputAutocustodia, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-            logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal`, 'info');
+            logToOutput(outputAutocustodia, `✍🏻 Firmando la transacción con la clave de respaldo principal...`, 'info');
             const txId = txFinal.getId();
             logToOutput(outputAutocustodia, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
             logToOutput(outputAutocustodia, `<hr style="border:1px dashed #ccc;">`);
@@ -73113,7 +73113,7 @@ const recoveryPSBT = (masterNode, network, explorer, wshDescriptor, originalBloc
     }
 });
 /************************ 🚨 EMERGENCIA ⏰ 🔑 ************************/
-const emergancyPSBT = (masterNode, network, explorer, wshDescriptor, originalBlockHeight) => __awaiter(void 0, void 0, void 0, function* () {
+const emergencyPSBT = (masterNode, network, explorer, wshDescriptor, originalBlockHeight) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('Descriptor WSH:', wshDescriptor);
         const actualBlockHeight = parseInt(yield (yield fetch(`${explorer}/api/blocks/tip/height`)).text());
@@ -73224,7 +73224,7 @@ const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 
         (_c = document.getElementById('fetchTransactionBtn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
         (_d = document.getElementById('dailyBtn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => dailyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
         (_e = document.getElementById('recoveryBtn')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => recoveryPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
-        (_f = document.getElementById('emergencyBtn')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => emergancyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+        (_f = document.getElementById('emergencyBtn')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => emergencyPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     }
     catch (error) {
         logToOutput(outputAutocustodia, `❌ Error al inicializar el Miniscript: ${(error === null || error === void 0 ? void 0 : error.message) || 'Error desconocido'}`, 'error');

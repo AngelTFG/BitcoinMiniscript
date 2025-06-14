@@ -77,10 +77,10 @@ function calculateFingerprint(masterNode: BIP32Interface): void {
   // Neutered para obtener la clave pública extendida
   const xpubDescen2 = chidDescen2.neutered().toBase58();  
   
-    // Ver el extended pubkey de emergencyKey
-    const chidRecover = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}`);
-    // Neutered para obtener la clave pública extendida
-    const xpubRecover = chidRecover.neutered().toBase58();  
+  // Ver el extended pubkey de emergencyKey
+  const chidRecover = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}`);
+  // Neutered para obtener la clave pública extendida
+  const xpubRecover = chidRecover.neutered().toBase58();  
     
 
   // Mostrar los resultados en la consola
@@ -603,7 +603,7 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
 
 /************************ 🧑🏻👨🏻  HERENCIA 🔑🔑:🔑🔑  ************************/
 
-const henrenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
+const herenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: string, wshDescriptor: string, originalBlockHeight: number): Promise<void> => {
   try {
     console.log('Descriptor WSH:', wshDescriptor);
 
@@ -898,7 +898,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('fetchUtxosBtn')?.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
     document.getElementById('fetchTransactionBtn')?.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
     document.getElementById('directBtn')?.addEventListener('click', () => directoPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
-    document.getElementById('henrenciaBtn')?.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+    document.getElementById('herenciaBtn')?.addEventListener('click', () => herenciaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     document.getElementById('disputaBtn')?.addEventListener('click', () => disputaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
     logToOutput(outputHerencia,  `❌ Error al inicializar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');

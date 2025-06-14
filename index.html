@@ -73,16 +73,12 @@
             // Extraer el nombre del archivo sin la carpeta ni la extensión ej: htmls/autocustodia.html >> autocustodia
             const scriptName = proyectoUrl.split('/').pop().split('.')[0];
     
-            // Eliminar scripts anteriores del mismo tipo si existen para evitar duplicados
-            const oldScript = document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`);
-            if (oldScript) {
-              oldScript.remove();
+            // Solo añadir el script si no existe ya en el DOM
+            if (!document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`)) {
+              const script = document.createElement('script');
+              script.src = `./dist/${scriptName}.bundle.js`;
+              document.body.appendChild(script); // Añadir al final del body
             }
-    
-            // Cargar un script específico para la página
-            const script = document.createElement('script');
-            script.src = `./dist/${scriptName}.bundle.js`;
-            document.body.appendChild(script); // Añadir al final del body
         
 
 // Añadir el árbol de emojis según el proyecto seleccionado

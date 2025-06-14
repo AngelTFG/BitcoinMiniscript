@@ -72651,7 +72651,7 @@ function enableButtons() {
     });
 }
 // Mensaje de bienvenida
-logToOutput(outputHerencia, '🚀 Iniciar red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
+logToOutput(outputHerencia, '🚀 Iniciar en red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>', 'info');
 /************************ ▶️ INICIALIZAR EL MINISCRIPT  ************************/
 const initMiniscriptObjet = (network, explorer) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -72994,7 +72994,7 @@ const directoPSBT = (masterNode, network, explorer, wshDescriptor, originalBlock
     }
 });
 /************************ 🧑🏻👨🏻  HERENCIA 🔑🔑:🔑🔑  ************************/
-const henrenciaPSBT = (masterNode, network, explorer, wshDescriptor, originalBlockHeight) => __awaiter(void 0, void 0, void 0, function* () {
+const herenciaPSBT = (masterNode, network, explorer, wshDescriptor, originalBlockHeight) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('Descriptor WSH:', wshDescriptor);
         const actualBlockHeight = parseInt(yield (yield fetch(`${explorer}/api/blocks/tip/height`)).text());
@@ -73210,7 +73210,7 @@ const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 
         (_b = document.getElementById('fetchUtxosBtn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
         (_c = document.getElementById('fetchTransactionBtn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
         (_d = document.getElementById('directBtn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => directoPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
-        (_e = document.getElementById('henrenciaBtn')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => henrenciaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
+        (_e = document.getElementById('herenciaBtn')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => herenciaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
         (_f = document.getElementById('disputaBtn')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => disputaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     }
     catch (error) {

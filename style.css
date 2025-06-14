@@ -50,7 +50,7 @@ button {
 /* Panel superior de la página (cabecera) */
 .top-panel {
   background-color: #f9f9f9;
-  padding: 20px;
+  padding: 10px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
@@ -61,27 +61,33 @@ button {
 .top-panel-inner {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
+  width: 100%;
 }
 
 /* Logo en el panel superior */
 .top-panel-logo {
-  height: 80px;           /* Tamaño de la imagen */
-  margin-left: 10px;
-  margin-right: 20px;
-  position: absolute;
-  left: 0;
+  height: 80px;  /* Alturta del logo*/
+  margin-left: 20px;
+  margin-right: 0;
 }
+
+/* Espaciador flexible para centrar el título */
+.top-panel-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
 
 /* Elementos alineados a la derecha en el panel superior */
 .top-panel-right {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 4.8em;
   margin-right: 20px;
+  text-decoration: none !important;
+  color: inherit !important;
 }
 
 /* Contenedor principal de contenido y menú lateral */

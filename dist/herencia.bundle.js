@@ -73206,7 +73206,7 @@ const initializeNetwork = (network, explorer) => __awaiter(void 0, void 0, void 
     var _a, _b, _c, _d, _e, _f;
     try {
         const { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor } = yield initMiniscriptObjet(network, explorer);
-        (_a = document.getElementById('showMiniscripBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => mostrarMiniscript(MiniscriptObjet, originalBlockHeight, explorer));
+        (_a = document.getElementById('showMiniscriptBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => mostrarMiniscript(MiniscriptObjet, originalBlockHeight, explorer));
         (_b = document.getElementById('fetchUtxosBtn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => fetchUtxosMini(MiniscriptObjet, explorer));
         (_c = document.getElementById('fetchTransactionBtn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => fetchTransaction(MiniscriptObjet, explorer));
         (_d = document.getElementById('directBtn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => directoPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));

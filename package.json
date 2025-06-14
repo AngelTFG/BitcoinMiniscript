@@ -8,6 +8,7 @@
     "build-autocustodia": "browserify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js",
     "build-boveda": "browserify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js",
     "build-herencia": "browserify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js",
+    "build": "npm run build-all",
     "build-all": "browserify src/autocustodia.source.ts -p tsify --project tsconfig.json -o dist/autocustodia.bundle.js && browserify src/herencia.source.ts -p tsify --project tsconfig.json -o dist/herencia.bundle.js && browserify src/boveda.source.ts -p tsify --project tsconfig.json -o dist/boveda.bundle.js",
 
     
@@ -27,7 +28,6 @@
   "license": "MIT",
   "description": "Playground interactivo para experimentar con Miniscript y pólizas de gasto",
   "dependencies": {
-    "18": "^0.0.0",
     "@bitcoinerlab/descriptors": "^2.3.1",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "bip39": "^3.1.0",

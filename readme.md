@@ -4,6 +4,7 @@
 ```txt
 Playground/
 ├─ readme.md                     # Documentación y guía
+├─ LICENSE                       # MIT License
 ├─ .gitignore                    # Archivos a excluir del repositorio
 ├─ .prettierrc                   # Estilo de código
 ├─ favicon.svg                   # Icono de la página 

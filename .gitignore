@@ -1,7 +1,9 @@
 node_modules/
 dist/*
+!dist/.gitkeep
 temp.md
 btcLogo.png
 favicon.svg
+LICENSE
 .prettierrc
 .DS_Store

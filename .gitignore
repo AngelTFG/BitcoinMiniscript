@@ -1,5 +1,5 @@
 node_modules/
-dist/
+dist/*
 temp.md
 btcLogo.png
 favicon.svg

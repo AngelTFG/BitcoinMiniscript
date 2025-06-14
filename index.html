@@ -56,8 +56,14 @@
         button.classList.add('active');
       }
 
+      // Variable para almacenar el proyecto actual cargado, para evitar recargas innecesarias
+      let proyectoActual = null;
 
       function loadProjectByURL(proyectoUrl) {
+
+        const scriptName = proyectoUrl.split('/').pop().split('.')[0];
+        if (proyectoActual === scriptName) return;
+        proyectoActual = scriptName;
 
         // Cargar el contenido de la página seleccionada usando la URL proporcionada
         fetch(proyectoUrl)

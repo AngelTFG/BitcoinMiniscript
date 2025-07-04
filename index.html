@@ -13,7 +13,7 @@
     <div class="main-wrapper">
       
       <!-- Contenido superior -->
-      <header class="top-panel" role="banner">
+      <div class="top-panel" aria-label="Cabecera">
         <div class="top-panel-inner">
           <a href="https://github.com/AngelTFG/BitcoinMiniscript" target="_blank" rel="noopener" aria-label="Repositorio de GitHub de Bitcoin Miniscript" title="Repositorio de GitHub de Bitcoin Miniscript">
             <img src="btcLogo.png" alt="Logo de Bitcoin Miniscript" title="Logo de Bitcoin Miniscript" class="top-panel-logo">
@@ -21,29 +21,29 @@
           <h1 class="top-panel-title">Miniscript Playground</h1>
           <a href="https://bitcoin-miniscript.vercel.app/" target="_blank" rel="noopener" class="top-panel-right" aria-label="Abrir Miniscript Playground en nueva pestaña" title="Abrir Miniscript Playground en nueva pestaña">🛝</a>
         </div>
-      </header>
+      </div>
 
       <div class="container">
 
         <!-- Columna izquierda: Menú de pólizas -->
-        <nav class="menu" role="navigation" aria-label="Menú de pólizas">
-          <h2>🗂️ Pólizas disponibles</h2>
+        <div class="menu"  aria-label="Menú de pólizas, seleccione una póliza">
+          <h2><span aria-hidden="true">🗂️</span> Pólizas disponibles</h2>
 
           
           <div class="button-row">
-            <button class="app-button" title="Herencia digital" aria-label="Herencia digital" onclick="activarPoliza(this, 'htmls/herencia.html')">🧬 Herencia digital </button>
+            <button class="app-button" title="Herencia digital" aria-label="Herencia digital" onclick="activarPoliza(this, 'htmls/herencia.html')"><span aria-hidden="true">🧬</span> Herencia digital </button>
           </div>
           <div class="button-row">
-            <button class="app-button" title="Autocustodia programada" aria-label="Autocustodia programada" onclick="activarPoliza(this, 'htmls/autocustodia.html')">🤖 Autocustodia programada </button>
+            <button class="app-button" title="Autocustodia programada" aria-label="Autocustodia programada" onclick="activarPoliza(this, 'htmls/autocustodia.html')"><span aria-hidden="true">🤖</span> Autocustodia programada </button>
           </div>
           <div class="button-row">
-            <button class="app-button" title="Bóveda de seguridad" aria-label="Bóveda de seguridad" onclick="activarPoliza(this, 'htmls/boveda.html')">🏦 Bóveda de seguridad</button>
+            <button class="app-button" title="Bóveda de seguridad" aria-label="Bóveda de seguridad" onclick="activarPoliza(this, 'htmls/boveda.html')"><span aria-hidden="true">🏦</span> Bóveda de seguridad</button>
           </div>
           <div id="output" class="output-console"></div>
-        </nav>
+        </div>
       
           <!-- Columna derecha: Contenido del proyecto -->
-          <main class="content" role="main" aria-label="Contenido de la póliza">
+          <div class="content" aria-label="Menú principal de la póliza, interactúe con la póliza">
             <h2></h2>
             <div id="content"></div>
           </div>
@@ -52,9 +52,6 @@
     </div>
 
     <script>
-
-
-
       /**
        * Función de ayuda para eliminar la indentación común de un texto multilínea.
        * Permite escribir plantillas de texto indentadas en el código sin que afecte al HTML.
@@ -81,8 +78,6 @@
         // Eliminar la indentación de todas las líneas y reconstruir el texto
         return lines.map(line => line.startsWith(indent) ? line.substring(indent.length) : line).join('\n').trim();
       }
-
-
 
       // Función para activar el botón del menú y cargar la póliza correspondiente
       function activarPoliza(button, url) {
@@ -133,72 +128,66 @@
             // Mostrar el árbol de emojis según la póliza seleccionada
             if (scriptName === 'autocustodia') {
               document.getElementById('output').innerHTML = dedent(`
-                <div class="visually-hidden">Resumen de la póliza de Autocustodia Programada. 
-                  Uso diario con 2 de 3 llaves. Recuperación a 3 meses con 1 de 2 llaves de respaldo. 
-                  Emergencia a 5 meses con la llave de apertura por pérdida.
-                </div><pre aria-hidden="true"><span><span style="font-size:1.5em;">🤖</span><span style="font-size:1.2em;"><b> Autocustodia programada </b></span></span>
+                <div class="visually-hidden">Resumen de la póliza de Autocustodia Programada. Uso diario con 2 de 3 llaves. Recuperación a 3 meses con 1 de 2 llaves de respaldo. Emergencia a 5 meses con la llave de apertura por pérdida.</div>
+                <pre aria-hidden="true"><span><span style="font-size:1.5em;" aria-hidden="true">🤖</span><span style="font-size:1.2em;"><b> Autocustodia programada </b></span></span>
                 │    
                 │
-                ├─ 🗓️ <b>Uso diario: 🔑🔑 ➡️ 🔐🔐🔐 </b>
+                ├─ <span aria-hidden="true">🗓️</span> <b>Uso diario: <span aria-hidden="true">🔑🔑 ➡️ 🔐🔐🔐</span> </b>
                 │  │ 
-                │  ├─ 🔑 Llave principal 
+                │  ├─ <span aria-hidden="true">🔑</span> Llave principal 
                 │  │ 
-                │  ├─ 🔑 Llave secundaria
+                │  ├─ <span aria-hidden="true">🔑</span> Llave secundaria
                 │  │ 
-                │  └─ 🗝️ Llave del custodio
+                │  └─ <span aria-hidden="true">🗝️</span> Llave del custodio
                 │    
                 │    
-                ├─ 🛡️<b> Recuperación 🕒 3 meses: 🔑 ➡️ 🔐🔐 </b>
+                ├─ <span aria-hidden="true">🛡️</span><b> Recuperación <span aria-hidden="true">🕒</span> 3 meses: <span aria-hidden="true">🔑 ➡️ 🔐🔐</span> </b>
                 │  │ 
-                │  ├─ 🔑 Llave de respaldo principal
+                │  ├─ <span aria-hidden="true">🔑</span> Llave de respaldo principal
                 │  │ 
-                │  └─ 🔑 Llave de respaldo secundaria
+                │  └─ <span aria-hidden="true">🔑</span> Llave de respaldo secundaria
                 │    
                 │    
-                └─ 🚨<b> Emergencia ⏰ 5 meses: 🗝️ ➡️ 🔐 </b>
+                └─ <span aria-hidden="true">🚨</span><b> Emergencia <span aria-hidden="true">⏰</span> 5 meses: <span aria-hidden="true">🗝️ ➡️ 🔐</span> </b>
                   │ 
-                  └─ 🗝️ Llave de apertura por perdida
+                  └─ <span aria-hidden="true">🗝️</span> Llave de apertura por perdida
                 </pre>`);
             } else if (scriptName === 'boveda') {
               document.getElementById('output').innerHTML = dedent(`
-                <div class="visually-hidden">Resumen de la póliza de Bóveda de Seguridad. 
-                  Apertura forzada en 72 horas con la llave de apertura retardada. 
-                  Botón del pánico con la llave de apertura inmediata.
-                </div><pre aria-hidden="true"><span><span style="font-size:1.5em;">🏦</span><span style="font-size:1.2em;"><b> Bóveda de seguridad </b></span></span>
+                <div class="visually-hidden">Resumen de la póliza de Bóveda de Seguridad. Apertura forzada en 72 horas con la llave de apertura retardada. Botón del pánico con la llave de apertura inmediata.</div>
+                <pre aria-hidden="true"><span><span style="font-size:1.5em;" aria-hidden="true">🏦</span><span style="font-size:1.2em;"><b> Bóveda de seguridad </b></span></span>
                 │
                 │
-                ├─ 🔧 <b>Apertura forzada 🕒 72 horas: 🔑 ➡️ 🔐 </b>
+                ├─ <span aria-hidden="true">🔧</span> <b>Apertura forzada <span aria-hidden="true">🕒</span> 72 horas: <span aria-hidden="true">🔑 ➡️ 🔐</span> </b>
                 │  │ 
-                │  └─ 🔑 Llave de apetura retardada
+                │  └─ <span aria-hidden="true">🔑</span> Llave de apetura retardada
                 │
                 │
-                └─ 🆘 <b>Botón del pánico: 🗝️ ➡️ 🔐 </b>
+                └─ <span aria-hidden="true">🆘</span> <b>Botón del pánico: <span aria-hidden="true">🗝️ ➡️ 🔐</span> </b>
                   │
-                  └─ 🗝️ Llave de apertura inmediata
+                  └─ <span aria-hidden="true">🗝️</span> Llave de apertura inmediata
                 </pre>`);
             } else if (scriptName === 'herencia') {
               document.getElementById('output').innerHTML = dedent(`
-                <div class="visually-hidden">Resumen de la póliza de Herencia Digital. 
-                  Acceso directo con la llave del progenitor. Herencia a 3 años con las llaves de los herederos. 
-                  Disputa a 5 años con la llave del abogado.
-                </div><pre aria-hidden="true"><span><span style="font-size:1.5em;">🧬</span><span style="font-size:1.2em;"><b> Herencia digital </b></span></span>
+                <div class="visually-hidden">Resumen de la póliza de Herencia Digital. Acceso directo con la llave del progenitor. Herencia a 3 años con las llaves de los herederos. Disputa a 5 años con la llave del abogado.</div>
+                <pre aria-hidden="true"><span><span style="font-size:1.5em;" aria-hidden="true">🧬</span><span style="font-size:1.2em;"><b> Herencia digital </b></span></span>
                 │
                 │
-                ├─ 🧓🏻 <b>Acceso directo: 🔑 ➡️ 🔐 </b>
+                ├─ <span aria-hidden="true">🧓🏻</span> <b>Acceso directo: <span aria-hidden="true">🔑 ➡️ 🔐</span> </b>
                 │  │ 
-                │  └─ 🔑 Llave del progenitor
+                │  └─ <span aria-hidden="true">🔑</span> Llave del progenitor
                 │
                 │
-                ├─ 🧑🏻👨🏻 <b>Herencia 🕒 3 años: 🔑🔑 ➡️ 🔐🔐 </b>
+                ├─ <span aria-hidden="true">🧑🏻👨🏻</span> <b>Herencia <span aria-hidden="true">🕒</span> 3 años: <span aria-hidden="true">🔑🔑 ➡️ 🔐🔐</span> </b>
                 │  │ 
-                │  ├─ 🔑 Llave de la heredera
+                │  ├─ <span aria-hidden="true">🔑</span> Llave de la heredera
                 │  │ 
-                │  └─ 🔑 Llave del heredero
+                │  └─ <span aria-hidden="true">🔑</span> Llave del heredero
                 │
                 │
-                └─ 👤 <b>Disputa ⏰ 5 años: 🗝️ ➡️ 🔐 </b>
+                └─ <span aria-hidden="true">👤</span> <b>Disputa <span aria-hidden="true">⏰</span> 5 años: <span aria-hidden="true">🗝️ ➡️ 🔐</span> </b>
                   │ 
-                  └─ 🗝️ Llave del abogado
+                  └─ <span aria-hidden="true">🗝️</span> Llave del abogado
                 </pre>`);
             } else {
               document.getElementById('output').innerHTML = '';
@@ -218,7 +207,6 @@
         }
       });
     </script>
-
 
   </body>
 </html>

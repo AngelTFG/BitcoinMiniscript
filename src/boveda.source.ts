@@ -108,7 +108,7 @@ function enableButtons(): void {
 // Mensaje de bienvenida
 logToOutput(
   outputBoveda,
-  '🚀 Iniciar en red de pruebas:  ▶️ <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
+  '<span aria-hidden="true">🚀</span> Iniciar en red de pruebas:  <span aria-hidden="true">▶️</span> <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
 
@@ -142,8 +142,8 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(explorer);
 
-    logToOutput(outputBoveda,  `🌐 Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
-    logToOutput(outputBoveda, '<span style="color:green;">🌟 ¡El Playground ha sido inicializado con éxito! 🌟</span>', 'success');
+    logToOutput(outputBoveda,  `<span aria-hidden="true">🌐</span> Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputBoveda, '<span style="color:green;"><span aria-hidden="true">🌟</span> ¡El Playground ha sido inicializado con éxito! <span aria-hidden="true">🌟</span></span>', 'success');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
@@ -218,7 +218,7 @@ const initMiniscriptObjet = async (
     return { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript
-    console.error(`❌ Error al inicializar Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
+    console.error(`<span aria-hidden="true">❌</span> Error al inicializar Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
     throw error;
   }
 };
@@ -246,16 +246,16 @@ const mostrarMiniscript = async (
     const retardadaColor = restingBlocksRetardada > 0 ? 'red' : 'green';
 
     // Mostrar información detallada 
-    logToOutput(outputBoveda, `🛜 Red actual: <strong>${networkName}</strong>`, 'info');
-    logToOutput(outputBoveda, `🧱 Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-    logToOutput(outputBoveda, `🔧 Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${retardadaColor};">${displayRetardada}</strong>`, 'info');
-    logToOutput(outputBoveda, `🆘 Bloques para poder gastar en la rama de botón del pánico: <strong style="color:${inmediataColor};">${displayInmediata}</strong>`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🛜</span> Red actual: <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🧱</span> Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🔧</span> Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${retardadaColor};">${displayRetardada}</strong>`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🆘</span> Bloques para poder gastar en la rama de botón del pánico: <strong style="color:${inmediataColor};">${displayInmediata}</strong>`, 'info');
 
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputBoveda, `📩 Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">📩</span> Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
     logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputBoveda, `❌ Error al mostrar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputBoveda, `<span aria-hidden="true">❌</span> Error al mostrar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -267,7 +267,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputBoveda, `🔍 Consultando fondos...`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🔍</span> Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
@@ -279,31 +279,31 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
       logToOutput(
         outputBoveda,
-        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
           outputBoveda,
-          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
           outputBoveda,
-          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputBoveda, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputBoveda, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
       }
 
       logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
-    logToOutput(outputBoveda, `✅ Fondos: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
+    logToOutput(outputBoveda, `<span aria-hidden="true">✅</span> Fondos: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -313,17 +313,17 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
     sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
-      const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;">✅ confirmado</span>' : '<span style="color:red;">❓ no confirmado</span>';
+      const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;"><span aria-hidden="true">✅</span> confirmado</span>' : '<span style="color:red;"><span aria-hidden="true">❓</span> no confirmado</span>';
       const blockHeight = utxo.status.block_height || 'Desconocido';
 
-      logToOutput(outputBoveda, `🪙 Fondos encontrados: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🪙</span> Fondos encontrados: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
     });
 
     // Mostrar el total de los UTXOs
-    logToOutput(outputBoveda, `💰 Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">💰</span> Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputBoveda, `❌ Error al consultar los UTXOs: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputBoveda, `<span aria-hidden="true">❌</span> Error al consultar los UTXOs: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -332,7 +332,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputBoveda, `🚛 Consultando última transacción...`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🚛</span> Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
     const txHistory = await (await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
@@ -343,24 +343,24 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     logToOutput(
       outputBoveda,
-      `🚫 <span style="color:red;">No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+      `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
       'error'
     );
 
     if (networkName === 'Testnet 4') {
       logToOutput(
         outputBoveda,
-        `💧 Recibir transacción a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+        `<span aria-hidden="true">💧</span> Recibir transacción a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
         'info'
       );
     } else if (networkName === 'Testnet 3') {
       logToOutput(
         outputBoveda,
-        `💧 Recibir transacción a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+        `<span aria-hidden="true">💧</span> Recibir transacción a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
         'info'
       );
     } else {
-      logToOutput(outputBoveda, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+      logToOutput(outputBoveda, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
     }
 
     logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
@@ -377,17 +377,17 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     let tipo: string;
     if (esEmisor && esReceptor) {
-      tipo = '📤📥 Envío + Recepción (cambio)';
+      tipo = '<span aria-hidden="true">📤📥</span> Envío + Recepción (cambio)';
     } else if (esEmisor) {
-      tipo = '📤 Envío';
+      tipo = '<span aria-hidden="true">📤</span> Envío';
     } else if (esReceptor) {
-      tipo = '📥 Recepción';
+      tipo = '<span aria-hidden="true">📥</span> Recepción';
     } else {
-      tipo = '🔍 Participación no directa,';
+      tipo = '<span aria-hidden="true">🔍</span> Participación no directa,';
     }
 
-    const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;">✅ confirmada</span>' : '<span style="color:red;">❓ no confirmada</span>';
-    logToOutput(outputBoveda, `✅ Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
+    const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;"><span aria-hidden="true">✅</span> confirmada</span>' : '<span style="color:red;"><span aria-hidden="true">❓</span> no confirmada</span>';
+    logToOutput(outputBoveda, `<span aria-hidden="true">✅</span> Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
 
     const blockHeight = txDetails.status.block_height || 'Desconocido';
     logToOutput(outputBoveda, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
@@ -399,7 +399,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
         const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
         const prevoutValue = vin.prevout?.value || 'Desconocido';
         if (prevoutAddress === miniscriptAddress) {
-          logToOutput(outputBoveda, `🪙 Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} ✔️`, 'info');
+          logToOutput(outputBoveda, `<span aria-hidden="true">🪙</span> Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} <span aria-hidden="true">✔️</span>`, 'info');
         }
       });
     }
@@ -408,14 +408,14 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     if (esReceptor) {
       txDetails.vout.forEach((vout: any, index: number) => {
         if (vout.scriptpubkey_address === miniscriptAddress) {
-          logToOutput(outputBoveda, `🪙 Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} ✔️`, 'info');
+          logToOutput(outputBoveda, `<span aria-hidden="true">🪙</span> Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} <span aria-hidden="true">✔️</span>`, 'info');
         }
       });
     }
 
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputBoveda, `❌ Error al consultar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputBoveda, `<span aria-hidden="true">❌</span> Error al consultar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -441,7 +441,7 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [unvaultKey]
     });
 
-    logToOutput(outputBoveda, `🔧 Se ha pulsado el botón de "Apertura forzada"...`, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🔧</span> Se ha pulsado el botón de "Apertura forzada"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
 
@@ -454,24 +454,24 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
       logToOutput(
         outputBoveda,
-        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
           outputBoveda,
-          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
           outputBoveda,
-          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputBoveda, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputBoveda, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
       }
 
       logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
@@ -488,10 +488,10 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
     const faucetMsg =
     networkName === 'Testnet 4'
-      ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
       : networkName === 'Testnet 3'
-        ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
-        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+        ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible</strong></code>';
 
     logToOutput(outputBoveda, faucetMsg, 'info');
 
@@ -544,21 +544,21 @@ const retardadaPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final'))  {
-      logToOutput(outputBoveda, `🧱 Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputBoveda, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de apertura forzada: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">⛏️</span> <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     }
       else {
-      logToOutput(outputBoveda, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `✍🏼 Firmando la transacción con  la clave apertura retardada...`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">✍🏼</span> Firmando la transacción con  la clave apertura retardada...`, 'info');
       const txId = txFinal.getId();
-      logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    logToOutput(outputBoveda, `❌ Error al enviar la transacción:${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputBoveda, `<span aria-hidden="true">❌</span> Error al enviar la transacción:${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -583,7 +583,7 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
       signersPubKeys: [emergencyKey]
     });
 
-    logToOutput(outputBoveda, `🆘 Se ha pulsado el "Botón del pánico" `, 'info');
+    logToOutput(outputBoveda, `<span aria-hidden="true">🆘</span> Se ha pulsado el "Botón del pánico" `, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptObjet.getAddress();
 
@@ -596,24 +596,24 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
       logToOutput(
         outputBoveda,
-        `🚫 <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
           outputBoveda,
-          `💧 Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
           outputBoveda,
-          `💧 Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputBoveda, `<span style="color:orange;">⚠️ La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputBoveda, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
       }
 
       logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
@@ -630,10 +630,10 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
     // Mostrar mensaje de inicio solo si hay UTXOs disponibles
     const faucetMsg =
     networkName === 'Testnet 4'
-      ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
+      ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 4</strong></code>'
       : networkName === 'Testnet 3'
-        ? '📦 Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
-        : '⚠️ La red seleccionada no tiene faucet disponible</strong></code>';
+        ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
+        : '<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible</strong></code>';
 
     logToOutput(outputBoveda, faucetMsg, 'info');
 
@@ -686,20 +686,20 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputBoveda, `🧱 Bloques para poder gastar en la rama de boton del pánico: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputBoveda, `⛏️ <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de boton del pánico: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">⛏️</span> <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
       logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
     } else {
-      logToOutput(outputBoveda, `🪙 Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `💸 Comisión: <strong>${FEE}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `💰 Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputBoveda, `✍🏼 Firmando la transacción con la clave de apertura inmediata...`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputBoveda, `<span aria-hidden="true">✍🏼</span> Firmando la transacción con la clave de apertura inmediata...`, 'info');
       const txId = txFinal.getId();
-      logToOutput(outputBoveda, `🚚 Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputBoveda, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
       logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    logToOutput(outputBoveda, `❌ Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputBoveda, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputBoveda,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -716,7 +716,7 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('sendRetardadaBtn')?.addEventListener('click', () => retardadaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     document.getElementById('sendInmediataBtn')?.addEventListener('click', () => inmediataPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
-    logToOutput(outputBoveda, `❌ Error al inicializar el Miniscript:${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputBoveda, `<span aria-hidden="true">❌</span> Error al inicializar el Miniscript:${error?.message || 'Error desconocido'}`, 'error');
     logToOutput(outputBoveda, `<hr style="border:1px dashed #ccc;">`);
   }
 };
@@ -734,4 +734,3 @@ document.getElementById('initTestnet4Btn')?.addEventListener('click', () => init
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {
   outputBoveda.innerHTML = '';
 });
-

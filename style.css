@@ -172,6 +172,12 @@ button {
   cursor: not-allowed;
 }
 
+/* Aumentar tamaño de los iconos */
+span[aria-hidden="true"] {
+  font-size: 1.2em; /* Ajusta este valor si lo necesitas */
+}
+
+
 /* Fila de botones, alineados y con espacio entre ellos */
 .button-row {
   display: flex;
@@ -217,9 +223,9 @@ button {
 }
 
 .output-console .output-error {
-  color: #FF0000;
+  color: #c50f0f; /* Rojo oscuro con contraste AA (5.25:1) */
 }
 
 .output-console .output-success {
-  color: #28a745;
+  color: #1c6c2e; /* Verde oscuro con contraste AA (5.25:1) */
 }

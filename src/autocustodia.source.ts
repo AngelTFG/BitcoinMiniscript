@@ -304,13 +304,13 @@ const mostrarMiniscript = async (
 
     // Control sobre el número de bloques restantes y el color que se le asigna
     const displayDiario = restingBlocksDiario <= 0 ? 0 : restingBlocksDiario;
-    const DiarioColor = restingBlocksDiario > 0 ? 'red' : 'green';
+    const DiarioColor = restingBlocksDiario > 0 ? '#c50f0f' : 'green';
 
     const displayRec = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
-    const recColor = restingBlocksRec > 0 ? 'red' : 'green';
+    const recColor = restingBlocksRec > 0 ? '#c50f0f' : 'green';
 
     const displayEmerg = restingBlocksEmer <= 0 ? 0 : restingBlocksEmer;
-    const emergColor = restingBlocksEmer > 0 ? 'red' : 'green';
+    const emergColor = restingBlocksEmer > 0 ? '#c50f0f' : 'green';
 
     // Mostrar información detallada
     logToOutput(outputAutocustodia, `<span aria-hidden="true">🛜</span> Red actual: <strong>${networkName}</strong>`, 'info');

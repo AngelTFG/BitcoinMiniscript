@@ -277,13 +277,13 @@ const mostrarMiniscript = async (
 
     // Control sobre el numero de bloques restantes y el color que se le asigna
     const displayProgen = restingBlocksProgen <= 0 ? 0 : restingBlocksProgen;
-    const progenColor = restingBlocksProgen > 0 ? 'red' : 'green';
+    const progenColor = restingBlocksProgen > 0 ? '#c50f0f' : 'green';
 
     const displayHerencia = restingBlocksHer <= 0 ? 0 : restingBlocksHer;
-    const herenColor = restingBlocksHer > 0 ? 'red' : 'green';
+    const herenColor = restingBlocksHer > 0 ? '#c50f0f' : 'green';
 
     const displayRecovery = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
-    const recoveryColor = restingBlocksRec > 0 ? 'red' : 'green';
+    const recoveryColor = restingBlocksRec > 0 ? '#c50f0f' : 'green';
 
     // Mostrar información detallada 
     logToOutput(outputHerencia,  `<span aria-hidden="true">🛜</span> Red actual: <strong>${networkName}</strong>`, 'info');

@@ -240,10 +240,10 @@ const mostrarMiniscript = async (
 
     // Control sobre el número de bloques restantes y el color que se le asigna
     const displayInmediata = restingBlocksInmediata <= 0 ? 0 : restingBlocksInmediata;
-    const inmediataColor = restingBlocksInmediata > 0 ? 'red' : 'green';
+    const inmediataColor = restingBlocksInmediata > 0 ? '#c50f0f' : 'green';
 
     const displayRetardada = restingBlocksRetardada > 0 ? restingBlocksRetardada : 0;
-    const retardadaColor = restingBlocksRetardada > 0 ? 'red' : 'green';
+    const retardadaColor = restingBlocksRetardada > 0 ? '#c50f0f' : 'green';
 
     // Mostrar información detallada 
     logToOutput(outputBoveda, `<span aria-hidden="true">🛜</span> Red actual: <strong>${networkName}</strong>`, 'info');

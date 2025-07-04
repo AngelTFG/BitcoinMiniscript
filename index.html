@@ -13,37 +13,37 @@
     <div class="main-wrapper">
       
       <!-- Contenido superior -->
-      <div class="top-panel">
+      <header class="top-panel" role="banner">
         <div class="top-panel-inner">
-        <a href="https://github.com/AngelTFG/BitcoinMiniscript" target="_blank" rel="noopener">
-          <img src="btcLogo.png" alt="Logo" class="top-panel-logo">
-        </a>
+          <a href="https://github.com/AngelTFG/BitcoinMiniscript" target="_blank" rel="noopener" aria-label="Repositorio de GitHub de Bitcoin Miniscript" title="Repositorio de GitHub de Bitcoin Miniscript">
+            <img src="btcLogo.png" alt="Logo de Bitcoin Miniscript" title="Logo de Bitcoin Miniscript" class="top-panel-logo">
+          </a>
           <h1 class="top-panel-title">Miniscript Playground</h1>
-          <a href="https://bitcoin-miniscript.vercel.app/" target="_blank" rel="noopener" class="top-panel-right">🛝</a>
+          <a href="https://bitcoin-miniscript.vercel.app/" target="_blank" rel="noopener" class="top-panel-right" aria-label="Abrir Miniscript Playground en nueva pestaña" title="Abrir Miniscript Playground en nueva pestaña">🛝</a>
         </div>
-      </div>
+      </header>
 
       <div class="container">
 
         <!-- Columna izquierda: Menú de pólizas -->
-        <div class="menu">
+        <nav class="menu" role="navigation" aria-label="Menú de pólizas">
           <h2>🗂️ Pólizas disponibles</h2>
 
           
           <div class="button-row">
-            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('htmls/herencia.html')">🧬 Herencia digital </button>
+            <button class="app-button" title="Herencia digital" aria-label="Herencia digital" onclick="activarPoliza(this, 'htmls/herencia.html')">🧬 Herencia digital </button>
           </div>
           <div class="button-row">
-            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('htmls/autocustodia.html')">🤖 Autocustodia programada </button>
+            <button class="app-button" title="Autocustodia programada" aria-label="Autocustodia programada" onclick="activarPoliza(this, 'htmls/autocustodia.html')">🤖 Autocustodia programada </button>
           </div>
           <div class="button-row">
-            <button class="app-button" onclick="setActiveButton(this); loadProjectByURL('htmls/boveda.html')">🏦 Bóveda de seguridad</button>
+            <button class="app-button" title="Bóveda de seguridad" aria-label="Bóveda de seguridad" onclick="activarPoliza(this, 'htmls/boveda.html')">🏦 Bóveda de seguridad</button>
           </div>
           <div id="output" class="output-console"></div>
-        </div>
+        </nav>
       
           <!-- Columna derecha: Contenido del proyecto -->
-          <div class="content">
+          <main class="content" role="main" aria-label="Contenido de la póliza">
             <h2></h2>
             <div id="content"></div>
           </div>
@@ -53,21 +53,58 @@
 
     <script>
 
-      function setActiveButton(button) {
-        document.querySelectorAll('.menu .app-button').forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
+
+
+      /**
+       * Función de ayuda para eliminar la indentación común de un texto multilínea.
+       * Permite escribir plantillas de texto indentadas en el código sin que afecte al HTML.
+       */
+      function dedent(text) {
+        const lines = text.split('\n');
+        let firstLineIndex = -1;
+
+        // Encontrar la primera línea con contenido
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].trim() !== '') {
+            firstLineIndex = i;
+            break;
+          }
+        }
+
+        // Si no hay contenido, devolver cadena vacía
+        if (firstLineIndex === -1) return '';
+
+        // Calcular la indentación de la primera línea con contenido
+        const indentMatch = lines[firstLineIndex].match(/^\s*/);
+        const indent = indentMatch ? indentMatch[0] : '';
+
+        // Eliminar la indentación de todas las líneas y reconstruir el texto
+        return lines.map(line => line.startsWith(indent) ? line.substring(indent.length) : line).join('\n').trim();
       }
 
-      // Variable para almacenar el proyecto actual cargado, para evitar recargas del mismo proyecto
+
+
+      // Función para activar el botón del menú y cargar la póliza correspondiente
+      function activarPoliza(button, url) {
+        // Quitar la clase 'active' de todos los botones del menú
+        document.querySelectorAll('.menu .app-button').forEach(btn => btn.classList.remove('active'));
+        // Añadir la clase 'active' al botón pulsado
+        button.classList.add('active');
+        // Forzar la recarga de la póliza aunque sea la misma
+        loadProjectByURL(url);
+      }
+
+      // Variable para almacenar el proyecto actual cargado y evitar recargas innecesarias
       let proyectoActual = null;
 
+      // Función para cargar el contenido de la póliza seleccionada
       function loadProjectByURL(proyectoUrl) {
-
         const scriptName = proyectoUrl.split('/').pop().split('.')[0];
+        // Si ya está cargada la misma póliza, no recargar
         if (proyectoActual === scriptName) return;
         proyectoActual = scriptName;
 
-        // Cargar el contenido de la página seleccionada usando la URL proporcionada
+        // Cargar el contenido HTML de la póliza seleccionada
         fetch(proyectoUrl)
           .then(response => {
             if (!response.ok) {
@@ -76,106 +113,112 @@
             return response.text();
           })
           .then(html => {
+            // Insertar el contenido en el div de la derecha
             document.getElementById('content').innerHTML = html;
-    
-            // Extraer el nombre del archivo sin la carpeta ni la extensión ej: htmls/autocustodia.html >> autocustodia
-            const scriptName = proyectoUrl.split('/').pop().split('.')[0];
-    
-            // Solo añadir el script si no existe ya en el DOM
-            if (!document.querySelector(`script[src="./dist/${scriptName}.bundle.js"]`)) {
-              const script = document.createElement('script');
-              script.src = `./dist/${scriptName}.bundle.js`;
-              document.body.appendChild(script); // Añadir al final del body
+
+            // Eliminar el script de la póliza cargada anteriormente para evitar conflictos.
+            const oldScript = document.querySelector('script[data-policy-script]');
+            if (oldScript) {
+              oldScript.remove();
             }
-        
 
-// Añadir el árbol de emojis según el proyecto seleccionado
-if (scriptName === 'autocustodia') {
-  document.getElementById('output').innerHTML = `<pre>
-<span><span style="font-size:1.5em;">🤖</span><span style="font-size:1.2em;"><b> Autocustodia programada </b></span></span>
-│    
-│
-├─ 🗓️ <b>Uso diario: 🔑🔑 ➡️ 🔐🔐🔐 </b>
-│  │ 
-│  ├─ 🔑 Llave principal 
-│  │ 
-│  ├─ 🔑 Llave secundaria
-│  │ 
-│  └─ 🗝️ Llave del custodio
-│    
-│    
-├─ 🛡️<b> Recuperación 🕒 3 meses: 🔑 ➡️ 🔐🔐 </b>
-│  │ 
-│  ├─ 🔑 Llave de respaldo principal
-│  │ 
-│  └─ 🔑 Llave de respaldo secundaria
-│    
-│    
-└─ 🚨<b> Emergencia ⏰ 5 meses: 🗝️ ➡️ 🔐 </b>
-   │ 
-   └─ 🗝️ Llave de apertura por perdida
-</pre>
-  `;
-} else if (scriptName === 'boveda') {
-  document.getElementById('output').innerHTML = `<pre>
-<span><span style="font-size:1.5em;">🏦</span><span style="font-size:1.2em;"><b> Bóveda de seguridad </b></span></span>
-│
-│
-├─ 🔧 <b>Apertura forzada 🕒 72 horas: 🔑 ➡️ 🔐 </b>
-│  │ 
-│  └─ 🔑 Llave de apetura retardada
-│
-│
-└─ 🆘 <b>Botón del pánico: 🗝️ ➡️ 🔐 </b>
-   │
-   └─ 🗝️ Llave de apertura inmediata
-</pre>
-  `;
+            // Crear y añadir el nuevo script para la póliza actual.
+            const script = document.createElement('script');
+            // Se añade un timestamp para forzar al navegador a re-ejecutar el script siempre.
+            script.src = `./dist/${scriptName}.bundle.js?v=${new Date().getTime()}`;
+            // Se añade un atributo para poder encontrarlo y borrarlo la próxima vez.
+            script.setAttribute('data-policy-script', 'true');
+            document.body.appendChild(script);
 
-} else if (scriptName === 'herencia') {
-  document.getElementById('output').innerHTML = `<pre>
-<span><span style="font-size:1.5em;">🧬</span><span style="font-size:1.2em;"><b> Herencia digital </b></span></span>
-│
-│
-├─ 🧓🏻 <b>Acceso directo: 🔑 ➡️ 🔐 </b>
-│  │ 
-│  └─ 🔑 Llave del progenitor
-│
-│
-├─ 🧑🏻👨🏻 <b>Herencia 🕒 3 años: 🔑🔑 ➡️ 🔐🔐 </b>
-│  │ 
-│  ├─ 🔑 Llave de la heredera
-│  │ 
-│  └─ 🔑 Llave del heredero
-│
-│
-└─ 👤 <b>Disputa ⏰ 5 años: 🗝️ ➡️ 🔐 </b>
-   │ 
-   └─ 🗝️ Llave del abogado
-</pre>
-  `;
+            // Mostrar el árbol de emojis según la póliza seleccionada
+            if (scriptName === 'autocustodia') {
+              document.getElementById('output').innerHTML = dedent(`
+                <div class="visually-hidden">Resumen de la póliza de Autocustodia Programada. 
+                  Uso diario con 2 de 3 llaves. Recuperación a 3 meses con 1 de 2 llaves de respaldo. 
+                  Emergencia a 5 meses con la llave de apertura por pérdida.
+                </div><pre aria-hidden="true"><span><span style="font-size:1.5em;">🤖</span><span style="font-size:1.2em;"><b> Autocustodia programada </b></span></span>
+                │    
+                │
+                ├─ 🗓️ <b>Uso diario: 🔑🔑 ➡️ 🔐🔐🔐 </b>
+                │  │ 
+                │  ├─ 🔑 Llave principal 
+                │  │ 
+                │  ├─ 🔑 Llave secundaria
+                │  │ 
+                │  └─ 🗝️ Llave del custodio
+                │    
+                │    
+                ├─ 🛡️<b> Recuperación 🕒 3 meses: 🔑 ➡️ 🔐🔐 </b>
+                │  │ 
+                │  ├─ 🔑 Llave de respaldo principal
+                │  │ 
+                │  └─ 🔑 Llave de respaldo secundaria
+                │    
+                │    
+                └─ 🚨<b> Emergencia ⏰ 5 meses: 🗝️ ➡️ 🔐 </b>
+                  │ 
+                  └─ 🗝️ Llave de apertura por perdida
+                </pre>`);
+            } else if (scriptName === 'boveda') {
+              document.getElementById('output').innerHTML = dedent(`
+                <div class="visually-hidden">Resumen de la póliza de Bóveda de Seguridad. 
+                  Apertura forzada en 72 horas con la llave de apertura retardada. 
+                  Botón del pánico con la llave de apertura inmediata.
+                </div><pre aria-hidden="true"><span><span style="font-size:1.5em;">🏦</span><span style="font-size:1.2em;"><b> Bóveda de seguridad </b></span></span>
+                │
+                │
+                ├─ 🔧 <b>Apertura forzada 🕒 72 horas: 🔑 ➡️ 🔐 </b>
+                │  │ 
+                │  └─ 🔑 Llave de apetura retardada
+                │
+                │
+                └─ 🆘 <b>Botón del pánico: 🗝️ ➡️ 🔐 </b>
+                  │
+                  └─ 🗝️ Llave de apertura inmediata
+                </pre>`);
+            } else if (scriptName === 'herencia') {
+              document.getElementById('output').innerHTML = dedent(`
+                <div class="visually-hidden">Resumen de la póliza de Herencia Digital. 
+                  Acceso directo con la llave del progenitor. Herencia a 3 años con las llaves de los herederos. 
+                  Disputa a 5 años con la llave del abogado.
+                </div><pre aria-hidden="true"><span><span style="font-size:1.5em;">🧬</span><span style="font-size:1.2em;"><b> Herencia digital </b></span></span>
+                │
+                │
+                ├─ 🧓🏻 <b>Acceso directo: 🔑 ➡️ 🔐 </b>
+                │  │ 
+                │  └─ 🔑 Llave del progenitor
+                │
+                │
+                ├─ 🧑🏻👨🏻 <b>Herencia 🕒 3 años: 🔑🔑 ➡️ 🔐🔐 </b>
+                │  │ 
+                │  ├─ 🔑 Llave de la heredera
+                │  │ 
+                │  └─ 🔑 Llave del heredero
+                │
+                │
+                └─ 👤 <b>Disputa ⏰ 5 años: 🗝️ ➡️ 🔐 </b>
+                  │ 
+                  └─ 🗝️ Llave del abogado
+                </pre>`);
+            } else {
+              document.getElementById('output').innerHTML = '';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;
+          });
+      }
 
-} else {
-  document.getElementById('output').innerHTML = '';
-}
-              })
-            .catch(error => {
-              console.error('Error:', error);
-              document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;
-            });
-        }
-      
-    
-      // Autocargar el primer proyecto al iniciar
+      // Autocargar la primera póliza al iniciar la página
       document.addEventListener('DOMContentLoaded', () => {
-        // Selecciona el primer botón del menú (Herencua)
         const firstButton = document.querySelector('.menu .app-button');
         if (firstButton) {
-          setActiveButton(firstButton);
+          activarPoliza(firstButton, 'htmls/herencia.html');
         }
-        loadProjectByURL('htmls/herencia.html');
       });
-    
     </script>
+
+
   </body>
 </html>

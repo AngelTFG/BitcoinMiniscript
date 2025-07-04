@@ -1,39 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <title>Bóveda de seguridad</title>
-    <link rel="stylesheet" href="../style.css">
-  </head>
-  <body>
+<h2 id="titulo-boveda">🏦 Bóveda de seguridad 🏦</h2>
 
-   <h2>🏦 Bóveda de seguridad 🏦</h2>
+<nav aria-label="Navegación secundaria de Bóveda de seguridad">
+  <!-- 🟦 Fila 1: Mostrar direcciones + Limpiar consola -->
+  <div class="button-row">
+    <button class="app-button" id="initTestnet3Btn" title="Iniciar Testnet 3" aria-label="Iniciar Testnet 3">▶️ Testnet 3</button>
+    <button class="app-button" id="initTestnet4Btn" title="Iniciar Testnet 4" aria-label="Iniciar Testnet 4">▶️ Testnet 4</button>
+    <button class="app-button" id="showMiniscriptBtn" disabled title="Consultar Miniscript" aria-label="Consultar Miniscript">📜 Consultar Miniscript </button>
+  </div>
+  <!-- 🟩 Fila 2: UTXOs -->
+  <div class="button-row">
+    <button class="app-button" id="fetchUtxosBtn" disabled title="Buscar Fondos" aria-label="Buscar Fondos">🔍 Buscar Fondos</button>
+    <button class="app-button" id="fetchTransactionBtn" disabled title="Última Transacción" aria-label="Última Transacción">🚛 Última Transacción </button>
+    <button class="app-button" id="clearOutputBtn" disabled title="Limpiar Consola" aria-label="Limpiar Consola">🧹 Limpiar Consola</button>
+  </div>
+  <!-- 🟧 Fila 3: Envío -->
+  <div class="button-row">
+    <button class="app-button" id="sendRetardadaBtn" disabled title="Apertura forzada" aria-label="Apertura forzada">🔧 Apertura forzada 🔑</button>
+    <button class="app-button" id="sendInmediataBtn" disabled title="Botón del pánico" aria-label="Botón del pánico">🆘 Botón del pánico 🗝️</button>
+    <button class="app-button" disabled title="" aria-label=""></button>
+  </div>
+</nav>
 
-    <!-- 🟦 Fila 1: Mostrar direcciones + Limpiar consola -->
-    <div class="button-row">
-      <button class="app-button" id="initTestnet3Btn">▶️ Testnet 3</button>
-      <button class="app-button" id="initTestnet4Btn">▶️ Testnet 4</button>
-      <button class="app-button" id="showMiniscriptBtn"disabled>📜 Consultar Miniscript </button>
-    </div>
-
-    <!-- 🟩 Fila 2: UTXOs -->
-    <div class="button-row">
-      <button class="app-button" id="fetchUtxosBtn"disabled>🔍 Buscar Fondos</button>
-      <button class="app-button" id="fetchTransactionBtn"disabled>🚛 Última Transacción </button>
-      <button class="app-button" id="clearOutputBtn"disabled>🧹 Limpiar Consola</button>
-    </div>
-
-    <!-- 🟧 Fila 3: Envío -->
-    <div class="button-row">
-      <button class="app-button" id="sendRetardadaBtn"disabled>🔧 Apertura forzada 🔑</button>
-      <button class="app-button" id="sendInmediataBtn"disabled>🆘 Botón del pánico 🗝️</button>
-      <button class="app-button" disabled></button>
-    </div>
-
-      <!-- Salida -->
-      <script src="/dist/boveda.bundle.js"></script>
-      <div id="output-boveda" class="output-console"></div>
-
-  </body>
-</html>
-
+<div id="output-boveda" class="output-console" aria-live="polite"></div>

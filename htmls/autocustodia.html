@@ -1,38 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <title>Herencia digital</title>
-    <link rel="stylesheet" href="../style.css">
-  </head>
-  <body>
-          
-    <h2>🤖 Autocustodia programada 🤖</h2>
+<h2 id="titulo-autocustodia">🤖 Autocustodia programada 🤖</h2>
 
-    <!-- 🟦 Fila 1: Mostrar direcciones + Limpiar consola -->
-    <div class="button-row">
-      <button class="app-button" id="initTestnet3Btn">▶️ Testnet 3</button>
-      <button class="app-button" id="initTestnet4Btn">▶️ Testnet 4</button>
-      <button class="app-button" id="showMiniscriptBtn" disabled>📜 Consultar Miniscript</button>
-    </div>
+<nav aria-label="Navegación secundaria de Autocustodia programada">
+  <!-- 🟦 Fila 1: Mostrar direcciones + Limpiar consola -->
+  <div class="button-row">
+    <button class="app-button" id="initTestnet3Btn" title="Iniciar Testnet 3" aria-label="Iniciar Testnet 3">▶️ Testnet 3</button>
+    <button class="app-button" id="initTestnet4Btn" title="Iniciar Testnet 4" aria-label="Iniciar Testnet 4">▶️ Testnet 4</button>
+    <button class="app-button" id="showMiniscriptBtn" disabled title="Consultar Miniscript" aria-label="Consultar Miniscript">📜 Consultar Miniscript</button>
+  </div>
+  <!-- 🟩 Fila 2: UTXOs -->
+  <div class="button-row">
+    <button class="app-button" id="fetchUtxosBtn" disabled title="Buscar Fondos" aria-label="Buscar Fondos">🔍 Buscar Fondos</button>
+    <button class="app-button" id="fetchTransactionBtn" disabled title="Última Transacción" aria-label="Última Transacción">🚛 Última Transacción </button>
+    <button class="app-button" id="clearOutputBtn" disabled title="Limpiar Consola" aria-label="Limpiar Consola">🧹 Limpiar Consola</button>
+  </div>
+  <!-- 🟧 Fila 3: Envío -->
+  <div class="button-row">
+    <button class="app-button" id="dailyBtn" disabled title="Uso diario" aria-label="Uso diario">🗓️ Uso diario 🔑🔑 </button>
+    <button class="app-button" id="recoveryBtn" disabled title="Recuperación" aria-label="Recuperación"> 🛡️ Recuperación 🔑</button>
+    <button class="app-button" id="emergencyBtn" disabled title="Emergencia" aria-label="Emergencia">🚨 Emergencia 🗝️</button>
+  </div>
+</nav>
 
-    <!-- 🟩 Fila 2: UTXOs -->
-    <div class="button-row">
-      <button class="app-button" id="fetchUtxosBtn" disabled>🔍 Buscar Fondos</button>
-      <button class="app-button" id="fetchTransactionBtn"disabled>🚛 Última Transacción </button>
-      <button class="app-button" id="clearOutputBtn" disabled>🧹 Limpiar Consola</button>
-    </div>
-
-    <!-- 🟧 Fila 3: Envío -->
-    <div class="button-row">
-      <button class="app-button" id="dailyBtn"disabled>🗓️ Uso diario 🔑🔑 </button>
-      <button class="app-button" id="recoveryBtn"disabled> 🛡️ Recuperación 🔑</button>
-      <button class="app-button" id="emergencyBtn"disabled>🚨 Emergencia 🗝️</button>
-    </div>
-
-      <!-- Salida -->
-      <script src="/dist/autocustodia.bundle.js"></script>
-      <div id="output-autocustodia" class="output-console"></div>
-
-  </body>
-</html>
+<div id="output-autocustodia" class="output-console" aria-live="polite"></div>

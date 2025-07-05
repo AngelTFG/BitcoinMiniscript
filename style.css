@@ -154,6 +154,7 @@ button {
   height: 40px;
   padding: 10px;
   margin-bottom: 10px;
+  font-family: 'Roboto', Arial, sans-serif; /* Añadido para unificar la fuente */
   font-size: 16px;
   font-weight: normal;
   color: #333;
@@ -294,4 +295,15 @@ span[aria-hidden="true"] {
     font-size: 3em;
   }
 
+  .policy-description,
+  .output-console {
+    /* Reducir el tamaño de la fuente en las consolas para pantallas pequeñas */
+    font-size: 12px;
+  }
+  .app-button {
+    /* Reducir el tamaño de la fuente de los botones en pantallas pequeñas */
+    font-size: 14px;
+  }
+
 }
+

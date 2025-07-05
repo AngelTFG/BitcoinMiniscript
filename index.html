@@ -104,7 +104,7 @@
         // Limpiar la consola de salida al cambiar de póliza
         document.getElementById('output-console').innerHTML = '';
 
-        // Cargar el contenido HTML de la póliza seleccionada
+        // Cargar el contenido HTML de la póliza seleccionada 
         fetch(proyectoUrl)
           .then(response => {
             if (!response.ok) {
@@ -155,8 +155,8 @@
                 │    
                 │    
                 └─ <span aria-hidden="true">🚨</span><b> Emergencia <span aria-hidden="true">⏰</span> 5 meses: <span aria-hidden="true">🗝️ ➡️ 🔐</span> </b>
-                  │ 
-                  └─ <span aria-hidden="true">🗝️</span> Llave de apertura por perdida
+                   │ 
+                   └─ <span aria-hidden="true">🗝️</span> Llave de apertura por perdida
                 </pre>`);
             } else if (scriptName === 'boveda') {
               document.getElementById('policy-description').innerHTML = dedent(`
@@ -170,8 +170,8 @@
                 │
                 │
                 └─ <span aria-hidden="true">🆘</span> <b>Botón del pánico: <span aria-hidden="true">🗝️ ➡️ 🔐</span> </b>
-                  │
-                  └─ <span aria-hidden="true">🗝️</span> Llave de apertura inmediata
+                   │
+                   └─ <span aria-hidden="true">🗝️</span> Llave de apertura inmediata
                 </pre>`);
             } else if (scriptName === 'herencia') {
               document.getElementById('policy-description').innerHTML = dedent(`
@@ -192,8 +192,8 @@
                 │
                 │
                 └─ <span aria-hidden="true">👤</span> <b>Disputa <span aria-hidden="true">⏰</span> 5 años: <span aria-hidden="true">🗝️ ➡️ 🔐</span> </b>
-                  │ 
-                  └─ <span aria-hidden="true">🗝️</span> Llave del abogado
+                   │ 
+                   └─ <span aria-hidden="true">🗝️</span> Llave del abogado
                 </pre>`);
             } else {
               document.getElementById('policy-description').innerHTML = '';

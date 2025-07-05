@@ -147,7 +147,7 @@ button {
 /* Botón principal de la aplicación */
 .app-button {
   display: flex;          /* Cambiado a flex para un control de alineación superior */
-  align-items: baseline;  /* Cambiado a baseline para alinear texto e icono */
+  align-items: center;    /* Cambiado de nuevo a 'center' para máxima compatibilidad */
   justify-content: center;/* Centra el contenido horizontalmente */
     gap: 8px;               /* Añade un espacio de 8px entre el icono y el texto */
   width: 100%;            /* Ocupa el 100% del ancho de su contenedor (.menu) */

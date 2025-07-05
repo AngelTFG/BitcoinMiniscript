@@ -129,6 +129,7 @@ button {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
   font-size: 14px;
+  line-height: 1.1; /* Añadido para juntar las líneas del árbol */
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-x: auto; /* Añade scroll horizontal si el árbol es muy ancho */
@@ -145,21 +146,21 @@ button {
 
 /* Botón principal de la aplicación */
 .app-button {
-  display: block; /* Cambiado a block para que ocupe todo el ancho */
-  width: 100%;    /* Ocupa el 100% del ancho de su contenedor (.menu) */
+  display: flex;          /* Cambiado a flex para un control de alineación superior */
+  align-items: baseline;  /* Cambiado a baseline para alinear texto e icono */
+  justify-content: center;/* Centra el contenido horizontalmente */
+    gap: 8px;               /* Añade un espacio de 8px entre el icono y el texto */
+  width: 100%;            /* Ocupa el 100% del ancho de su contenedor (.menu) */
   height: 40px;
   padding: 10px;
   margin-bottom: 10px;
   font-size: 16px;
   font-weight: normal;
-  line-height: 1.5;
   color: #333;
   background-color: #d3d3d3;
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  vertical-align: middle;
   user-select: none;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   box-sizing: border-box;

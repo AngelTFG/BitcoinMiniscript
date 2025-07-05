@@ -2,6 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miniscript Playground</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -16,7 +17,7 @@
       <div class="top-panel" aria-label="Cabecera">
         <div class="top-panel-inner">
           <a href="https://github.com/AngelTFG/BitcoinMiniscript" target="_blank" rel="noopener" aria-label="Repositorio de GitHub de Bitcoin Miniscript" title="Repositorio de GitHub de Bitcoin Miniscript">
-            <img src="btcLogo.png" alt="Logo de Bitcoin Miniscript" title="Logo de Bitcoin Miniscript" class="top-panel-logo">
+            <img src="btcLogo.png" alt="Repositorio de GitHub de Bitcoin Miniscript" title="Repositorio de GitHub de Bitcoin Miniscript" class="top-panel-logo">
           </a>
           <h1 class="top-panel-title">Miniscript Playground</h1>
           <a href="https://bitcoin-miniscript.vercel.app/" target="_blank" rel="noopener" class="top-panel-right" aria-label="Abrir Miniscript Playground en nueva pestaña" title="Abrir Miniscript Playground en nueva pestaña">🛝</a>
@@ -39,23 +40,24 @@
           <div class="button-row">
             <button class="app-button" title="Bóveda de seguridad" aria-label="Bóveda de seguridad" onclick="activarPoliza(this, 'htmls/boveda.html')"><span aria-hidden="true">🏦</span> Bóveda de seguridad</button>
           </div>
-          <div id="output" class="output-console"></div>
+          <!-- Contenedor para la descripción de la póliza (el árbol) -->
+          <div id="policy-description" class="policy-description"></div>
         </div>
       
           <!-- Columna derecha: Contenido del proyecto -->
           <div class="content" aria-label="Menú principal de la póliza, interactúe con la póliza">
-            <h2></h2>
-            <div id="content"></div>
+            <!-- El contenido de la póliza (botones, etc.) se cargará aquí -->
+            <div id="policy-content"></div>
+            <!-- La consola de salida ÚNICA para todos los scripts va aquí -->
+            <div id="output-console" class="output-console"></div>
           </div>
 
       </div>
     </div>
 
     <script>
-      /**
-       * Función de ayuda para eliminar la indentación común de un texto multilínea.
-       * Permite escribir plantillas de texto indentadas en el código sin que afecte al HTML.
-       */
+
+      // Función de ayuda para eliminar el tabulado de un texto multilínea.
       function dedent(text) {
         const lines = text.split('\n');
         let firstLineIndex = -1;
@@ -89,7 +91,7 @@
         loadProjectByURL(url);
       }
 
-      // Variable para almacenar el proyecto actual cargado y evitar recargas innecesarias
+      // Variable global para almacenar el proyecto actual cargado y evitar recargas innecesarias
       let proyectoActual = null;
 
       // Función para cargar el contenido de la póliza seleccionada
@@ -98,6 +100,9 @@
         // Si ya está cargada la misma póliza, no recargar
         if (proyectoActual === scriptName) return;
         proyectoActual = scriptName;
+
+        // Limpiar la consola de salida al cambiar de póliza
+        document.getElementById('output-console').innerHTML = '';
 
         // Cargar el contenido HTML de la póliza seleccionada
         fetch(proyectoUrl)
@@ -109,7 +114,7 @@
           })
           .then(html => {
             // Insertar el contenido en el div de la derecha
-            document.getElementById('content').innerHTML = html;
+            document.getElementById('policy-content').innerHTML = html;
 
             // Eliminar el script de la póliza cargada anteriormente para evitar conflictos.
             const oldScript = document.querySelector('script[data-policy-script]');
@@ -125,9 +130,10 @@
             script.setAttribute('data-policy-script', 'true');
             document.body.appendChild(script);
 
+
             // Mostrar el árbol de emojis según la póliza seleccionada
             if (scriptName === 'autocustodia') {
-              document.getElementById('output').innerHTML = dedent(`
+              document.getElementById('policy-description').innerHTML = dedent(`
                 <div class="visually-hidden">Resumen de la póliza de Autocustodia Programada. Uso diario con 2 de 3 llaves. Recuperación a 3 meses con 1 de 2 llaves de respaldo. Emergencia a 5 meses con la llave de apertura por pérdida.</div>
                 <pre aria-hidden="true"><span><span style="font-size:1.5em;" aria-hidden="true">🤖</span><span style="font-size:1.2em;"><b> Autocustodia programada </b></span></span>
                 │    
@@ -153,7 +159,7 @@
                   └─ <span aria-hidden="true">🗝️</span> Llave de apertura por perdida
                 </pre>`);
             } else if (scriptName === 'boveda') {
-              document.getElementById('output').innerHTML = dedent(`
+              document.getElementById('policy-description').innerHTML = dedent(`
                 <div class="visually-hidden">Resumen de la póliza de Bóveda de Seguridad. Apertura forzada en 72 horas con la llave de apertura retardada. Botón del pánico con la llave de apertura inmediata.</div>
                 <pre aria-hidden="true"><span><span style="font-size:1.5em;" aria-hidden="true">🏦</span><span style="font-size:1.2em;"><b> Bóveda de seguridad </b></span></span>
                 │
@@ -168,7 +174,7 @@
                   └─ <span aria-hidden="true">🗝️</span> Llave de apertura inmediata
                 </pre>`);
             } else if (scriptName === 'herencia') {
-              document.getElementById('output').innerHTML = dedent(`
+              document.getElementById('policy-description').innerHTML = dedent(`
                 <div class="visually-hidden">Resumen de la póliza de Herencia Digital. Acceso directo con la llave del progenitor. Herencia a 3 años con las llaves de los herederos. Disputa a 5 años con la llave del abogado.</div>
                 <pre aria-hidden="true"><span><span style="font-size:1.5em;" aria-hidden="true">🧬</span><span style="font-size:1.2em;"><b> Herencia digital </b></span></span>
                 │
@@ -190,9 +196,10 @@
                   └─ <span aria-hidden="true">🗝️</span> Llave del abogado
                 </pre>`);
             } else {
-              document.getElementById('output').innerHTML = '';
+              document.getElementById('policy-description').innerHTML = '';
             }
           })
+
           .catch(error => {
             console.error('Error:', error);
             document.getElementById('content').innerHTML = `<p>Error al cargar el proyecto: ${error.message}</p>`;

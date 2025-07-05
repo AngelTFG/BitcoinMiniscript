@@ -39,7 +39,7 @@ const BLOCKS_HERENCIA = 1;
 const BLOCKS_RECOVERY = 2;
 
 // Consola pagina web
-const outputHerencia = document.getElementById('output-herencia') as HTMLElement;
+const outputConsole = document.getElementById('output-console') as HTMLElement;
 
 // Declaramos los tipos de mensaje de salida
 type OutputType = 'info' | 'success' | 'error';
@@ -122,7 +122,7 @@ function enableButtons(): void {
 
 // Mensaje de bienvenida
 logToOutput(
-  outputHerencia,
+  outputConsole,
   '<span aria-hidden="true">🚀</span> Iniciar en red de pruebas:  <span aria-hidden="true">▶️</span> <a href="#" onclick="document.getElementById(\'initTestnet4Btn\').click();return false;">Testnet 4</a>',
   'info'
 );
@@ -156,9 +156,9 @@ const initMiniscriptObjet = async (
     // Obtener el nombre de la red
     const networkName = getNetworkName(explorer);
 
-    logToOutput(outputHerencia,  `<span aria-hidden="true">🌐</span> Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
-    logToOutput(outputHerencia,  '<span style="color:green;"><span aria-hidden="true">🌟</span> ¡El Playground ha sido inicializado con éxito! <span aria-hidden="true">🌟</span></span>', 'success');
-    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole,  `<span aria-hidden="true">🌐</span> Iniciando la wallet en la red  <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputConsole,  '<span aria-hidden="true">🌟</span> ¡El Playground ha sido inicializado con éxito! <span aria-hidden="true">🌟</span>', 'success');
+    logToOutput(outputConsole,  `<hr style="border:1px dashed #ccc;">`);
 
     // Calcular el valor de "after" basado en la altura actual del bloque y el número de bloques de espera
     const herencia = afterEncode({ blocks: originalBlockHeight + BLOCKS_HERENCIA });
@@ -254,7 +254,7 @@ const initMiniscriptObjet = async (
     return { MiniscriptObjet, originalBlockHeight, masterNode, wshDescriptor };
   } catch (error: any) {
     // Manejar errores durante la inicialización del Miniscript
-    console.error(`<span aria-hidden="true">❌</span> Error al inicializar Miniscript:${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al inicializar Miniscript:${error?.message || 'Error desconocido'}`, 'error');
     throw error;
   }
 };
@@ -275,29 +275,29 @@ const mostrarMiniscript = async (
     const restingBlocksHer = originalBlockHeight + BLOCKS_HERENCIA - actualBlockHeight;
     const restingBlocksRec = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
 
-    // Control sobre el numero de bloques restantes y el color que se le asigna
+    // Control sobre el numero de bloques restantes y la clase que se le asigna
     const displayProgen = restingBlocksProgen <= 0 ? 0 : restingBlocksProgen;
-    const progenColor = restingBlocksProgen > 0 ? '#c50f0f' : 'green';
+    const progenClass = restingBlocksProgen > 0 ? 'output-error' : 'output-success';
 
     const displayHerencia = restingBlocksHer <= 0 ? 0 : restingBlocksHer;
-    const herenColor = restingBlocksHer > 0 ? '#c50f0f' : 'green';
+    const herenClass = restingBlocksHer > 0 ? 'output-error' : 'output-success';
 
     const displayRecovery = restingBlocksRec <= 0 ? 0 : restingBlocksRec;
-    const recoveryColor = restingBlocksRec > 0 ? '#c50f0f' : 'green';
+    const recoveryClass = restingBlocksRec > 0 ? 'output-error' : 'output-success';
 
     // Mostrar información detallada 
-    logToOutput(outputHerencia,  `<span aria-hidden="true">🛜</span> Red actual: <strong>${networkName}</strong>`, 'info');
-    logToOutput(outputHerencia,  `<span aria-hidden="true">🧱</span> Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
-    logToOutput(outputHerencia,  `<span aria-hidden="true">🧓🏻</span> Bloques para poder gastar en la rama de acceso directo: <strong style="color:${progenColor};">${displayProgen}</strong>`, 'info');
-    logToOutput(outputHerencia,  `<span aria-hidden="true">🧑🏻👨🏻</span> Bloques para poder gastar en la rama de herencia: <strong style="color:${herenColor};">${displayHerencia}</strong>`, 'info');
-    logToOutput(outputHerencia,  `<span aria-hidden="true">👤</span> Bloques para poder gastar en la rama de disputa: <strong style="color:${recoveryColor};">${displayRecovery}</strong>`, 'info');
+    logToOutput(outputConsole,  `<span aria-hidden="true">🛜</span> Red actual: <strong>${networkName}</strong>`, 'info');
+    logToOutput(outputConsole,  `<span aria-hidden="true">🧱</span> Altura actual de bloque: <strong>${actualBlockHeight}</strong>`, 'info');
+    logToOutput(outputConsole,  `<span aria-hidden="true">🧓🏻</span> Bloques para poder gastar en la rama de acceso directo: <strong class="${progenClass}">${displayProgen}</strong>`, 'info');
+    logToOutput(outputConsole,  `<span aria-hidden="true">🧑🏻👨🏻</span> Bloques para poder gastar en la rama de herencia: <strong class="${herenClass}">${displayHerencia}</strong>`, 'info');
+    logToOutput(outputConsole,  `<span aria-hidden="true">👤</span> Bloques para poder gastar en la rama de disputa: <strong class="${recoveryClass}">${displayRecovery}</strong>`, 'info');
 
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputHerencia, `<span aria-hidden="true">📩</span> Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
-    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">📩</span> Dirección del miniscript: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'info');
+    logToOutput(outputConsole,  `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputHerencia, `<span aria-hidden="true">❌</span> Error al mostrar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al mostrar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 /************************ 🔍 BUSCAR FONDOS  ************************/
@@ -307,7 +307,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
     // Obtener la dirección desde el objeto pasado como argumento
     const miniscriptAddress = MiniscriptObjet.getAddress();
 
-    logToOutput(outputHerencia, `<span aria-hidden="true">🔍</span> Consultando fondos...`, 'info');
+    logToOutput(outputConsole, `<span aria-hidden="true">🔍</span> Consultando fondos...`, 'info');
 
     // Consultar los UTXOs asociados a la dirección
     const utxos = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/utxo`)).json();
@@ -318,32 +318,32 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
       const networkName = getNetworkName(explorer);
 
       logToOutput(
-        outputHerencia,
-        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        outputConsole,
+        `<span aria-hidden="true">🚫</span> No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputHerencia, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputConsole, `<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.`, 'info');
       }
 
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
-    logToOutput(outputHerencia, `<span aria-hidden="true">✅</span> Fondos encontrados: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
+    logToOutput(outputConsole, `<span aria-hidden="true">✅</span> Fondos encontrados: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`, 'success');
 
     // Calcular el total de todos los UTXOs
     const totalValue = utxos.reduce((sum: number, utxo: { value: number }) => sum + utxo.value, 0);
@@ -353,17 +353,17 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 
     // Mostrar cada UTXO individualmente con estado de confirmación y bloque al que pertenece
     sortedUtxos.forEach((utxo: { txid: string; value: number; status: { confirmed: boolean; block_height: number } }, index: number) => {
-      const confirmationStatus = utxo.status.confirmed ? '<span style="color:green;"><span aria-hidden="true">✅</span> confirmado</span>' : '<span style="color:red;"><span aria-hidden="true">❓</span> no confirmado</span>';
+      const confirmationStatus = utxo.status.confirmed ? '<span class="output-success"><span aria-hidden="true">✅</span> confirmado</span>' : '<span class="output-error"><span aria-hidden="true">❓</span> no confirmado</span>';
       const blockHeight = utxo.status.block_height || 'Desconocido';
-      logToOutput(outputHerencia, `<span aria-hidden="true">🪙</span> Fondos: <span style="color:red;">${utxo.value}</span> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">🪙</span> Fondos: <strong>${utxo.value}</strong> sats ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`, 'info');
     });
 
     // Mostrar el total de los UTXOs
-    logToOutput(outputHerencia, `<span aria-hidden="true">💰</span> Total fondos: <strong><span style="color:red;">${totalValue}</span></strong> sats`, 'info');
-    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">💰</span> Total fondos: <strong>${totalValue}</strong> sats`, 'info');
+    logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputHerencia, `<span aria-hidden="true">❌</span> Error al consultar los fondos:${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al consultar los fondos:${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -372,7 +372,7 @@ const fetchUtxosMini = async (MiniscriptObjet: InstanceType<typeof Output>, expl
 const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, explorer: string): Promise<void> => {
   try {
     const miniscriptAddress = MiniscriptObjet.getAddress();
-    logToOutput(outputHerencia, `<span aria-hidden="true">🚛</span> Consultando última transacción...`, 'info');
+    logToOutput(outputConsole, `<span aria-hidden="true">🚛</span> Consultando última transacción...`, 'info');
 
     // Obtener historial de transacciones
     const txHistory = await(await fetch(`${explorer}/api/address/${miniscriptAddress}/txs`)).json();
@@ -382,27 +382,28 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
       const networkName = getNetworkName(explorer);
 
       logToOutput(
-        outputHerencia,
-        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`
+        outputConsole,
+        `<span aria-hidden="true">🚫</span> No se encontraron transacciones en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
+        'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir transacción a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir transacción a través de <a href="https://faucet.testnet4.dev/" target="_blank">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir transacción a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir transacción a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputHerencia, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible</span>`, 'info');
+        logToOutput(outputConsole, `<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible`, 'info');
       }
 
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -416,20 +417,20 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
 
     let tipo: string;
     if (esEmisor && esReceptor) {
-      tipo = '<span aria-hidden="true">📤📥</span> Tipo: Envío + Recepción (cambio)';
+      tipo = '<span aria-hidden="true">📤📥</span> Envío + Recepción (cambio)';
     } else if (esEmisor) {
-      tipo = '<span aria-hidden="true">📤</span> Tipo: <span style="color:red;">Envío</span>';
+      tipo = '<span aria-hidden="true">📤</span> <span class="output-error">Envío</span>';
     } else if (esReceptor) {
-      tipo = '<span aria-hidden="true">📥</span> Tipo: <span style="color:green;">Recepción</span>';
+      tipo = '<span aria-hidden="true">📥</span> <span class="output-success">Recepción</span>';
     } else {
-      tipo = '<span aria-hidden="true">🔍</span>  Tipo: Participación no directa';
+      tipo = '<span aria-hidden="true">🔍</span> Participación no directa';
     }
 
-    const confirmationStatus = txDetails.status.confirmed ? '<span style="color:green;"><span aria-hidden="true">✅</span> confirmada</span>' : '<span style="color:red;"><span aria-hidden="true">❓</span> no confirmada</span>';
-    logToOutput(outputHerencia, `<span aria-hidden="true">✅</span> Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
+    const confirmationStatus = txDetails.status.confirmed ? '<span class="output-success"><span aria-hidden="true">✅</span> confirmada</span>' : '<span class="output-error"><span aria-hidden="true">❓</span> no confirmada</span>';
+    logToOutput(outputConsole, `<span aria-hidden="true">✅</span> Transacción encontrada: <a href="${explorer}/tx/${txnID}"target="_blank"><code>${txnID}</code></a>`, 'success');
 
     const blockHeight = txDetails.status.block_height || 'Desconocido';
-    logToOutput(outputHerencia, `${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
+    logToOutput(outputConsole, `Tipo: ${tipo} ${confirmationStatus} - Bloque: <strong>${blockHeight}</strong>`);
 
     // Mostrar detalles de las entradas SOLO si la dirección es la del miniscript
     if (esEmisor) {
@@ -437,7 +438,7 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
         const prevoutAddress = vin.prevout?.scriptpubkey_address || 'Desconocido';
         const prevoutValue = vin.prevout?.value || 'Desconocido';
         if (prevoutAddress === miniscriptAddress) {
-          logToOutput(outputHerencia, `<span aria-hidden="true">🪙</span> Fondos enviados: <span style="color:red;">${prevoutValue}</span> sats → ${prevoutAddress} <span aria-hidden="true">✔️</span>`, 'info');
+          logToOutput(outputConsole, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${prevoutValue}</strong> sats → ${prevoutAddress} <span aria-hidden="true">✔️</span>`, 'info');
         }
       });
     }
@@ -446,15 +447,15 @@ const fetchTransaction = async (MiniscriptObjet: InstanceType<typeof Output>, ex
     if (esReceptor) {
       txDetails.vout.forEach((vout: any, index: number) => {
         if (vout.scriptpubkey_address === miniscriptAddress) {
-          logToOutput(outputHerencia, `<span aria-hidden="true">🪙</span> Fondos recibidos: <span style="color:red;">${vout.value}</span> sats → ${vout.scriptpubkey_address} <span aria-hidden="true">✔️</span>`, 'info');
+          logToOutput(outputConsole, `<span aria-hidden="true">🪙</span> Fondos recibidos: <strong>${vout.value}</strong> sats → ${vout.scriptpubkey_address} <span aria-hidden="true">✔️</span>`, 'info');
         }
       });
     }
 
-    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
   } catch (error: any) {
-    logToOutput(outputHerencia, `<span aria-hidden="true">❌</span> Error al consultar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia,  `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al consultar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole,  `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -468,7 +469,7 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
     const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
     const restingBlocks = originalBlockHeight - actualBlockHeight;
     const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
-    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
+    const blocksClass = restingBlocks > 0 ? 'output-error' : 'output-success';
 
     // Crear un nuevo Output para la clave de emergencia
     const progenKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_PROGEN}${WSH_KEY_PATH}`).publicKey;
@@ -479,7 +480,7 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
       signersPubKeys: [progenKey]
     });
 
-    logToOutput(outputHerencia, `<span aria-hidden="true">🧓🏻</span> Se ha pulsado el botón "Acceso directo"...`, 'info');
+    logToOutput(outputConsole, `<span aria-hidden="true">🧓🏻</span> Se ha pulsado el botón "Acceso directo"...`, 'info');
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
 
@@ -491,28 +492,28 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
       const networkName = getNetworkName(explorer);
 
       logToOutput(
-        outputHerencia,
-        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        outputConsole,
+        `<span aria-hidden="true">🚫</span> No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputHerencia, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputConsole, `<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.`, 'info');
       }
 
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -531,7 +532,7 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
         ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
         : '<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible</strong></code>';
 
-    logToOutput(outputHerencia, faucetMsg, 'info');
+    logToOutput(outputConsole, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -582,21 +583,21 @@ const directoPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de acceso directo:  <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">⛏️</span> <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de acceso directo:  <strong class="${blocksClass}">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">⛏️</span> Los mineros han bloqueado la transacción`, 'error');
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
     } else {
-      logToOutput(outputHerencia, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">✍🏼</span> Firmando la transacción con la clave del progenitor...`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">✍🏼</span> Firmando la transacción con la clave del progenitor...`, 'info');
       const txId = txFinal.getId();
-      logToOutput(outputHerencia, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    logToOutput(outputHerencia, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -609,7 +610,7 @@ const herenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
     const restingBlocks = originalBlockHeight + BLOCKS_HERENCIA - actualBlockHeight;
     const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
-    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
+    const blocksClass = restingBlocks > 0 ? 'output-error' : 'output-success';
 
 
     // Crear un nuevo output para la clave de emergencia
@@ -622,7 +623,7 @@ const herenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       signersPubKeys: [key_descend_1, key_descend_2]
     });
 
-    logToOutput(outputHerencia, `<span aria-hidden="true">🧑🏻👨🏻</span> Se ha pulsado el botón "Herencia"...`, 'info');
+    logToOutput(outputConsole, `<span aria-hidden="true">🧑🏻👨🏻</span> Se ha pulsado el botón "Herencia"...`, 'info');
 
     // Obtener la dirección de recepción desde el objeto global
     const miniscriptAddress = localMiniscriptObjet.getAddress();
@@ -635,28 +636,28 @@ const herenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
       const networkName = getNetworkName(explorer);
 
       logToOutput(
-        outputHerencia,
-        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        outputConsole,
+        `<span aria-hidden="true">🚫</span> No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputHerencia, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputConsole, `<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.`, 'info');
       }
 
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
     
@@ -675,7 +676,7 @@ const herenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
         ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
         : '<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible</strong></code>';
 
-    logToOutput(outputHerencia, faucetMsg, 'info');
+    logToOutput(outputConsole, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -725,23 +726,23 @@ const herenciaPSBT = async (masterNode: BIP32Interface, network: any, explorer: 
     console.log('Resultado TXID:', txResponse);
 
     // Manejar el error "non-final"
-    if (txResponse.match('non-BIP68ninal') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de herencia: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">⛏️</span> <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
+      logToOutput(outputConsole, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de herencia: <strong class="${blocksClass}">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">⛏️</span> Los mineros han bloqueado la transacción`, 'error');
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
     } else {
-      logToOutput(outputHerencia, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">✍🏻✍🏼</span> Firmando la transacción con las claves de los herederos...`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">✍🏻✍🏼</span> Firmando la transacción con las claves de los herederos...`, 'info');
       const txId = txFinal.getId();
-      logToOutput(outputHerencia, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
     const errorDetails = error.message || 'Error desconocido';
-    logToOutput(outputHerencia, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -755,7 +756,7 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
     const actualBlockHeight = parseInt(await (await fetch(`${explorer}/api/blocks/tip/height`)).text());
     const restingBlocks = originalBlockHeight + BLOCKS_RECOVERY - actualBlockHeight;
     const displayBlocks = restingBlocks <= 0 ? 0 : restingBlocks;
-    const blocksColor = restingBlocks > 0 ? 'red' : 'green';
+    const blocksClass = restingBlocks > 0 ? 'output-error' : 'output-success';
 
     // Crear un nuevo output para la clave de emergencia
     const abogadoKey = masterNode.derivePath(`m${WSH_ORIGIN_PATH_RECOVERY}${WSH_KEY_PATH}`).publicKey;
@@ -766,7 +767,7 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
       signersPubKeys: [abogadoKey]
     });
 
-    logToOutput(outputHerencia, `<span aria-hidden="true">👤</span> Se ha pulsado el botón "Disputa"...`, 'info');
+    logToOutput(outputConsole, `<span aria-hidden="true">👤</span> Se ha pulsado el botón "Disputa"...`, 'info');
     // Obtener la dirección de envio
     const miniscriptAddress = localMiniscriptObjet.getAddress();
 
@@ -778,28 +779,28 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
       const networkName = getNetworkName(explorer);
 
       logToOutput(
-        outputHerencia,
-        `<span aria-hidden="true">🚫</span> <span style="color:red;">No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a></span>`,
+        outputConsole,
+        `<span aria-hidden="true">🚫</span> No se encontraron fondos en la dirección: <a href="${explorer}/address/${miniscriptAddress}" target="_blank">${miniscriptAddress}</a>`,
         'error'
       );
 
       if (networkName === 'Testnet 4') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 4</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://faucet.testnet4.dev/" target="_blank">faucet Testnet 4</a>`,
           'info'
         );
       } else if (networkName === 'Testnet 3') {
         logToOutput(
-          outputHerencia,
-          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank" style="color:blue;text-decoration:underline;">faucet Testnet 3</a>`,
+          outputConsole,
+          `<span aria-hidden="true">💧</span> Recibir fondos a través de <a href="https://bitcoinfaucet.uo1.net/send.php" target="_blank">faucet Testnet 3</a>`,
           'info'
         );
       } else {
-        logToOutput(outputHerencia, `<span style="color:orange;"><span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.</span>`, 'info');
+        logToOutput(outputConsole, `<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible.`, 'info');
       }
 
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
       return;
     }
 
@@ -818,7 +819,7 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
         ? '<span aria-hidden="true">📦</span> Devolviendo fondos a <code><strong>Faucet Testnet 3</strong></code>'
         : '<span aria-hidden="true">⚠️</span> La red seleccionada no tiene faucet disponible</strong></code>';
 
-    logToOutput(outputHerencia, faucetMsg, 'info');
+    logToOutput(outputConsole, faucetMsg, 'info');
 
     // Seleccionar el UTXO más antiguo
     const utxo = utxos.sort((a: any, b: any) => a.status.block_height - b.status.block_height)[0];
@@ -869,21 +870,21 @@ const disputaPSBT = async (masterNode: BIP32Interface, network: any, explorer: s
 
     // Manejar el error "non-final"
     if (txResponse.match('non-BIP68-final') || txResponse.match('non-final')) {
-      logToOutput(outputHerencia, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de disputa: <strong style="color:${blocksColor};">${displayBlocks}</strong>`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">⛏️</span> <span style="color:red;">Los mineros han bloqueado la transacción</span>`, 'error');
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<span aria-hidden="true">🧱</span> Bloques para poder gastar en la rama de disputa: <strong class="${blocksClass}">${displayBlocks}</strong>`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">⛏️</span> Los mineros han bloqueado la transacción`, 'error');
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
     } else {
-      logToOutput(outputHerencia, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
-      logToOutput(outputHerencia, `<span aria-hidden="true">✍🏼</span> Firmando la transacción con  la clave del abogado...`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">🪙</span> Fondos enviados: <strong>${valueIn}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">💸</span> Comisión: <strong>${FEE}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">💰</span> Total transacción: <strong>${valueOut}</strong> sats`, 'info');
+      logToOutput(outputConsole, `<span aria-hidden="true">✍🏼</span> Firmando la transacción con  la clave del abogado...`, 'info');
       const txId = txFinal.getId();
-      logToOutput(outputHerencia, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
-      logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+      logToOutput(outputConsole, `<span aria-hidden="true">🚚</span> Transacción enviada: <a href="${explorer}/tx/${txId}?expand" target="_blank">${txId}</a>`, 'success');
+      logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
     }
   } catch (error: any) {
-    logToOutput(outputHerencia, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia, `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole, `<span aria-hidden="true">❌</span> Error al enviar la transacción: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole, `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -900,8 +901,8 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
     document.getElementById('herenciaBtn')?.addEventListener('click', () => herenciaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
     document.getElementById('disputaBtn')?.addEventListener('click', () => disputaPSBT(masterNode, network, explorer, wshDescriptor, originalBlockHeight));
   } catch (error: any) {
-    logToOutput(outputHerencia,  `<span aria-hidden="true">❌</span> Error al inicializar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
-    logToOutput(outputHerencia,   `<hr style="border:1px dashed #ccc;">`);
+    logToOutput(outputConsole,  `<span aria-hidden="true">❌</span> Error al inicializar el Miniscript: ${error?.message || 'Error desconocido'}`, 'error');
+    logToOutput(outputConsole,   `<hr style="border:1px dashed #ccc;">`);
   }
 };
 
@@ -916,5 +917,5 @@ document.getElementById('initTestnet4Btn')?.addEventListener('click', () => init
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {
-  outputHerencia.innerHTML = '';
+  outputConsole.innerHTML = '';
 });

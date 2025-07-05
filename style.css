@@ -1,7 +1,6 @@
 /* === ESTILOS GENERALES DE LA PÁGINA === */
 
 body {
-  max-width: 1700px;
   min-height: 100vh;
   overflow: auto;
   font-family: 'Roboto', Arial, sans-serif;
@@ -55,6 +54,7 @@ button {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
   box-sizing: border-box;
+  overflow-x: auto; /* Añadido para manejar el desbordamiento horizontal */
 }
 
 /* Contenido interno del panel superior */
@@ -64,6 +64,7 @@ button {
   justify-content: space-between;
   position: relative;
   width: 100%;
+  overflow-x: auto; /* Añadido para manejar el desbordamiento horizontal */
 }
 
 /* Logo en el panel superior */
@@ -81,7 +82,6 @@ button {
   margin: 0;
 }
 
-
 /* Elementos alineados a la derecha en el panel superior */
 .top-panel-right {
   font-size: 4.8em;
@@ -90,7 +90,7 @@ button {
   color: inherit !important;
 }
 
-/* Contenedor principal de contenido y menú lateral */
+/* Contenedor principal del  menú lateral izquierdo y el contenido principal derecha */
 .container {
   display: flex;
   flex-direction: row;
@@ -99,16 +99,17 @@ button {
   box-sizing: border-box;
 }
 
-/* Menú lateral */
+/* Menú lateral izquierda */
 .menu {
   flex: 1;
   background-color: #f9f9f9;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto; /* Añadido para manejar el desbordamiento horizontal */
 }
 
-/* Contenido principal */
+/* Contenido principal derecha */
 .content {
   flex: 3;
   background-color: #f9f9f9;
@@ -118,12 +119,34 @@ button {
   overflow-y: auto;
 }
 
+/* Estilos para el contenedor de la descripción de la póliza (el árbol) */
+.policy-description {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto; /* Añade scroll horizontal si el árbol es muy ancho */
+}
+
+/* Eliminar el margen por defecto del árbol para evitar el desplazamiento */
+.policy-description pre {
+  margin: 0;
+}
+
+
+
 /* === COMPONENTES === */
 
 /* Botón principal de la aplicación */
 .app-button {
-  display: inline-block;
-  width: 271px;
+  display: block; /* Cambiado a block para que ocupe todo el ancho */
+  width: 100%;    /* Ocupa el 100% del ancho de su contenedor (.menu) */
   height: 40px;
   padding: 10px;
   margin-bottom: 10px;
@@ -140,6 +163,10 @@ button {
   user-select: none;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   box-sizing: border-box;
+  /* --- Mejoras para el texto --- */
+  white-space: nowrap;      /* Evita que el texto se divida en varias líneas */
+  overflow: hidden;         /* Oculta el texto que se desborda */
+  text-overflow: ellipsis;  /* Muestra "..." cuando el texto se corta */
 }
 
 /* Efecto hover para los botones */
@@ -172,12 +199,6 @@ button {
   cursor: not-allowed;
 }
 
-/* Aumentar tamaño de los iconos */
-span[aria-hidden="true"] {
-  font-size: 1.2em; /* Ajusta este valor si lo necesitas */
-}
-
-
 /* Fila de botones, alineados y con espacio entre ellos */
 .button-row {
   display: flex;
@@ -188,7 +209,8 @@ span[aria-hidden="true"] {
 
 /* Consola de salida de la aplicación */
 .output-console {
-  height: 500px;
+  min-height: 300px; /* Asegura una altura mínima */
+  max-height: 60vh;  /* Limita la altura máxima al 60% de la altura de la ventana */
   min-width: 400px;
   margin-top: 20px;
   padding: 10px 10px 10px 30px; /* top right bottom left */
@@ -204,6 +226,26 @@ span[aria-hidden="true"] {
   word-wrap: break-word;
 }
 
+/* Colores de los mensajes en la consola de salida */
+.output-console .output-info {
+  color: #343537;
+}
+
+.output-console .output-error {
+  color: #c50f0f; /* Rojo oscuro con contraste AA (5.25:1) */
+}
+
+.output-console .output-success {
+  color: #1c6c2e; /* Verde oscuro con contraste AA (5.25:1) */
+}
+
+/* === LECTORES DE PANTALLA === */
+
+/* Aumentar tamaño de los iconos */
+span[aria-hidden="true"] {
+  font-size: 1.2em; /* Ajusta este valor si lo necesitas */
+}
+
 /* Clase para ocultar contenido visualmente pero mantenerlo accesible para lectores de pantalla */
 .visually-hidden {
   position: absolute;
@@ -217,15 +259,38 @@ span[aria-hidden="true"] {
   border: 0;
 }
 
-/* Colores de los mensajes en la consola de salida */
-.output-console .output-info {
-  color: #343537;
-}
+/* === DISEÑO RESPONSIVO === */
 
-.output-console .output-error {
-  color: #c50f0f; /* Rojo oscuro con contraste AA (5.25:1) */
-}
+/* Para pantallas con un ancho máximo de 768px (tablets y móviles) */
+@media (max-width: 768px) {
+  .container {
+    /* Cambia la dirección de flexbox a columna para que se apilen verticalmente */
+    flex-direction: column;
+  }
 
-.output-console .output-success {
-  color: #1c6c2e; /* Verde oscuro con contraste AA (5.25:1) */
+  .menu,
+  .content {
+    /* Hacemos que cada panel ocupe todo el ancho disponible */
+    flex: 1 1 100%;
+  }
+
+  h2 {
+    /* Reducir el tamaño de los títulos para que quepan en pantallas estrechas */
+    font-size: 1.2rem;
+  }
+  .top-panel-title {
+    /* En pantallas pequeñas, el título puede necesitar ser más pequeño */
+    font-size: 1.5rem;
+  }
+
+  .top-panel-logo {
+    /* Reducir el tamaño del logo en pantallas pequeñas */
+    height: 50px;
+  }
+
+  .top-panel-right {
+    /* Reducir el tamaño del icono en pantallas pequeñas */
+    font-size: 3em;
+  }
+
 }

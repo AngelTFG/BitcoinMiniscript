@@ -705,7 +705,7 @@ const inmediataPSBT = async (masterNode: BIP32Interface, network: any, explorer:
   }
 };
 
-/************************ 🛜 CONECTAR CON LA RED BITCOIN  ************************/
+/************************ 🛜 CONECTAR CON LA RED BITCOIN Y LLAMADAS AL RESTO DE BOTONES  ************************/
 
 const initializeNetwork = async (network: any, explorer: string): Promise<void> => {
   try {
@@ -722,14 +722,12 @@ const initializeNetwork = async (network: any, explorer: string): Promise<void> 
   }
 };
 
-/************************ 🔘 LLAMADAS A LOS BOTONES   ************************/
+/************************ 🔘 LLAMADAS A LOS BOTONES INICAR  RED   ************************/
 
 // Inicializar el Miniscript en la red de testnet3
 document.getElementById('initTestnet3Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet'));
 // Inicializar el Miniscript en la red de testnet4
 document.getElementById('initTestnet4Btn')?.addEventListener('click', () => initializeNetwork(networks.testnet, 'https://mempool.space/testnet4'));
-// Inicializar el Miniscript en la red de Mainnet
-//document.getElementById('initMainnetBtn')?.addEventListener('click', () => initializeNetwork(networks.bitcoin, 'https://blockstream.info/'));
 
 // Borrar consola
 document.getElementById('clearOutputBtn')?.addEventListener('click', () => {

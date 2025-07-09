@@ -8,7 +8,7 @@ Playground/
 ├─ .gitignore                    # Archivos a excluir del repositorio
 ├─ .prettierrc                   # Estilo de código
 ├─ favicon.svg                   # Icono de la página 
-├─ btcLogo.png                   # Llogo del proyecto
+├─ btcLogo.png                   # Logo del proyecto
 ├─ index.html                    # Página principal 
 ├─ style.css                     # Estilos globales 
 ├─ jest.config.js                # Configuración de Jest
@@ -20,11 +20,11 @@ Playground/
 │   ├─ autocustodia.bundle.js    
 │   ├─ boveda.bundle.js          
 │   └─ herencia.bundle.js        
-├─ htmls/                        # HTMLs para cada módulo
+├─ htmls/                        # HTML de cada módulo
 │   ├─ autocustodia.html        
 │   ├─ boveda.html              
 │   └─ herencia.html             
-└─ src/                          # Código fuente 
+└─ src/                          # Código fuente TS de cada módulo 
     ├─ types.d.ts                # Definiciones de tipos globales de TypeScript
     ├─ autocustodia.source.ts    
     ├─ boveda.source.ts        
